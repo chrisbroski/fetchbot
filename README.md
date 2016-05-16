@@ -4,7 +4,7 @@ Fetchbot is a robotics project with the end goal of creating a roving bot that c
 
 ## Fetchbot Alpha
 
-The first version only has the intermediate goal of chasing a ball so no grabbing mechanism is needed.
+The first version only has the intermediate goal of chasing a ball, so no grabbing mechanism is needed.
 
 ### Hardware
 
@@ -24,7 +24,7 @@ The AI architecture is based on [Behavioral Logic](http://behaviorallogic.com/ap
 
 ### Notes
 
-Though not yet completed, here is what does and doesn not work well so far.
+Though not yet completed, here is what does and doesn't work well so far.
 
 #### Raspberry Pi Camera Module
 
