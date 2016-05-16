@@ -36,7 +36,7 @@ The fastest I have been able to get image data is about 4Hz (one picture every 2
 
 ##### Fragmented Image Data
 
-Executing raspiyuv in timelapse mode frequently returns partial images. I have been able to reassemble these in software so I think the problem is mostly handled.
+Executing `raspiyuv` in timelapse mode frequently returns partial images. I have been able to recover these in software so I think the problem is mostly handled.
 
 ##### Weird Errors
 
