@@ -21,3 +21,34 @@ The first version only has the intermediate goal of chasing a ball so no grabbin
 * PWM driver - [pigpio](https://www.npmjs.com/package/pigpio)
 
 The AI architecture is based on [Behavioral Logic](http://behaviorallogic.com/api/spec). The visual processing is from [Frogeye](https://github.com/chrisbroski/frogeye).
+
+### Notes
+
+Though not yet completed, here is what does and doesn not work well so far.
+
+#### Raspberry Pi Camera Module
+
+The Pi camera comes with everything needed for this project (I use `child_process.spawn` to execute `raspiyuv` bash commands from Node.js.) It just doesn't work very well. The main problems are:
+
+##### Low FPS
+
+The fastest I have been able to get image data is about 4Hz (one picture oevery 250ms.) I worry that this may not be enough.
+
+##### Fragmented Image Data
+
+Executing raspiyuv in timelapse mode frequently returns partial images. I have been able to reassemble these in software so I think the problem is mostly handled.
+
+##### Weird Errors
+
+I see this a lot:
+
+    stderr: mmal: mmal_vc_component_enable: failed to enable component: ENOSPC
+    mmal: camera component couldn't be enabled
+    stderr: mmal: main: Failed to create camera component
+    stderr: mmal: Failed to run camera app. Please check for firmware updates
+
+I have been spending too much time trying to fix this. For a prototype I am not going to worry too much, but I'll need more stable hardware eventually. It seems clear that the Raspberry Pi Camera is not suitable for production applications of this nature (visual AI processing.)
+
+#### Node.js
+
+Use [n](https://github.com/tj/n) to install and upgrade Node.js on your Raspberry Pi. Everything else sucks.
