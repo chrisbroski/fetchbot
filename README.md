@@ -40,7 +40,7 @@ Executing `raspiyuv` in timelapse mode frequently returns partial images. I have
 
 ##### Weird Errors
 
-I see this a lot:
+I see this way too much:
 
     stderr: mmal: mmal_vc_component_enable: failed to enable component: ENOSPC
     mmal: camera component couldn't be enabled
