@@ -32,7 +32,7 @@ The Pi camera comes with everything needed for this project (I use `child_proces
 
 ##### Low FPS
 
-The fastest I have been able to get image data is about 4Hz (one picture oevery 250ms.) I worry that this may not be enough.
+The fastest I have been able to get image data is about 4Hz (one picture every 250ms.) I worry that this is too slow.
 
 ##### Fragmented Image Data
 
