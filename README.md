@@ -51,6 +51,6 @@ I have been spending too much time trying to fix this. For a prototype I am not 
 
 #### Node.js
 
-Node.js is working great for AI programming. A low-level language like C doens't have the advanced abstractions needed and a Duplo language like Arduino is appropraite only for animatronics. Lisp or Erlang are better than the JavaScript in this respect but I don't know those languages. Why didn't I use Python? Um, hey, look over there! A robot!
+Node.js is working great for AI programming. A low-level language like C doesn't have the advanced abstractions needed and a Duplo language like Arduino is appropriate only for animatronics. Lisp or Erlang are better than the JavaScript in this respect but I don't know those languages. Why didn't I use Python? Um, hey, look over there! A robot!
 
 Use [n](https://github.com/tj/n) to install and upgrade Node.js on your Raspberry Pi. Everything else sucks.
