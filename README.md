@@ -4,7 +4,7 @@ Fetchbot is a robotics project with the end goal of creating a roving bot that c
 
 ## Fetchbot Alpha
 
-The first version only has the intermediate goal of chasing a ball so no grabbing mechanism is needed.
+The first version only has the intermediate goal of chasing a ball, so no grabbing mechanism is needed.
 
 ### Hardware
 
@@ -24,7 +24,7 @@ The AI architecture is based on [Behavioral Logic](http://behaviorallogic.com/ap
 
 ### Notes
 
-Though not yet completed, here is what does and doesn not work well so far.
+Though not yet completed, here is what does and doesn't work well so far.
 
 #### Raspberry Pi Camera Module
 
@@ -32,15 +32,15 @@ The Pi camera comes with everything needed for this project (I use `child_proces
 
 ##### Low FPS
 
-The fastest I have been able to get image data is about 4Hz (one picture oevery 250ms.) I worry that this may not be enough.
+The fastest I have been able to get image data is about 4Hz (one picture every 250ms.) I worry that this is too slow.
 
 ##### Fragmented Image Data
 
-Executing raspiyuv in timelapse mode frequently returns partial images. I have been able to reassemble these in software so I think the problem is mostly handled.
+Executing `raspiyuv` in timelapse mode frequently returns partial images. I have been able to recover these in software so I think the problem is mostly handled.
 
 ##### Weird Errors
 
-I see this a lot:
+I see this way too much:
 
     stderr: mmal: mmal_vc_component_enable: failed to enable component: ENOSPC
     mmal: camera component couldn't be enabled
@@ -50,5 +50,7 @@ I see this a lot:
 I have been spending too much time trying to fix this. For a prototype I am not going to worry too much, but I'll need more stable hardware eventually. It seems clear that the Raspberry Pi Camera is not suitable for production applications of this nature (visual AI processing.)
 
 #### Node.js
+
+Node.js is working great for AI programming. A low-level language like C doens't have the advanced abstractions needed and a Duplo language like Arduino is appropraite only for animatronics. Lisp or Erlang are better than the JavaScript in this respect but I don't know those languages. Why didn't I use Python? Um, hey, look over there! A robot!
 
 Use [n](https://github.com/tj/n) to install and upgrade Node.js on your Raspberry Pi. Everything else sucks.
