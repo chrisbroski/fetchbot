@@ -6,6 +6,8 @@ Fetchbot is a robotics project with the end goal of creating a roving bot that c
 
 The first version only has the intermediate goal of chasing a ball, so no grabbing mechanism is needed.
 
+![Fetchbot Alpha](fetchbotalpha.jpg)
+
 ### Hardware
 
 * [Actobotics ActoBitty 2](https://www.sparkfun.com/products/13047) chassis, wheels, 2 DC motors, and 4 AA battery pack.
