@@ -22,7 +22,7 @@ The first version only has the intermediate goal of chasing a ball, so no grabbi
 
 * OS - Raspbian Jessie
 * Development Language - Node.js 6.0
-* PWM driver - [pigpio](https://www.npmjs.com/package/pigpio)
+* GPIO library - [pigpio](https://www.npmjs.com/package/pigpio)
 
 The AI architecture is based on [Behavioral Logic](http://behaviorallogic.com/api/spec). The visual processing is from [Frogeye](https://github.com/chrisbroski/frogeye).
 
