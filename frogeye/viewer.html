@@ -43,7 +43,6 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 
     <canvas id="edges" width="400" height="300"></canvas>
     <canvas id="ball" width="400" height="300"></canvas>
-    <canvas id="target" width="400" height="300"></canvas>
 </div>
 
 <div id="state">
@@ -55,11 +54,24 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-var socket, canvasEdge, ctxEdge, canvasBall, ctxBall;
+var socket, canvasEdge, ctxEdge, canvasBall, ctxBall, viewWidth, mag, halfMag, stateHash = 0;
+
+/* From http://stackoverflow.com/questions/7616461#answer-7616484 */
+function hashCode(s) {
+    var hash = 0, i, chr, len = s.length;
+    if (len === 0) {
+        return hash;
+    }
+    for (i = 0; i < len; i++) {
+        chr = s.charCodeAt(i);
+        hash = ((hash << 5) - hash) + chr;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+}
 
 function displayOverallBrightness(brightnessNormalized) {
-    var to8Bit = Math.floor(brightnessNormalized * 256),
-        brightnessAmplified = brightnessNormalized * 2.5,
+    var brightnessAmplified = brightnessNormalized + 0.1,
         rgbaShade,
         brightnessDiv = document.getElementById('brightness');
 
@@ -87,18 +99,18 @@ function displayEdges(edges) {
     ctxEdge.clearRect(0, 0, canvasEdge.width, canvasEdge.height);
 
     edges.forEach(function (edge) {
-        var x = edge % 64,
-            y = Math.floor(edge / 64);
+        var x = (edge % 64) * mag,
+            y = (Math.floor(edge / 64)) * mag,
+            gradient = ctxEdge.createRadialGradient(x, y, 0, x, y, mag * 1.5);
 
         ctxEdge.beginPath();
-        ctxEdge.moveTo(x * 6.25 - 3.125, y * 6.25);
-        ctxEdge.lineTo(x * 6.25 + 3.125, y * 6.25);
-        ctxEdge.stroke();
+        gradient.addColorStop(0, 'black');
+        gradient.addColorStop(0.7, 'rgba(0, 0, 0, 0.1)');
+        gradient.addColorStop(1, 'transparent');
+        ctxEdge.arc(x, y, mag * 1.5, 0, 2 * Math.PI);
 
-        ctxEdge.beginPath();
-        ctxEdge.moveTo(x * 6.25, y * 6.25 - 3.125);
-        ctxEdge.lineTo(x * 6.25, y * 6.25 + 3.125);
-        ctxEdge.stroke();
+        ctxEdge.fillStyle = gradient;
+        ctxEdge.fill();
     });
 }
 
@@ -107,43 +119,50 @@ function displayBall(loc) {
     ctxBall.clearRect(0, 0, canvasBall.width, canvasBall.height);
 
     if (loc > -1) {
-        x = (loc % 32) * 2;
-        y = Math.floor(loc / 32) * 2;
+        x = (loc % (viewWidth / 2)) * 2;
+        y = Math.floor(loc / (viewWidth / 2)) * 2;
 
         ctxBall.beginPath();
-        ctxBall.arc(x * 6.25, y * 6.25, 10, 0, Math.PI * 2, true);
+        ctxBall.arc(x * mag, y * mag, 10, 0, Math.PI * 2, true);
         ctxBall.closePath();
         ctxBall.fill();
     }
+}
+
+function setViewOptions(width) {
+    viewWidth = width;
+    mag = canvasEdge.width / width;
+    halfMag = mag / 2;
 }
 
 function senseStateReceived(senseState) {
     var jsonState = JSON.parse(senseState),
         jsonString = JSON.stringify(jsonState, null, '    ');
 
-    document.getElementById('senseState').innerHTML = jsonString;
-    displayOverallBrightness(jsonState.brightnessOverall);
-    displayMotionLocation(jsonState.motionLocation);
-    displayEdges(jsonState.edges);
-    displayBall(jsonState.ball);
+    // only update screen if data is new
+    if (hashCode(jsonString) !== stateHash) {
+        stateHash = hashCode(jsonString);
+        // Handle image dimension change
+        if (viewWidth !== jsonState.dimensions[0]) {
+            setViewOptions(jsonState.dimensions[0]);
+        }
+
+        document.getElementById('senseState').innerHTML = jsonString;
+        displayOverallBrightness(jsonState.brightnessOverall);
+        displayMotionLocation(jsonState.motionLocation);
+        displayEdges(jsonState.edges);
+        displayBall(jsonState.ball);
+    }
 }
 
 function init() {
-    var canvasTarget = document.getElementById('target'),
-        ctxTarget = canvasTarget.getContext("2d");
-
-    ctxTarget.strokeRect(30 * 6.25, 22 * 6.25, 4 * 6.25, 4 * 6.25);
-
     socket = io();
 
     canvasEdge = document.getElementById('edges');
     ctxEdge = canvasEdge.getContext("2d");
-    ctxEdge.strokeStyle = 'black';
-    ctxEdge.lineWidth = 1;
 
     canvasBall = document.getElementById('ball');
     ctxBall = canvasBall.getContext("2d");
-    ctxBall.strokeRect(30 * 6.25, 22 * 6.25, 4 * 6.25, 4 * 6.25);
     ctxBall.fillStyle = 'rgba(255, 0, 255, 0.5)';
 
     socket.on('senseState', senseStateReceived);

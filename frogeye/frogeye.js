@@ -56,16 +56,21 @@ function isTargetColor(hue, sat, targetHue, targetSat) {
 
 // Tried to adapt this: http://www.quasimondo.com/archives/000696.php
 function uvToHue(u, v) {
-    // I don't think this is right, but..
-    // it does give very different values for different colors so maybe that's good enough?
+    // This is close, but I am not 100% certain it is absolutely correct.
 
-    // first, get u and v into the -1.0 to 1.0 range for some trig
-    var normalU = (2 * u / 255) - 1.0,
+    // First, get u and v into the -1.0 to 1.0 range for some trig.
+    var angle,
+        normalU = ((2 * u / 255) - 1.0) * -1,
         normalV = (2 * v / 255) - 1.0;
 
     // atan2 is a super useful trig function to get an angle -pi to pi
-    // Then normalize the value to 0.0 - 1.0
-    return (Math.atan2(normalV, normalU) + Math.PI) / (Math.PI * 2);
+    angle = Math.atan2(normalV, normalU);
+    if (angle < 0) {
+        angle = Math.PI * 2 + angle;
+    }
+
+    // Then normalize the value to a range of 0.0 - 1.0
+    return angle / (Math.PI * 2);
 }
 
 function uvToSat(u, v) {

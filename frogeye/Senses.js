@@ -11,7 +11,8 @@ function Senses(visionWidth, visionHeight) {
         state = {},
         observers = {},
         perceivers = {},
-        attention = {};
+        attention = {},
+        partialImgData = '';
 
     // *Sense state* is a collection of all current sensory data.
     state.raw = {
@@ -30,6 +31,7 @@ function Senses(visionWidth, visionHeight) {
     // *Perceptions* are the results of processing raw sense state
     // They can only be written by perceivers, but can be read by anything
     state.perceptions = {
+        dimensions: [visionWidth, visionHeight],
         motionLocation: [],
         brightnessOverall: 0.0,
         centerColor: {"hue": 0, "saturation": 0},
@@ -48,7 +50,6 @@ function Senses(visionWidth, visionHeight) {
     // *Perceivers* process raw sense state into meaningful information
     perceivers.frogEye = function (imgPixelSize) {
         var frogView = frogeye(state.raw.luma, state.raw.chroma, imgPixelSize, visionWidth, 20);
-
         state.perceptions.brightnessOverall = frogView.brightness;
         state.perceptions.motionLocation = frogView.moveLocation;
         state.perceptions.edges = frogView.edges;
@@ -58,17 +59,25 @@ function Senses(visionWidth, visionHeight) {
     };
 
     // *Observers* populate raw sense state from a creature's sensors.
-    observers.luma = function (yuvData, imgRawFileSize, imgPixelSize) {
+    observers.vision = function (yuvData, imgRawFileSize, imgPixelSize) {
         var lumaData = [],
             chromaU = [],
             chromaV = [],
             ii;
 
-        // Sensor data validation, if needed
+        // The Pi camera gives a lot of crap data in yuv time lapse mode.
+        // This is an attempt to recover some of it
         if (yuvData.length < imgRawFileSize - 1) {
-            console.log('Incorrect image file size: ' + yuvData.length);
-            return;
+            //console.log('Partial img data chunk: ' + yuvData.length);
+            if (yuvData.length + partialImgData.length === imgRawFileSize) {
+                yuvData = Buffer.concat([partialImgData, yuvData], imgRawFileSize);
+            } else {
+                partialImgData = yuvData;
+                return;
+                //console.log('Reassembled partial data.');
+            }
         }
+        partialImgData = '';
 
         // Data conversion. In this case an array is built from part of a binary buffer.
         for (ii = 0; ii < imgPixelSize; ii += 1) {
@@ -108,6 +117,7 @@ function Senses(visionWidth, visionHeight) {
             '-w', visionWidth.toString(10),
             '-h', visionHeight.toString(10),
             '-p', '50, 80, 400, 300', // small preview window
+            '-bm', // Burst mode
             '-vf', // My camera is upside-down so flip the image vertically
             '-tl', timeLapseInterval.toString(10), // 0 = as fast as possible
             '-t', '300000', // Restart every 5 min
@@ -115,7 +125,7 @@ function Senses(visionWidth, visionHeight) {
         ]);
 
         cam.stdout.on('data', function (data) {
-            observers.luma(data, imgRawFileSize, imgPixelSize);
+            observers.vision(data, imgRawFileSize, imgPixelSize);
         });
 
         cam.stderr.on('data', function (data) {
