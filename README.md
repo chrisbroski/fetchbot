@@ -6,7 +6,7 @@ Fetchbot is a robotics project with the end goal of creating a roving bot that c
 
 The first version only has the intermediate goal of chasing a ball, so no grabbing mechanism is needed.
 
-![Fetchbot Alpha](fetchbotalpha.jpg)
+![Fetchbot Alpha](fetchbotalpha.jpeg)
 
 ### Hardware
 
