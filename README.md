@@ -15,6 +15,8 @@ The first version only has the intermediate goal of chasing a ball, so no grabbi
 * [Raspberry Pi Camera](https://www.raspberrypi.org/products/camera-module/)
 * [Inland 2,600mAh Power Bank Battery Charger for Mobile Devices](http://www.microcenter.com/product/447265/2,600mAh_Power_Bank_Battery_Charger_for_Mobile_Devices) for remote power to the Raspberry Pi.
 * [L293D motor control chip](https://www.adafruit.com/product/807)
+* [Canakit Raspberry Pi GPIO Breakout Board](https://www.canakit.com/raspberry-pi-cobbler-gpio-breakout.html) and wires
+* A bunch of rubber bands to try and hold everything together.
 
 ### Software
 
@@ -26,11 +28,19 @@ The AI architecture is based on [Behavioral Logic](http://behaviorallogic.com/ap
 
 ### Notes
 
-Though not yet completed, here is what does and doesn't work well so far.
+Though inelegant and graceless, this mess actually works. Here are the main problems with improvement ideas if I have any.
+
+#### It's a Complete Mess
+
+I purchased an [Adafruit Perma-Proto Hat](https://www.adafruit.com/products/2310) that, with some soldering, clean up the mess that is the breadboard. I'll need to get an (Actobotics Pi channel mount](https://www.sparkfun.com/products/13050) too as the one that cam with the kit only fits Arduino. The front "caster" on the Actobitty is just a plastic skid. I'd like to find a better wheel, or maybe just upgrade to a more advanced rover kit.
+
+#### Vision Is Probably Not Enough Senses
+
+I believe that I will require a way to tell if the rover gets stuck or collides with something. I have a [Sense Hat](https://www.raspberrypi.org/products/sense-hat/) that includes an accelerometer/gyroscope/magnetometer sensors so I may try to use that or look for a simpler solution.
 
 #### Raspberry Pi Camera Module
 
-The Pi camera comes with everything needed for this project (I use `child_process.spawn` to execute `raspiyuv` bash commands from Node.js.) It just doesn't work very well. The main problems are:
+The Pi camera comes with everything needed for this project (I use `child_process.spawn` to execute `raspiyuv` bash commands from Node.js.) It just doesn't work very well. Its main shortcomings are:
 
 ##### Low FPS
 
@@ -38,7 +48,7 @@ The fastest I have been able to get image data is about 4Hz (one picture every 2
 
 ##### Fragmented Image Data
 
-Executing `raspiyuv` in timelapse mode frequently returns partial images. I have been able to recover these in software so I think the problem is mostly handled.
+Executing `raspiyuv` in timelapse mode frequently returns partial images. I wrote some code to reassemble these so I think the problem is mostly handled.
 
 ##### Weird Errors
 
@@ -49,9 +59,9 @@ I see this way too much:
     stderr: mmal: main: Failed to create camera component
     stderr: mmal: Failed to run camera app. Please check for firmware updates
 
-I have been spending too much time trying to fix this. For a prototype I am not going to worry too much, but I'll need more stable hardware eventually. It seems clear that the Raspberry Pi Camera is not suitable for production applications of this nature (visual AI processing.)
+I have been spending too much time trying to fix this. For a prototype I am not going to worry too much, but I'll need more stable hardware eventually. It seems that the Raspberry Pi Camera is not designed for production applications of this nature (visual AI processing.)
 
-#### Node.js
+### Why Node.js?
 
 Node.js is working great for AI programming. A low-level language like C doesn't have the advanced abstractions needed and a Duplo language like Arduino is appropriate only for animatronics. Lisp or Erlang are better than the JavaScript in this respect but I don't know those languages. Why didn't I use Python? Um, hey, look over there! A robot!
 
