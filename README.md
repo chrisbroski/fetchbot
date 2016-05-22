@@ -32,11 +32,11 @@ Though inelegant and graceless, this mess actually works. Here are the major uns
 
 #### It's a Complete Mess
 
-I purchased an [Adafruit Perma-Proto Hat](https://www.adafruit.com/products/2310) that should, with some soldering, clean up the mess that is the breadboard. I'll need to get an [Actobotics Pi channel mount](https://www.sparkfun.com/products/13050) too as the one that cam with the kit only fits Arduino. The front "caster" on the Actobitty is just a plastic skid. I'd like to find a better wheel, or maybe just upgrade to a more advanced rover kit.
+I purchased an [Adafruit Perma-Proto Hat](https://www.adafruit.com/products/2310) that should, with some soldering, clean up the mess that is the breadboard. I'll need to get an [Actobotics Pi channel mount](https://www.sparkfun.com/products/13050) too as the one that came with the kit only fits Arduino. The front "caster" on the Actobitty is just a plastic skid. I'd like to find a better wheel, or maybe just upgrade to a more advanced rover kit.
 
 #### Vision Is Probably Not Enough Senses
 
-I believe that I will require a way to tell if the rover gets stuck or collides with something. I have a [Sense Hat](https://www.raspberrypi.org/products/sense-hat/) that includes an accelerometer/gyroscope/magnetometer sensors so I may try to use that or look for a simpler solution.
+I believe that I will require a way to tell if the rover gets stuck or collides with something. I have a [Sense Hat](https://www.raspberrypi.org/products/sense-hat/) that includes accelerometer/gyroscope/magnetometer sensors so I may try to use that or look for a simpler solution.
 
 #### Raspberry Pi Camera Module
 
