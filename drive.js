@@ -5,7 +5,9 @@ var app = require('express')(),
     io = require('socket.io')(http),
     port = 3789,
     Senses = require('./frogeye/Senses.js'),
-    senses = new Senses(64, 48);
+    Actions = require('./Actions.js'),
+    senses = new Senses(64, 48),
+    actions = new Actions(senses);
 
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/drive.html');
