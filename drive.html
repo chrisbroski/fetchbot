@@ -1,0 +1,173 @@
+<!doctype html>
+<title>Frogeye Viewer</title>
+<link rel="icon" type="image/png"  href="img/favicon.png">
+<style>
+* {box-sizing: border-box; }
+h1, h3 {margin: 0.5em 0; font-weight: normal; }
+h1 img {margin: 0 10px 0 0; vertical-align: middle; }
+#frogeye {
+    margin: 0 10px 10px 0;
+    position: relative;
+    overflow; auto;
+    width: 400px; height: 300px;
+    border: 1px solid #333;
+    float: left;
+    background: #000;
+}
+#frogeye > div, #frogeye canvas {
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+}
+#state {
+    padding: 0 1em;
+    width: 400px;
+    float: left;
+    color: #fff;
+    background: #000;
+}
+#brightness {background-color: #333; }
+#loc > div {width: 25%; height: 33.333%; float: left; }
+</style>
+
+<article>
+<h1><img src="img/favicon.png">Frogeye Viewer</h1>
+
+<div id="frogeye">
+    <div id="brightness"></div>
+
+    <div id="loc">
+        <div></div><div></div><div></div><div></div>
+        <div></div><div></div><div></div><div></div>
+        <div></div><div></div><div></div><div></div>
+    </div>
+
+    <canvas id="edges" width="400" height="300"></canvas>
+    <canvas id="ball" width="400" height="300"></canvas>
+</div>
+
+<div id="state">
+<h3>Sense State</h3>
+<pre id="senseState"></pre>
+</div>
+
+</article>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+var socket, canvasEdge, ctxEdge, canvasBall, ctxBall, viewWidth, mag, halfMag, stateHash = 0;
+
+/* From http://stackoverflow.com/questions/7616461#answer-7616484 */
+function hashCode(s) {
+    var hash = 0, i, chr, len = s.length;
+    if (len === 0) {
+        return hash;
+    }
+    for (i = 0; i < len; i++) {
+        chr = s.charCodeAt(i);
+        hash = ((hash << 5) - hash) + chr;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+}
+
+function displayOverallBrightness(brightnessNormalized) {
+    var brightnessAmplified = brightnessNormalized + 0.1,
+        rgbaShade,
+        brightnessDiv = document.getElementById('brightness');
+
+    if (brightnessAmplified > 1.0) {
+        brightnessAmplified = 1.0;
+    }
+    rgbaShade = 'rgba(255, 255, 255, ' + brightnessAmplified + ')';
+    brightnessDiv.style.backgroundColor = rgbaShade;
+}
+
+function displayMotionLocation(dir) {
+    var motionDivs = document.querySelectorAll('#loc div'), ii, len;
+    len = motionDivs.length;
+
+    for (ii = 0; ii < len; ii += 1) {
+        if (dir[ii] > 0.01) {
+            motionDivs[ii].style.backgroundColor = 'rgba(0, 255, 0, ' + dir[ii].toFixed(2) + ')';
+        } else {
+            motionDivs[ii].style.backgroundColor = 'transparent';
+        }
+    }
+}
+
+function displayEdges(edges) {
+    ctxEdge.clearRect(0, 0, canvasEdge.width, canvasEdge.height);
+
+    edges.forEach(function (edge) {
+        var x = (edge % 64) * mag,
+            y = (Math.floor(edge / 64)) * mag,
+            gradient = ctxEdge.createRadialGradient(x, y, 0, x, y, mag * 1.5);
+
+        ctxEdge.beginPath();
+        gradient.addColorStop(0, 'black');
+        gradient.addColorStop(0.7, 'rgba(0, 0, 0, 0.1)');
+        gradient.addColorStop(1, 'transparent');
+        ctxEdge.arc(x, y, mag * 1.5, 0, 2 * Math.PI);
+
+        ctxEdge.fillStyle = gradient;
+        ctxEdge.fill();
+    });
+}
+
+function displayBall(loc) {
+    var x, y;
+    ctxBall.clearRect(0, 0, canvasBall.width, canvasBall.height);
+
+    if (loc > -1) {
+        x = (loc % (viewWidth / 2)) * 2;
+        y = Math.floor(loc / (viewWidth / 2)) * 2;
+
+        ctxBall.beginPath();
+        ctxBall.arc(x * mag, y * mag, 10, 0, Math.PI * 2, true);
+        ctxBall.closePath();
+        ctxBall.fill();
+    }
+}
+
+function setViewOptions(width) {
+    viewWidth = width;
+    mag = canvasEdge.width / width;
+    halfMag = mag / 2;
+}
+
+function senseStateReceived(senseState) {
+    var jsonState = JSON.parse(senseState),
+        jsonString = JSON.stringify(jsonState, null, '    ');
+
+    // only update screen if data is new
+    if (hashCode(jsonString) !== stateHash) {
+        stateHash = hashCode(jsonString);
+        // Handle image dimension change
+        if (viewWidth !== jsonState.dimensions[0]) {
+            setViewOptions(jsonState.dimensions[0]);
+        }
+
+        document.getElementById('senseState').innerHTML = jsonString;
+        displayOverallBrightness(jsonState.brightnessOverall);
+        displayMotionLocation(jsonState.motionLocation);
+        displayEdges(jsonState.edges);
+        displayBall(jsonState.ball);
+    }
+}
+
+function init() {
+    socket = io();
+
+    canvasEdge = document.getElementById('edges');
+    ctxEdge = canvasEdge.getContext("2d");
+
+    canvasBall = document.getElementById('ball');
+    ctxBall = canvasBall.getContext("2d");
+    ctxBall.fillStyle = 'rgba(255, 0, 255, 0.5)';
+
+    socket.on('senseState', senseStateReceived);
+}
+
+init();
+
+</script>
