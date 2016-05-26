@@ -1,53 +1,54 @@
+/*jslint node: true */
+
 function Actions(senses) {
     'use strict';
 
     // Action performers
     var performer = {},
         // global values
-        gpio = require('pigpio').Gpio,
-        rightEnable = new gpio(17, {mode: gpio.OUTPUT}),
-        rightForward = new gpio(22, {mode: gpio.OUTPUT}),
-        rightBackward = new gpio(27, {mode: gpio.OUTPUT}),
+        Gpio = require('pigpio').Gpio,
+        rightEnable = new Gpio(17, {mode: Gpio.OUTPUT}),
+        rightForward = new Gpio(22, {mode: Gpio.OUTPUT}),
+        rightBackward = new Gpio(27, {mode: Gpio.OUTPUT}),
 
-        leftEnable = new gpio(5, {mode: gpio.OUTPUT}),
-        leftForward = new gpio(13, {mode: gpio.OUTPUT}),
-        leftBackward = new gpio(6, {mode: gpio.OUTPUT}),
+        leftEnable = new Gpio(5, {mode: Gpio.OUTPUT}),
+        leftForward = new Gpio(13, {mode: Gpio.OUTPUT}),
+        leftBackward = new Gpio(6, {mode: Gpio.OUTPUT}),
         randRotation = Math.random() * 4500,
-        randDirection = Math.floor(Math.random() * 2);
+        randDirection = Math.floor(Math.random() * 2),
 
-    function stop() {
-        rightForward.digitalWrite(0);
-        rightBackward.digitalWrite(0);
-        leftForward.digitalWrite(0);
-        leftBackward.digitalWrite(0);
+        movement = {};
+
+    movement.forwardleft = [0, 0, 1, 0];
+    movement.forward = [1, 0, 1, 0];
+    movement.forwardright = [1, 0, 0, 0];
+    movement.rotateleft = [1, 0, 0, 1];
+    movement.stop = [0, 0, 0, 0];
+    movement.rotateright = [0, 1, 1, 0];
+    movement.backleft = [0, 0, 0, 1];
+    movement.backward = [0, 1, 0, 1];
+    movement.backright = [0, 1, 0, 0];
+
+    function travel(moveType) {
+        var moveParams = movement[moveType];
+
+        rightForward.digitalWrite(moveParams[0]);
+        rightBackward.digitalWrite(moveParams[1]);
+        leftForward.digitalWrite(moveParams[2]);
+        leftBackward.digitalWrite(moveParams[3]);
     }
 
-    function rotate(rightOrLeft) {
-        var val = Number(rightOrLeft),
-            antiVal = Number(!val);
-
-        rightForward.digitalWrite(antiVal);
-        rightBackward.digitalWrite(val);
-        leftForward.digitalWrite(val);
-        leftBackward.digitalWrite(antiVal);
-    }
-
-    function move(forwardOrBack) {
-        var val = Number(forwardOrBack),
-            antiVal = Number(!val);
-
-        rightForward.digitalWrite(val);
-        rightBackward.digitalWrite(antiVal);
-        leftForward.digitalWrite(val);
-        leftBackward.digitalWrite(antiVal);
-    }
     performer.move = function move(params) {
-        var id;
-
-        type = params.type || 'stop';
+        var type = params || 'stop';
+        console.log('move', type);
 
         // take action
         //senses.currentAction('move', id, params);
+        //if (type === 'forward') {
+            travel(type);
+        //} else {
+        //    stop();
+        //}
     };
 
     performer.move.params = [
@@ -68,7 +69,7 @@ function Actions(senses) {
     ];
 
     this.dispatch = function actionDispatch(type, params) {
-        var currentAction = senses.senseState().currentAction, actions = [];
+        //var currentAction = senses.senseState().currentAction, actions = [];
 
         // if no type is given, return a list of available types and parameters
         if (!type) {
@@ -90,8 +91,10 @@ function Actions(senses) {
     function init() {
         rightEnable.digitalWrite(1);
         leftEnable.digitalWrite(1);
-        stop();
+        travel('stop');
     }
 
     init();
 }
+
+module.exports = Actions;

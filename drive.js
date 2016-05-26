@@ -5,8 +5,8 @@ var app = require('express')(),
     io = require('socket.io')(http),
     port = 3789,
     Senses = require('./frogeye/Senses.js'),
-    Actions = require('./Actions.js'),
     senses = new Senses(64, 48),
+    Actions = require('./Actions.js'),
     actions = new Actions(senses);
 
 app.get('/', function (req, res) {
@@ -28,6 +28,16 @@ io.on('connection', function (socket) {
     console.log('Frogeye viewer client connected');
 
     sendSenseData();
+
+    /*actions.dispatch('move', 'forward');
+    setTimeout(function () {
+        actions.dispatch('move', 'stop');
+    }, 2000);*/
+
+    socket.on('move', function (moveType) {
+        console.log('move', moveType);
+        actions.dispatch('move', moveType);
+    });
 
     socket.on('disconnect', function () {
         console.log('Frogeye viewer client disconnected');

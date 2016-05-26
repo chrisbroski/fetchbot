@@ -27,6 +27,14 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 }
 #brightness {background-color: #333; }
 #loc > div {width: 25%; height: 33.333%; float: left; }
+#controls {
+    position: absolute;
+    left: 10px; top: 340px;
+}
+#controls button {
+    margin: 0 1em;
+    width: 10em;
+}
 </style>
 
 <article>
@@ -48,6 +56,12 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 <div id="state">
 <h3>Sense State</h3>
 <pre id="senseState"></pre>
+</div>
+
+<div id="controls">
+<p><button onclick="move('forwardleft')">travel left</button><button onclick="move('forward')">forward</button><button onclick="move('forwardright')">travel right</button>
+<p><button onclick="move('rotateleft')">rotate left</button><button onclick="move('stop')">stop</button><button onclick="move('rotateright')">rotate right</button>
+<p><button onclick="move('backleft')">bacward left</button><button onclick="move('backward')">backward</button><button onclick="move('backright')">backward right</button>
 </div>
 
 </article>
@@ -153,6 +167,11 @@ function senseStateReceived(senseState) {
         displayEdges(jsonState.edges);
         displayBall(jsonState.ball);
     }
+}
+
+function move(type) {
+    console.log('move', type);
+    socket.emit('move', type);
 }
 
 function init() {
