@@ -19,9 +19,9 @@ function Actions(senses) {
 
         movement = {};
 
-    movement.forwardleft = [0, 0, 1, 0];
+    movement.forwardleft = [1, 0, 0, 0];
     movement.forward = [1, 0, 1, 0];
-    movement.forwardright = [1, 0, 0, 0];
+    movement.forwardright = [0, 0, 1, 0];
     movement.rotateleft = [1, 0, 0, 1];
     movement.stop = [0, 0, 0, 0];
     movement.rotateright = [0, 1, 1, 0];
