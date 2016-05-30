@@ -42,13 +42,6 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 
 <div id="frogeye">
     <div id="brightness"></div>
-
-    <div id="loc">
-        <div></div><div></div><div></div><div></div>
-        <div></div><div></div><div></div><div></div>
-        <div></div><div></div><div></div><div></div>
-    </div>
-
     <canvas id="edges" width="400" height="300"></canvas>
     <canvas id="ball" width="400" height="300"></canvas>
 </div>
@@ -128,19 +121,19 @@ function displayEdges(edges) {
     });
 }
 
-function displayBall(loc) {
-    var x, y;
-    ctxBall.clearRect(0, 0, canvasBall.width, canvasBall.height);
+function displayTargets(hits) {
+    ctxBall.clearRect(0, 0, canvasEdge.width, canvasEdge.height);
 
-    if (loc > -1) {
-        x = (loc % (viewWidth / 2)) * 2;
-        y = Math.floor(loc / (viewWidth / 2)) * 2;
+    hits.forEach(function (hit) {
+        var x = (hit % 32) * mag * 2,
+            y = (Math.floor(hit / 32)) * mag * 2,
+            size = mag * 2;
 
         ctxBall.beginPath();
-        ctxBall.arc(x * mag, y * mag, 10, 0, Math.PI * 2, true);
+        ctxBall.fillRect(x, y, size, size);
         ctxBall.closePath();
         ctxBall.fill();
-    }
+    });
 }
 
 function setViewOptions(width) {
@@ -163,9 +156,10 @@ function senseStateReceived(senseState) {
 
         document.getElementById('senseState').innerHTML = jsonString;
         displayOverallBrightness(jsonState.brightnessOverall);
-        displayMotionLocation(jsonState.motionLocation);
+        //displayMotionLocation(jsonState.motionLocation);
         displayEdges(jsonState.edges);
-        displayBall(jsonState.ball);
+        displayTargets(jsonState.targets);
+        //displayBall(jsonState.ball);
     }
 }
 

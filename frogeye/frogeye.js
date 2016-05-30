@@ -1,5 +1,8 @@
 /*jslint node: true, sloppy: true */
 
+var targetHue = 0.085,
+    targetSat = 0.91;
+
 function motionLocation(ii, visionWidth, imgPixelSize) {
     var topPos = Math.floor(ii / imgPixelSize * 3),
         leftPos = (Math.floor(ii / Math.floor(visionWidth / 4)) % 4);
@@ -136,6 +139,28 @@ function targetColorLocation(chroma, len) {
     return ball;
 }
 
+function targetColorLocations(u, v, len) {
+    var ii,
+        hueTolerance = 0.03,
+        satTolerance = 0.20,
+        hueDif,
+        satDif,
+        hits = [];
+
+    for (ii = 0; ii < len; ii += 1) {
+        hueDif = Math.abs(uvToHue(u[ii], v[ii]) - targetHue);
+        if (hueDif > 0.5) {
+            hueDif = Math.abs(hueDif - 1.0);
+        }
+        satDif = Math.abs(uvToSat(u[ii], v[ii]) - targetSat);
+        if (hueDif <= hueTolerance && satDif <= satTolerance) {
+            hits.push(ii);
+        }
+    }
+
+    return hits;
+}
+
 function frogeye(luma, chroma, imgPixelSize, visionWidth, changeAmount) {
     var bwData = lumaProcess(luma, imgPixelSize, visionWidth, changeAmount);
 
@@ -144,7 +169,7 @@ function frogeye(luma, chroma, imgPixelSize, visionWidth, changeAmount) {
         "moveLocation": bwData.moveLocation,
         "edges": bwData.edges,
         "centerColor": centerColor(chroma),
-        "ball": targetColorLocation(chroma, imgPixelSize / 4)
+        "ball": targetColorLocations(chroma.U, chroma.V, imgPixelSize / 4),
     };
 }
 
