@@ -1,4 +1,4 @@
-# ![frogeye/favicon.png] fetchbot
+# ![Fetchbot](frogeye/favicon.png) fetchbot
 
 Fetchbot is a robotics project with the end goal of creating a roving bot that can chase, pick up, and return a ball.
 
