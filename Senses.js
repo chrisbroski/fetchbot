@@ -212,7 +212,9 @@ function Senses(visionWidth, visionHeight) {
         cam = spawn('raspiyuv', [
             '-w', visionWidth.toString(10),
             '-h', visionHeight.toString(10),
-            '-p', '50, 80, 400, 300', // small preview window
+            //'-p', '50, 80, 400, 300', // small preview window
+            '--nopreview',
+            '-awb', 'fluorescent',
             '-bm', // Burst mode
             '-vf', // My camera is upside-down so flip the image vertically
             '-tl', timeLapseInterval.toString(10), // 0 = as fast as possible
