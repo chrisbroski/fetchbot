@@ -214,8 +214,8 @@ function Senses(visionWidth, visionHeight) {
             '-h', visionHeight.toString(10),
             //'-p', '50, 80, 400, 300', // small preview window
             '--nopreview',
-            '-awb', 'fluorescent',
-            '-bm', // Burst mode
+            '-awb', 'fluorescent', // color detection more consistent
+            '-bm', // Burst mode - this causes a significant improvement in frame rate
             '-vf', // My camera is upside-down so flip the image vertically
             '-tl', timeLapseInterval.toString(10), // 0 = as fast as possible
             '-t', '300000', // Restart every 5 min
@@ -233,7 +233,7 @@ function Senses(visionWidth, visionHeight) {
         cam.on('exit', function (code) {
             console.log('raspiyuv process exited with code ' + code);
             console.log('Restarting raspiyuv time lapse');
-            attention.look();
+            attention.look(250);
         });
     };
 
