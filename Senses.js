@@ -20,7 +20,10 @@ function Senses(visionWidth, visionHeight) {
     state.raw = {
         // *Raw* state is unprocessed environment measurements received from sensors.
         // Raw state can only be written by observers and only read by perceivers
-        luma: [],
+        luma: {
+            current: [],
+            previous: []
+        },
         chroma: {
             U: [],
             V: []
@@ -35,6 +38,7 @@ function Senses(visionWidth, visionHeight) {
         brightnessOverall: 0.0,
         //centerColor: {"hue": 0, "saturation": 0},
         //ball: -1,
+        motion: 0.0,
         targets: [],
         edges: []
     };
@@ -144,12 +148,26 @@ function Senses(visionWidth, visionHeight) {
         return hits;
     }
 
+    function detectMotion(contrastPointAmount, luma, len) {
+        var ii, diff, changeAmount = 20, moveCount = 0;
+        if (luma.previous.length) {
+            for (ii = 0; ii < len; ii += 1) {
+                diff = Math.abs(luma.previous[ii] - luma.current[ii]);
+                if (diff > changeAmount) {
+                    moveCount += 1;
+                }
+            }
+        }
+        return moveCount / contrastPointAmount;
+    }
+
     // *Perceivers* process raw sense state into meaningful information
     perceivers.frogEye = function (imgPixelSize) {
         //var frogView = frogeye(state.raw.luma, state.raw.chroma, imgPixelSize, visionWidth, 20);
         //state.perceptions.brightnessOverall = frogView.brightness;
-        state.perceptions.edges = findEdges(state.raw.luma, imgPixelSize, visionWidth);
+        state.perceptions.edges = findEdges(state.raw.luma.current, imgPixelSize, visionWidth);
         state.perceptions.targets = findTargets(state.raw.chroma.U, state.raw.chroma.V, imgPixelSize / 4);
+        state.perceptions.motion = detectMotion(state.perceptions.edges.length, state.raw.luma, imgPixelSize, visionWidth);
     };
 
     // *Observers* populate raw sense state from a creature's sensors.
@@ -187,7 +205,8 @@ function Senses(visionWidth, visionHeight) {
         }
 
         // Set raw global sense state
-        state.raw.luma = lumaData;
+        state.raw.luma.previous = state.raw.luma.current;
+        state.raw.luma.current = lumaData;
         state.raw.chroma.U = chromaU;
         state.raw.chroma.V = chromaV;
         state.perceptions.brightnessOverall = brightness / imgPixelSize / 256;
