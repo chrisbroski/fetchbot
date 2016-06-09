@@ -61,7 +61,7 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-var socket, canvasEdge, ctxEdge, canvasBall, ctxBall, viewWidth, mag, halfMag, stateHash = 0;
+var socket, canvasEdge, ctxEdge, canvasBall, ctxBall, viewWidth, mag, halfMag, width, stateHash = 0;
 
 /* From http://stackoverflow.com/questions/7616461#answer-7616484 */
 function hashCode(s) {
@@ -93,8 +93,8 @@ function displayEdges(edges) {
     ctxEdge.clearRect(0, 0, canvasEdge.width, canvasEdge.height);
 
     edges.forEach(function (edge) {
-        var x = (edge % 64) * mag,
-            y = (Math.floor(edge / 64)) * mag,
+        var x = (edge % width) * mag,
+            y = (Math.floor(edge / width)) * mag,
             gradient = ctxEdge.createRadialGradient(x, y, 0, x, y, mag * 1.5);
 
         ctxEdge.beginPath();
@@ -112,8 +112,8 @@ function displayTargets(hits) {
     ctxBall.clearRect(0, 0, canvasEdge.width, canvasEdge.height);
 
     hits.forEach(function (hit) {
-        var x = (hit % 32) * mag * 2,
-            y = (Math.floor(hit / 32)) * mag * 2,
+        var x = (hit % (width / 2)) * mag * 2,
+            y = (Math.floor(hit / (width / 2))) * mag * 2,
             size = mag * 2;
 
         ctxBall.beginPath();
@@ -130,21 +130,26 @@ function setViewOptions(width) {
 }
 
 function senseStateReceived(senseState) {
+    console.log(senseState);
     var jsonState = JSON.parse(senseState),
         jsonString = JSON.stringify(jsonState, null, '    ');
+
+    width = jsonState.perceptions.dimensions[0];
+    mag = 400 / width;
+    halfMag = mag / 2;
 
     // only update screen if data is new
     if (hashCode(jsonString) !== stateHash) {
         stateHash = hashCode(jsonString);
         // Handle image dimension change
-        if (viewWidth !== jsonState.dimensions[0]) {
-            setViewOptions(jsonState.dimensions[0]);
+        if (viewWidth !== jsonState.perceptions.dimensions[0]) {
+            setViewOptions(jsonState.perceptions.dimensions[0]);
         }
 
         document.getElementById('senseState').innerHTML = jsonString;
-        displayOverallBrightness(jsonState.brightnessOverall);
-        displayEdges(jsonState.edges);
-        displayTargets(jsonState.targets);
+        displayOverallBrightness(jsonState.perceptions.brightnessOverall);
+        displayEdges(jsonState.perceptions.edges);
+        displayTargets(jsonState.perceptions.targets);
     }
 }
 

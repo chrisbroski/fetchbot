@@ -5,19 +5,16 @@ function Senses(visionWidth, visionHeight) {
 
     // Import libraries
     var spawn = require('child_process').spawn,
-        //frogeye = require('./frogeye.js'),
-        //edges = require('./edges.js'),
-        //targets = require('./targets.js'),
 
         // Declare private objects
+        raw,
         state = {},
         observers = {},
         perceivers = {},
         attention = {},
         partialImgData = '';
 
-    // *Sense state* is a collection of all current sensory data.
-    state.raw = {
+    raw = {
         // *Raw* state is unprocessed environment measurements received from sensors.
         // Raw state can only be written by observers and only read by perceivers
         luma: {
@@ -30,25 +27,34 @@ function Senses(visionWidth, visionHeight) {
         }
     };
 
+    // *Sense state* is a collection of all current sensory data.
+
     // *Perceptions* are the results of processing raw sense state
     // They can only be written by perceivers, but can be read by anything
     state.perceptions = {
         dimensions: [visionWidth, visionHeight],
-        //motionLocation: [],
         brightnessOverall: 0.0,
-        //centerColor: {"hue": 0, "saturation": 0},
-        //ball: -1,
         motion: 0.0,
         targets: [],
         edges: []
     };
 
+    // *current action* indicates what the creature is doing
+    state.currentAction = {action: '', parameters: []};
+
+    // *mood* is a peristent indicator of a creature's short-term goal
+    // They are set with a duration and will automatically remove themselves after time expires
+    state.mood = [];
+
     // Sense state is publically readable (but not changeable).
     this.senseState = function (type) {
         if (type) {
+            if (type === 'mood' || type === 'currentAction') {
+                return JSON.parse(JSON.stringify(state[type]));
+            }
             return JSON.parse(JSON.stringify(state.perceptions[type]));
         }
-        return JSON.parse(JSON.stringify(state.perceptions));
+        return JSON.parse(JSON.stringify(state));
     };
 
     function isEdge(ii, visionWidth, imgPixelSize, luma) {
@@ -163,11 +169,9 @@ function Senses(visionWidth, visionHeight) {
 
     // *Perceivers* process raw sense state into meaningful information
     perceivers.frogEye = function (imgPixelSize) {
-        //var frogView = frogeye(state.raw.luma, state.raw.chroma, imgPixelSize, visionWidth, 20);
-        //state.perceptions.brightnessOverall = frogView.brightness;
-        state.perceptions.edges = findEdges(state.raw.luma.current, imgPixelSize, visionWidth);
-        state.perceptions.targets = findTargets(state.raw.chroma.U, state.raw.chroma.V, imgPixelSize / 4);
-        state.perceptions.motion = detectMotion(state.perceptions.edges.length, state.raw.luma, imgPixelSize, visionWidth);
+        state.perceptions.edges = findEdges(raw.luma.current, imgPixelSize, visionWidth);
+        state.perceptions.targets = findTargets(raw.chroma.U, raw.chroma.V, imgPixelSize / 4);
+        state.perceptions.motion = detectMotion(state.perceptions.edges.length, raw.luma, imgPixelSize);
     };
 
     // *Observers* populate raw sense state from a creature's sensors.
@@ -179,15 +183,13 @@ function Senses(visionWidth, visionHeight) {
             ii;
 
         // The Pi camera gives a lot of crap data in yuv time lapse mode.
-        // This is an attempt to recover some of it
+        // This recovers some of it
         if (yuvData.length < imgRawFileSize - 1) {
-            //console.log('Partial img data chunk: ' + yuvData.length);
             if (yuvData.length + partialImgData.length === imgRawFileSize) {
                 yuvData = Buffer.concat([partialImgData, yuvData], imgRawFileSize);
             } else {
                 partialImgData = yuvData;
                 return;
-                //console.log('Reassembled partial data.');
             }
         }
         partialImgData = '';
@@ -205,16 +207,16 @@ function Senses(visionWidth, visionHeight) {
         }
 
         // Set raw global sense state
-        state.raw.luma.previous = state.raw.luma.current;
-        state.raw.luma.current = lumaData;
-        state.raw.chroma.U = chromaU;
-        state.raw.chroma.V = chromaV;
-        state.perceptions.brightnessOverall = brightness / imgPixelSize / 256;
+        raw.luma.previous = raw.luma.current;
+        raw.luma.current = lumaData;
+        raw.chroma.U = chromaU;
+        raw.chroma.V = chromaV;
 
         /*
-        Perceivers should typically be handled by the attention object, but for simplicity
-        we'll just fire it off after the observer completes.
+        Perceivers should typically be handled by the attention object as a separate
+        process, but for simplicity we'll just fire them off after the observer completes.
         */
+        state.perceptions.brightnessOverall = brightness / imgPixelSize / 256;
         perceivers.frogEye(imgPixelSize);
     };
 

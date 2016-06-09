@@ -10,7 +10,7 @@ var app = require('express')(),
     io = require('socket.io')(http),
     port = 3791,
     Senses = require('./Senses.js'),
-    senses = new Senses(64, 48),
+    senses = new Senses(128, 96),
     Actions = require('./Actions.js'),
     actions = new Actions(senses);
 
