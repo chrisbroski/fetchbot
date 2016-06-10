@@ -14,8 +14,6 @@ function Actions(senses) {
         leftEnable = new Gpio(5, {mode: Gpio.OUTPUT}),
         leftForward = new Gpio(13, {mode: Gpio.OUTPUT}),
         leftBackward = new Gpio(6, {mode: Gpio.OUTPUT}),
-        randRotation = Math.random() * 4500,
-        randDirection = Math.floor(Math.random() * 2),
 
         movement = {};
 
@@ -40,15 +38,10 @@ function Actions(senses) {
 
     performer.move = function move(params) {
         var type = params || 'stop';
-        console.log('move', type);
 
         // take action
-        //senses.currentAction('move', id, params);
-        //if (type === 'forward') {
-            travel(type);
-        //} else {
-        //    stop();
-        //}
+        travel(type);
+        senses.currentAction('move', [type]);
     };
 
     performer.move.params = [
@@ -69,7 +62,7 @@ function Actions(senses) {
     ];
 
     this.dispatch = function actionDispatch(type, params) {
-        //var currentAction = senses.senseState().currentAction, actions = [];
+        var actions = [];
 
         // if no type is given, return a list of available types and parameters
         if (!type) {

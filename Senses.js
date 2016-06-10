@@ -7,27 +7,27 @@ function Senses(visionWidth, visionHeight) {
     var spawn = require('child_process').spawn,
 
         // Declare private objects
-        raw,
+        raw = {},
         state = {},
         observers = {},
         perceivers = {},
         attention = {},
+        moods,
         partialImgData = '';
 
-    raw = {
-        // *Raw* state is unprocessed environment measurements received from sensors.
-        // Raw state can only be written by observers and only read by perceivers
-        luma: {
-            current: [],
-            previous: []
-        },
-        chroma: {
-            U: [],
-            V: []
-        }
-    };
+    // *Raw* state is unprocessed environment measurements received from sensors.
+    // Raw state can only be written by observers and only read by perceivers
+    raw.luma = {current: [], previous: []};
+    raw.chroma = {U: [], V: []};
 
     // *Sense state* is a collection of all current sensory data.
+
+    // *current action* indicates what the creature is doing
+    state.currentAction = {action: '', parameters: []};
+
+    // *mood* is a peristent indicator of a creature's short-term goal
+    // They are set with a duration and will automatically remove themselves after time expires
+    state.mood = [];
 
     // *Perceptions* are the results of processing raw sense state
     // They can only be written by perceivers, but can be read by anything
@@ -39,13 +39,6 @@ function Senses(visionWidth, visionHeight) {
         edges: []
     };
 
-    // *current action* indicates what the creature is doing
-    state.currentAction = {action: '', parameters: []};
-
-    // *mood* is a peristent indicator of a creature's short-term goal
-    // They are set with a duration and will automatically remove themselves after time expires
-    state.mood = [];
-
     // Sense state is publically readable (but not changeable).
     this.senseState = function (type) {
         if (type) {
@@ -55,6 +48,36 @@ function Senses(visionWidth, visionHeight) {
             return JSON.parse(JSON.stringify(state.perceptions[type]));
         }
         return JSON.parse(JSON.stringify(state));
+    };
+
+    // *current action* can be modified by the Actions module
+    this.currentAction = function currentAction(type, params) {
+        state.currentAction.action = type;
+        state.currentAction.parameters = params;
+    };
+
+    moods = {
+        searching: 60,
+        chasing: 60,
+        stuck: 30,
+        relaxing: 60,
+        sleepy: 300
+    };
+
+    this.setMood = function setMood(moodType) {
+        // if no type is given, return a list of available types and parameters
+        if (!moodType) {
+            return JSON.stringify(moods, null, '    ');
+        }
+
+        // if not a legal mood, return false
+        if (!moods[moodType]) {
+            return false;
+        }
+        // if mood is already active, add time to it
+        // otherwise, add it with time
+        // time is set to current timestamp + duration
+        //state.mood.push(moods[moodType]);
     };
 
     function isEdge(ii, visionWidth, imgPixelSize, luma) {
