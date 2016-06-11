@@ -15,11 +15,11 @@ var app = require('express')(),
     actions = new Actions(senses);
 
 app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/brain.html');
+    res.sendFile(__dirname + '/viewer.html');
 });
 
 app.get('/img/favicon.png', function (req, res) {
-    res.sendFile(__dirname + '/frogeye/img/favicon.png');
+    res.sendFile(__dirname + '/favicon.png');
 });
 
 function sendSenseData() {
@@ -30,7 +30,7 @@ function sendSenseData() {
 }
 
 io.on('connection', function (socket) {
-    console.log('Brain viewer client connected');
+    console.log('Fetchbot viewer client connected');
 
     sendSenseData();
 
@@ -45,10 +45,10 @@ io.on('connection', function (socket) {
     });*/
 
     socket.on('disconnect', function () {
-        console.log('Frogeye viewer client disconnected');
+        console.log('Fetchbot viewer client disconnected');
     });
 });
 
 http.listen(port, function () {
-    console.log('Frogeye view server listening on http://0.0.0.0/:' + port);
+    console.log('Braodcasting to fetchbot view at http://0.0.0.0/:' + port);
 });
