@@ -253,6 +253,11 @@ function Senses(visionWidth, visionHeight) {
             cam;
 
         timeLapseInterval = timeLapseInterval || 0;
+
+        /*
+        For better color detection, I recommend disabling the Pi camera light by adding
+        `disable_camera_led=1` to the /boot/config.txt file
+        */
         cam = spawn('raspiyuv', [
             '-w', visionWidth.toString(10),
             '-h', visionHeight.toString(10),
