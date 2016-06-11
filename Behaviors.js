@@ -1,4 +1,4 @@
-/*jslint node: true */
+/*jslint node: true, bitwise: true */
 
 function Behaviors(senses, actions) {
     'use strict';
@@ -14,7 +14,7 @@ function Behaviors(senses, actions) {
 
     situations.noMood = function (state) {
         return !hasMood(state.mood, '');
-    }
+    };
 
     behaviorTable = [
         {situation: ['noMood'], actions: ['setMood', 'searching']}
@@ -23,11 +23,12 @@ function Behaviors(senses, actions) {
     function behavior(state) {
         var ii, len = behaviorTable.length;
 
-        for (ii = 0; ii < len; ii +=1) {
-            if (situations[behaviorTable[ii].situation[0]](state)) {
-                actions.dispatch(behaviorTable[ii].actions);
+        for (ii = 0; ii < len; ii += 1) {
+            actionParams = situations[behaviorTable[ii].situation[0]](state);
+            if (actionParams) {
+                actions.dispatch(behaviorTable[ii].actions, actionParams);
+                return true;
             }
-            return true;
         }
         return false;
     }
@@ -38,7 +39,7 @@ function Behaviors(senses, actions) {
         if (len === 0) {
             return hash;
         }
-        for (i = 0; i < len; i++) {
+        for (i = 0; i < len; i += 1) {
             chr = s.charCodeAt(i);
             hash = ((hash << 5) - hash) + chr;
             hash |= 0; // Convert to 32bit integer
@@ -46,7 +47,7 @@ function Behaviors(senses, actions) {
         return hash;
     }
 
-    function situationMonitor() {
+    function monitor() {
         var state = senses.senseState(),
             currentStateHash = hashCode(JSON.stringify(state));
 
@@ -57,7 +58,7 @@ function Behaviors(senses, actions) {
     }
 
     function init() {
-        setTimeout(situationMonitor, 50);
+        setTimeout(monitor, 50);
     }
 
     init();
