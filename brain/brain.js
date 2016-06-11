@@ -1,19 +1,22 @@
 /*jslint node: true, sloppy: true */
 
 /*
-load and initialize senses, actions, and behaviors
-support sense viewer
+Brain.js loads and initializes senses, actions, and behaviors modules.
+If also connects to a viewer for perception visualization and manual action control.
 */
 
 var app = require('express')(),
     http = require('http').Server(app),
     io = require('socket.io')(http),
-    port = 3791,
     Senses = require('./Senses.js'),
-    senses = new Senses(128, 96),
     Actions = require('./Actions.js'),
-    actions = new Actions(senses);
+    Behaviors = require('./Behaviors.js'),
+    port = 3791,
+    senses = new Senses(128, 96),
+    actions = new Actions(senses),
+    behaviors = new Behaviors(senses, actions);
 
+/*jslint unparam: true, nomen: true*/
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/viewer.html');
 });
@@ -21,6 +24,7 @@ app.get('/', function (req, res) {
 app.get('/img/favicon.png', function (req, res) {
     res.sendFile(__dirname + '/favicon.png');
 });
+/*jslint unparam: false, nomen: false*/
 
 function sendSenseData() {
     setInterval(function () {
@@ -34,15 +38,10 @@ io.on('connection', function (socket) {
 
     sendSenseData();
 
-    /*actions.dispatch('move', 'forward');
-    setTimeout(function () {
-        actions.dispatch('move', 'stop');
-    }, 2000);*/
-
-    /*socket.on('move', function (moveType) {
+    socket.on('move', function (moveType) {
         console.log('move', moveType);
         actions.dispatch('move', moveType);
-    });*/
+    });
 
     socket.on('disconnect', function () {
         console.log('Fetchbot viewer client disconnected');
@@ -50,5 +49,5 @@ io.on('connection', function (socket) {
 });
 
 http.listen(port, function () {
-    console.log('Braodcasting to fetchbot view at http://0.0.0.0/:' + port);
+    console.log('Broadcasting to fetchbot viewer at http://0.0.0.0/:' + port);
 });
