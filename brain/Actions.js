@@ -41,7 +41,11 @@ function Actions(senses) {
 
         // take action
         travel(type);
-        senses.currentAction('move', [type]);
+        if (type === 'stop') {
+            senses.currentAction('', []);
+        } else {
+            senses.currentAction('move', [type]);
+        }
     };
 
     performer.move.params = [

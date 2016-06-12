@@ -5,6 +5,8 @@ function Senses(visionWidth, visionHeight) {
 
     // Import libraries
     var spawn = require('child_process').spawn,
+        Frogeye = require('./sense/Frogeye.js'),
+        frogEye = new Frogeye(50, [0.056, 0.81]),
 
         // Declare private objects
         raw = {},
@@ -23,7 +25,7 @@ function Senses(visionWidth, visionHeight) {
     // *Sense state* is a collection of all current sensory data.
 
     // *current action* indicates what the creature is doing
-    state.currentAction = {action: '', parameters: []};
+    state.currentAction = {type: '', parameters: []};
 
     // *mood* is a peristent indicator of a creature's short-term goal
     // They are set with a duration and will automatically remove themselves after time expires
@@ -52,7 +54,7 @@ function Senses(visionWidth, visionHeight) {
 
     // *current action* can be modified by the Actions module
     this.currentAction = function currentAction(type, params) {
-        state.currentAction.action = type;
+        state.currentAction.type = type;
         state.currentAction.parameters = params;
     };
 
@@ -73,13 +75,6 @@ function Senses(visionWidth, visionHeight) {
             }
         }
         return -1;
-    }
-
-    function removeMood(moodType) {
-        var moodIndex = hasMood(moodType);
-        if (moodIndex > -1) {
-            state.mood.splice(moodIndex, 1);
-        }
     }
 
     function cleanupMoods() {
@@ -113,121 +108,11 @@ function Senses(visionWidth, visionHeight) {
         }
     };
 
-    function isEdge(ii, visionWidth, imgPixelSize, luma) {
-        var val = luma[ii], compare, difference = 50;
-        // check top, right, bottom, and left for a significant increase in luma
-
-        // Top
-        if (ii > visionWidth) {
-            compare = luma[ii - visionWidth];
-            if (compare - val > difference) {
-                return true;
-            }
-        }
-
-        // Bottom
-        if (ii < imgPixelSize - visionWidth) {
-            compare = luma[ii + visionWidth];
-            if (compare - val > difference) {
-                return true;
-            }
-        }
-
-        // Left
-        if (ii % visionWidth > 0) {
-            compare = luma[ii - 1];
-            if (compare - val > difference) {
-                return true;
-            }
-        }
-
-        // Right
-        if (ii % visionWidth < visionWidth - 1) {
-            compare = luma[ii + 1];
-            if (compare - val > difference) {
-                return true;
-            }
-        }
-    }
-
-    function findEdges(luma, len, visionWidth) {
-        var ii,
-            contrast = [];
-
-        for (ii = 0; ii < len; ii += 1) {
-            if (isEdge(ii, visionWidth, len, luma)) {
-                contrast.push(ii);
-            }
-        }
-
-        return contrast;
-    }
-
-    // Tried to adapt this: http://www.quasimondo.com/archives/000696.php
-    function uvToHue(u, v) {
-        var angle,
-
-            // first, get u and v into the -1.0 to 1.0 range for some trig
-            normalU = (-2 * u / 255) + 1.0,
-            normalV = (2 * v / 255) - 1.0;
-
-        // atan2 is a super useful trig function to get an angle -pi to pi
-        angle = Math.atan2(normalU, normalV);
-        if (angle < 0) {
-            angle = Math.PI * 2 + angle;
-        }
-
-        // Then normalize the value to 0.0 - 1.0
-        return angle / (Math.PI * 2);
-    }
-
-    function uvToSat(u, v) {
-        var normalU = (2 * u / 255) - 1.0,
-            normalV = (2 * v / 255) - 1.0;
-
-        return Math.sqrt(normalU * normalU + normalV * normalV);
-    }
-
-    function findTargets(u, v, len) {
-        var ii,
-            hueTolerance = 0.03,
-            satTolerance = 0.20,
-            hueDif,
-            satDif,
-            hits = [];
-
-        for (ii = 0; ii < len; ii += 1) {
-            hueDif = Math.abs(uvToHue(u[ii], v[ii]) - 0.056);
-            if (hueDif > 0.5) {
-                hueDif = Math.abs(hueDif - 1.0);
-            }
-            satDif = Math.abs(uvToSat(u[ii], v[ii]) - 0.81);
-            if (hueDif <= hueTolerance && satDif <= satTolerance) {
-                hits.push(ii);
-            }
-        }
-
-        return hits;
-    }
-
-    function detectMotion(contrastPointAmount, luma, len) {
-        var ii, diff, changeAmount = 20, moveCount = 0;
-        if (luma.previous.length) {
-            for (ii = 0; ii < len; ii += 1) {
-                diff = Math.abs(luma.previous[ii] - luma.current[ii]);
-                if (diff > changeAmount) {
-                    moveCount += 1;
-                }
-            }
-        }
-        return moveCount / contrastPointAmount;
-    }
-
     // *Perceivers* process raw sense state into meaningful information
     perceivers.frogEye = function (imgPixelSize) {
-        state.perceptions.edges = findEdges(raw.luma.current, imgPixelSize, visionWidth);
-        state.perceptions.targets = findTargets(raw.chroma.U, raw.chroma.V, imgPixelSize / 4);
-        state.perceptions.motion = detectMotion(state.perceptions.edges.length, raw.luma, imgPixelSize);
+        state.perceptions.edges = frogEye.findEdges(raw.luma.current, imgPixelSize, visionWidth);
+        state.perceptions.targets = frogEye.findTargets(raw.chroma.U, raw.chroma.V, imgPixelSize / 4);
+        state.perceptions.motion = frogEye.detectMotion(state.perceptions.edges.length, raw.luma, imgPixelSize);
     };
 
     // *Observers* populate raw sense state from a creature's sensors.

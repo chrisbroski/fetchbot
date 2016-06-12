@@ -147,23 +147,28 @@ function hasMood(moods, moodType) {
     return -1;
 }
 
+function disableControlButtons(disOrEnable) {
+    var buttons = document.querySelectorAll('#controls button'), ii, len;
+    len = buttons.length;
+    for (ii = 0; ii < len; ii += 1) {
+        buttons[ii].disabled = disOrEnable;
+    }
+}
+
 function setControl(autoOrManual) {
-    var buttons = document.querySelectorAll('#controls button'), ii, len, disOrEnabled, controlButton = document.querySelector('#manual button');
+    var disOrEnabled, controlButton = document.querySelector('#manual button');
 
     control = autoOrManual;
     if (control === 'manual') {
         document.querySelector('#manual button').innerHTML = 'Relinquish control';
-        disOrEnabled = false;
+        disableControlButtons(false);
     } else {
         document.querySelector('#manual button').innerHTML = 'Request manual control';
-        disOrEnabled = true;
+        disableControlButtons(true);
     }
 
     controlButton.disabled = false;
-    len = buttons.length;
-    for (ii = 0; ii < len; ii += 1) {
-        buttons[ii].disabled = disOrEnabled;
-    }
+    disableControlButtons(disOrEnabled);
 }
 
 function senseStateReceived(senseState) {
@@ -218,11 +223,7 @@ function manual() {
 }
 
 function init() {
-    var buttons = document.querySelectorAll('#controls button'), ii, len;
-    len = buttons.length;
-    for (ii = 0; ii < len; ii += 1) {
-        buttons[ii].disabled = true;
-    }
+    disableControlButtons(true);
 
     socket = io();
 
