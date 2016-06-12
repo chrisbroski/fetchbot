@@ -29,21 +29,21 @@ function Behaviors(senses, actions) {
         }
 
         if (dir[0] > dir[1] && dir[0] > dir[2]) {
-            return ['rotateleft'];
+            return ['rotateright'];
         }
         if (dir[2] > dir[0] && dir[2] > dir[1]) {
-            return ['rotateright'];
+            return ['rotateleft'];
         }
         return 'forward';
     };
 
     situations.default = function () {
-        return [];
+        return ['stop'];
     };
 
     behaviorTable = [
         {situation: 'targetDirection', action: 'move'},
-        {situation: 'default', action: 'search'}
+        {situation: 'default', action: 'move'}
     ];
 
     function behavior(state) {
