@@ -6,7 +6,7 @@ function Senses(visionWidth, visionHeight) {
     // Import libraries
     var spawn = require('child_process').spawn,
         Frogeye = require('./sense/Frogeye.js'),
-        frogEye = new Frogeye(50, [0.056, 0.81]),
+        frogEye = new Frogeye(50, [0.056, 0.81]), // Edge contrast, target hue and saturation
 
         // Declare private objects
         raw = {},
@@ -37,6 +37,7 @@ function Senses(visionWidth, visionHeight) {
         dimensions: [visionWidth, visionHeight],
         brightnessOverall: 0.0,
         motion: 0.0,
+        targetDirection: [0, 0, 0],
         targets: [],
         edges: []
     };
@@ -113,6 +114,7 @@ function Senses(visionWidth, visionHeight) {
         state.perceptions.edges = frogEye.findEdges(raw.luma.current, imgPixelSize, visionWidth);
         state.perceptions.targets = frogEye.findTargets(raw.chroma.U, raw.chroma.V, imgPixelSize / 4);
         state.perceptions.motion = frogEye.detectMotion(state.perceptions.edges.length, raw.luma, imgPixelSize);
+        state.perceptions.targetDirection = frogEye.ballDirection(raw.chroma.U, raw.chroma.V, imgPixelSize / 4, visionWidth / 2);
     };
 
     // *Observers* populate raw sense state from a creature's sensors.

@@ -36,6 +36,10 @@ function Actions(senses) {
         leftBackward.digitalWrite(moveParams[3]);
     }
 
+    performer.setMood = function setMood(mood) {
+        senses.setMood(mood);
+    };
+
     performer.move = function move(params) {
         var type = params || 'stop';
 
@@ -64,6 +68,12 @@ function Actions(senses) {
             default: 'stop'
         }
     ];
+
+    performer.search = function () {
+        // spin around and look for the ball
+        // If you don't see it in 360 degrees, pick a direction and move a short distance
+        // repeat
+    };
 
     this.dispatch = function actionDispatch(type, params) {
         var actions = [];

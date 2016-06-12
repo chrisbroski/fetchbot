@@ -78,22 +78,38 @@ function Frogeye(edgeDifference, targetHS) {
         return Math.sqrt(normalU * normalU + normalV * normalV);
     }
 
-    this.findTargets = function findTargets(u, v, len) {
-        var ii,
-            hueTolerance = 0.03,
+    function isTargetColor(U, V) {
+        var hueTolerance = 0.03,
             satTolerance = 0.20,
             hueDif,
-            satDif,
-            hits = [];
+            satDif;
+
+        hueDif = Math.abs(uvToHue(U, V) - targetHS[0]);
+        if (hueDif > 0.5) {
+            hueDif = Math.abs(hueDif - 1.0);
+        }
+        satDif = Math.abs(uvToSat(U, V) - targetHS[1]);
+        return (hueDif <= hueTolerance && satDif <= satTolerance);
+    }
+
+    this.findTargets = function findTargets(u, v, len) {
+        var ii, hits = [];
 
         for (ii = 0; ii < len; ii += 1) {
-            hueDif = Math.abs(uvToHue(u[ii], v[ii]) - targetHS[0]);
-            if (hueDif > 0.5) {
-                hueDif = Math.abs(hueDif - 1.0);
-            }
-            satDif = Math.abs(uvToSat(u[ii], v[ii]) - targetHS[1]);
-            if (hueDif <= hueTolerance && satDif <= satTolerance) {
+            if (isTargetColor(u[ii], v[ii])) {
                 hits.push(ii);
+            }
+        }
+
+        return hits;
+    };
+
+    this.ballDirection = function ballDirection(u, v, len, visionWidth) {
+        var hits = [0, 0, 0], ii;
+
+        for (ii = 0; ii < len; ii += 1) {
+            if (isTargetColor(u[ii], v[ii])) {
+                hits[Math.floor((ii % visionWidth) / (visionWidth / 3))] += 1;
             }
         }
 

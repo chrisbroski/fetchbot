@@ -15,12 +15,35 @@ function Behaviors(senses, actions) {
         return -1;
     }
 
-    situations.noMood = function (state) {
-        return !hasMood(state.mood, '');
+    function sum(arr) {
+        return arr.reduce(function (a, b) {
+            return a + b;
+        });
+    }
+
+    situations.targetDirection = function (state) {
+        var dir = state.perceptions.targetDirection;
+
+        if (sum(dir) === 0) {
+            return false;
+        }
+
+        if (dir[0] > dir[1] && dir[0] > dir[2]) {
+            return ['rotateleft'];
+        }
+        if (dir[2] > dir[0] && dir[2] > dir[1]) {
+            return ['rotateright'];
+        }
+        return 'forward';
+    };
+
+    situations.default = function () {
+        return [];
     };
 
     behaviorTable = [
-        {situation: ['noMood'], actions: ['setMood', 'searching']}
+        {situation: 'targetDirection', action: 'move'},
+        {situation: 'default', action: 'search'}
     ];
 
     function behavior(state) {
@@ -32,9 +55,9 @@ function Behaviors(senses, actions) {
         }
 
         for (ii = 0; ii < len; ii += 1) {
-            actionParams = situations[behaviorTable[ii].situation[0]](state);
+            actionParams = situations[behaviorTable[ii].situation](state);
             if (actionParams) {
-                actions.dispatch(behaviorTable[ii].actions, actionParams);
+                actions.dispatch(behaviorTable[ii].action, actionParams);
                 return true;
             }
         }
@@ -67,7 +90,7 @@ function Behaviors(senses, actions) {
     }
 
     function init() {
-        setTimeout(monitor, 50);
+        setInterval(monitor, 200);
     }
 
     init();
