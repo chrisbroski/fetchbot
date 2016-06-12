@@ -29,11 +29,15 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 #loc > div {width: 25%; height: 33.333%; float: left; }
 #controls {
     position: absolute;
-    left: 10px; top: 350px;
+    left: 10px; top: 380px;
 }
 #controls button {
     margin: 0 1em;
     width: 10em;
+}
+#manual {
+    position: absolute;
+    left: 10px; top: 350px;
 }
 </style>
 
@@ -51,6 +55,10 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 <pre id="senseState"></pre>
 </div>
 
+<div id="manual">
+<p><button onclick="manual()">Request manual control</button>
+</div>
+
 <div id="controls">
 <p><button onclick="move('forwardleft')">travel left</button><button onclick="move('forward')">forward</button><button onclick="move('forwardright')">travel right</button>
 <p><button onclick="move('rotateleft')">rotate left</button><button onclick="move('stop')">stop</button><button onclick="move('rotateright')">rotate right</button>
@@ -61,7 +69,7 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-var socket, canvasEdge, ctxEdge, canvasBall, ctxBall, viewWidth, mag, halfMag, width, stateHash = 0;
+var socket, canvasEdge, ctxEdge, canvasBall, ctxBall, viewWidth, mag, halfMag, width, stateHash = 0, control = 'auto', manualOverrideTimer;
 
 /* From http://stackoverflow.com/questions/7616461#answer-7616484 */
 function hashCode(s) {
@@ -129,6 +137,35 @@ function setViewOptions(width) {
     halfMag = mag / 2;
 }
 
+function hasMood(moods, moodType) {
+    var ii, len = moods.length;
+    for (ii = 0; ii < len; ii += 1) {
+        if (moods[ii].name === moodType) {
+            return ii;
+        }
+    }
+    return -1;
+}
+
+function setControl(autoOrManual) {
+    var buttons = document.querySelectorAll('#controls button'), ii, len, disOrEnabled, controlButton = document.querySelector('#manual button');
+
+    control = autoOrManual;
+    if (control === 'manual') {
+        document.querySelector('#manual button').innerHTML = 'Relinquish control';
+        disOrEnabled = false;
+    } else {
+        document.querySelector('#manual button').innerHTML = 'Request manual control';
+        disOrEnabled = true;
+    }
+
+    controlButton.disabled = false;
+    len = buttons.length;
+    for (ii = 0; ii < len; ii += 1) {
+        buttons[ii].disabled = disOrEnabled;
+    }
+}
+
 function senseStateReceived(senseState) {
     var jsonState = JSON.parse(senseState),
         jsonString = JSON.stringify(jsonState, null, '    ');
@@ -140,6 +177,15 @@ function senseStateReceived(senseState) {
     // only update screen if data is new
     if (hashCode(jsonString) !== stateHash) {
         stateHash = hashCode(jsonString);
+
+        // Check for control change
+        if (control === 'auto' && hasMood(jsonState.mood, 'manual') > -1) {
+            setControl('manual');
+        }
+        if (control === 'manual' && hasMood(jsonState.mood, 'manual') === -1) {
+            setControl('auto');
+        }
+
         // Handle image dimension change
         if (viewWidth !== jsonState.perceptions.dimensions[0]) {
             setViewOptions(jsonState.perceptions.dimensions[0]);
@@ -156,7 +202,28 @@ function move(type) {
     socket.emit('move', type);
 }
 
+function manual() {
+    var controlButton = document.querySelector('#manual button');
+
+    controlButton.disabled = true;
+    if (control === 'auto') {
+        controlButton.innerHTML = 'Requesting manual control...';
+        manualOverrideTimer = window.setInterval(function () {
+            socket.emit('control', 'manual');
+        }, 2000);
+    } else {
+        controlButton.innerHTML = 'Requesting autonomous control...';
+        window.clearInterval(manualOverrideTimer);
+    }
+}
+
 function init() {
+    var buttons = document.querySelectorAll('#controls button'), ii, len;
+    len = buttons.length;
+    for (ii = 0; ii < len; ii += 1) {
+        buttons[ii].disabled = true;
+    }
+
     socket = io();
 
     canvasEdge = document.getElementById('edges');

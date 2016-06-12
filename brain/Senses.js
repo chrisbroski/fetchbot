@@ -61,10 +61,38 @@ function Senses(visionWidth, visionHeight) {
         chasing: 60,
         stuck: 30,
         relaxing: 60,
-        sleepy: 300
+        sleepy: 300,
+        manual: 5,
     };
 
+    function hasMood(moodType) {
+        var ii, len = state.mood.length;
+        for (ii = 0; ii < len; ii += 1) {
+            if (moodType === state.mood[ii].name) {
+                return ii;
+            }
+        }
+        return -1;
+    }
+
+    function removeMood(moodType) {
+        var moodIndex = hasMood(moodType);
+        if (moodIndex > -1) {
+            state.mood.splice(moodIndex, 1);
+        }
+    }
+
+    function cleanupMoods() {
+        var ii, len = state.mood.length, currentTime = +(new Date());
+        for (ii = len - 1; ii > -1; ii -= 1) {
+            if (state.mood[ii].expires < currentTime) {
+                state.mood.splice(ii, 1);
+            }
+        }
+    }
+
     this.setMood = function setMood(moodType) {
+        var moodIndex, expTime;
         // if no type is given, return a list of available types and parameters
         if (!moodType) {
             return JSON.stringify(moods, null, '    ');
@@ -74,10 +102,15 @@ function Senses(visionWidth, visionHeight) {
         if (!moods[moodType]) {
             return false;
         }
-        // if mood is already active, add time to it
-        // otherwise, add it with time
-        // time is set to current timestamp + duration
-        //state.mood.push(moods[moodType]);
+
+        moodIndex = hasMood(moodType);
+        expTime = +(new Date()) + (moods[moodType] * 1000);
+
+        if (moodIndex > -1) {
+            state.mood[moodIndex].expires = expTime;
+        } else {
+            state.mood.push({"name": moodType, "expires": expTime});
+        }
     };
 
     function isEdge(ii, visionWidth, imgPixelSize, luma) {
@@ -289,6 +322,7 @@ function Senses(visionWidth, visionHeight) {
     function init() {
         console.log('Initialize senses module');
         attention.look(250);
+        setInterval(cleanupMoods, 5000);
     }
 
     init();

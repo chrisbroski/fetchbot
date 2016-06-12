@@ -39,8 +39,11 @@ io.on('connection', function (socket) {
     sendSenseData();
 
     socket.on('move', function (moveType) {
-        console.log('move', moveType);
         actions.dispatch('move', moveType);
+    });
+
+    socket.on('control', function (controlType) {
+        senses.setMood(controlType);
     });
 
     socket.on('disconnect', function () {

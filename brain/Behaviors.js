@@ -5,11 +5,14 @@ function Behaviors(senses, actions) {
 
     var behaviorTable, situations = {}, stateHash;
 
-    function hasMood(mood, moodType) {
-        if (moodType) {
-            return true;
+    function hasMood(moods, moodType) {
+        var ii, len = moods.length;
+        for (ii = 0; ii < len; ii += 1) {
+            if (moods[ii].name === moodType) {
+                return ii;
+            }
         }
-        return false;
+        return -1;
     }
 
     situations.noMood = function (state) {
@@ -21,7 +24,12 @@ function Behaviors(senses, actions) {
     ];
 
     function behavior(state) {
-        var ii, len = behaviorTable.length;
+        var ii, len = behaviorTable.length, actionParams;
+
+        // Don't bother if under manual control
+        if (hasMood(state.mood, 'manual') > -1) {
+            return false;
+        }
 
         for (ii = 0; ii < len; ii += 1) {
             actionParams = situations[behaviorTable[ii].situation[0]](state);
@@ -30,6 +38,7 @@ function Behaviors(senses, actions) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -53,7 +62,7 @@ function Behaviors(senses, actions) {
 
         if (currentStateHash !== stateHash) {
             stateHash = currentStateHash;
-
+            behavior(state);
         }
     }
 
