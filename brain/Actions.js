@@ -15,7 +15,8 @@ function Actions(senses) {
         leftForward = new Gpio(13, {mode: Gpio.OUTPUT}),
         leftBackward = new Gpio(6, {mode: Gpio.OUTPUT}),
 
-        movement = {};
+        movement = {},
+        moveTimer;
 
     movement.forwardleft = [1, 0, 0, 0];
     movement.forward = [1, 0, 1, 0];
@@ -27,13 +28,33 @@ function Actions(senses) {
     movement.backward = [0, 1, 0, 1];
     movement.backright = [0, 1, 0, 0];
 
-    function travel(moveType) {
-        var moveParams = movement[moveType];
+    function motor(params) {
+        rightForward.digitalWrite(params[0]);
+        rightBackward.digitalWrite(params[1]);
+        leftForward.digitalWrite(params[2]);
+        leftBackward.digitalWrite(params[3]);
+    }
 
-        rightForward.digitalWrite(moveParams[0]);
-        rightBackward.digitalWrite(moveParams[1]);
-        leftForward.digitalWrite(moveParams[2]);
-        leftBackward.digitalWrite(moveParams[3]);
+    function travelAtSpeed(params, delay) {
+        motor([0, 0, 0, 0]);
+        motor(params);
+        moveTimer = setTimeout(function () {
+            travelAtSpeed(params, Math.floor(1000 - delay));
+        }, Math.floor(1000 - delay));
+    }
+
+    function travel(moveType, speed) {
+        var moveParams = movement[moveType];
+        speed = speed || 1.0;
+
+        if (speed === 1.0) {
+            motor(moveParams);
+        } else {
+            // pulse motors
+            moveTimer = setTimeout(function () {
+                travelAtSpeed(moveParams, Math.floor(1000 - speed * 1000));
+            }, Math.floor(1000 - speed * 1000));
+        }
     }
 
     performer.setMood = function setMood(mood) {
@@ -44,6 +65,9 @@ function Actions(senses) {
         var type = params || 'stop';
 
         // take action
+        if (moveTimer) {
+            clearTimeout(moveTimer);
+        }
         travel(type);
         if (type === 'stop') {
             senses.currentAction('', []);
@@ -66,6 +90,14 @@ function Actions(senses) {
                 'forward-left'
             ],
             default: 'stop'
+        },
+        {
+            description: 'speed',
+            values: [
+                0.0,
+                1.0
+            ],
+            default: 1.0
         }
     ];
 
