@@ -67,8 +67,8 @@ function Frogeye(edgeDifference, targetHS) {
             angle = Math.PI * 2 + angle;
         }
 
-        // Then normalize the value to 0.0 - 1.0
-        return angle / (Math.PI * 2);
+        // Then normalize the value to 0.0 - 360.0
+        return angle / (Math.PI * 2) * 360;
     }
 
     function uvToSat(u, v) {
@@ -79,14 +79,14 @@ function Frogeye(edgeDifference, targetHS) {
     }
 
     function isTargetColor(U, V) {
-        var hueTolerance = 0.03,
+        var hueTolerance = 1.5,
             satTolerance = 0.20,
             hueDif,
             satDif;
 
         hueDif = Math.abs(uvToHue(U, V) - targetHS[0]);
-        if (hueDif > 0.5) {
-            hueDif = Math.abs(hueDif - 1.0);
+        if (hueDif > 180) {
+            hueDif = Math.abs(hueDif - 180);
         }
         satDif = Math.abs(uvToSat(U, V) - targetHS[1]);
         return (hueDif <= hueTolerance && satDif <= satTolerance);
