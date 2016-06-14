@@ -15,12 +15,13 @@ function Actions(senses) {
         leftForward = new Gpio(13, {mode: Gpio.OUTPUT}),
         leftBackward = new Gpio(6, {mode: Gpio.OUTPUT}),
 
-        movement = {},
-        moveTimer;
+        movement = {};
 
     movement.forwardleft = [1, 0, 0, 0];
+    movement.pulseleft = [1, 0, 0, 0];
     movement.forward = [1, 0, 1, 0];
     movement.forwardright = [0, 0, 1, 0];
+    movement.pulseright = [0, 0, 1, 0];
     movement.rotateleft = [1, 0, 0, 1];
     movement.stop = [0, 0, 0, 0];
     movement.rotateright = [0, 1, 1, 0];
@@ -35,52 +36,34 @@ function Actions(senses) {
         leftBackward.digitalWrite(params[3]);
     }
 
-    function travelAtSpeed(params, delay) {
-        motor([0, 0, 0, 0]);
-        motor(params);
-        moveTimer = setTimeout(function () {
-            travelAtSpeed(params, Math.floor(1000 - delay));
-        }, Math.floor(1000 - delay));
-    }
-
-    function travel(params) {
-        var moveParams = movement[params[0]],
-            speed = params[1] || 1.0;
-
-        if (!moveParams) {
-            console.log('Unknown move type', params[0]);
-            return;
-        }
-
-        if (speed > 0.99) {
-            motor(moveParams);
-        } else {
-            // pulse motors
-            moveTimer = setTimeout(function () {
-                travelAtSpeed(moveParams, Math.floor(1000 - speed * 1000));
-            }, Math.floor(1000 - speed * 1000));
-        }
-    }
-
     performer.setMood = function setMood(mood) {
         senses.setMood(mood);
     };
 
     performer.move = function move(params) {
-        var type = params[0] || 'stop',
-            speed = params[1] || 1.0;
+        var type = params[0] || 'stop';
 
         // take action
-        if (moveTimer) {
-            clearTimeout(moveTimer);
+        if (type === 'pulseright' || type === 'pulseleft') {
+            pulseMove(type, 50);
+            senses.currentAction('move', [type]);
+        } else {
+            motor(movement[type]);
         }
-        travel([type, speed]);
         if (type === 'stop') {
             senses.currentAction('', []);
         } else {
             senses.currentAction('move', [type]);
         }
     };
+
+    function pulseMove(movetype, pulseTime) {
+        motor(movement[movetype]);
+        setTimeout(function () {
+            motor(movement.stop);
+            senses.currentAction('', []);
+        }, pulseTime);
+    }
 
     performer.move.params = [
         {
@@ -136,7 +119,7 @@ function Actions(senses) {
     function init() {
         rightEnable.digitalWrite(1);
         leftEnable.digitalWrite(1);
-        travel(['stop']);
+        motor([0, 0, 0, 0]);
     }
 
     init();

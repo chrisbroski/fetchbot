@@ -29,12 +29,12 @@ function Behaviors(senses, actions) {
         }
 
         if (dir[0] > dir[1] && dir[0] > dir[2]) {
-            return ['forwardright', 0.5];
+            return ['pulseright'];
         }
         if (dir[2] > dir[0] && dir[2] > dir[1]) {
-            return ['forwardleft', 0.5];
+            return ['pulseleft'];
         }
-        return 'forward';
+        return ['forward'];
     };
 
     situations.default = function () {
@@ -57,7 +57,6 @@ function Behaviors(senses, actions) {
         for (ii = 0; ii < len; ii += 1) {
             actionParams = situations[behaviorTable[ii].situation](state);
             if (actionParams) {
-                //console.log(behaviorTable[ii].action, actionParams);
                 actions.dispatch(behaviorTable[ii].action, actionParams);
                 return true;
             }
