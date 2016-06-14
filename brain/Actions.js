@@ -43,11 +43,16 @@ function Actions(senses) {
         }, Math.floor(1000 - delay));
     }
 
-    function travel(moveType, speed) {
-        var moveParams = movement[moveType];
-        speed = speed || 1.0;
+    function travel(params) {
+        var moveParams = movement[params[0]],
+            speed = params[1] || 1.0;
 
-        if (speed === 1.0) {
+        if (!moveParams) {
+            console.log('Unknown move type', params[0]);
+            return;
+        }
+
+        if (speed > 0.99) {
             motor(moveParams);
         } else {
             // pulse motors
@@ -62,13 +67,14 @@ function Actions(senses) {
     };
 
     performer.move = function move(params) {
-        var type = params || 'stop';
+        var type = params[0] || 'stop',
+            speed = params[1] || 1.0;
 
         // take action
         if (moveTimer) {
             clearTimeout(moveTimer);
         }
-        travel(type);
+        travel([type, speed]);
         if (type === 'stop') {
             senses.currentAction('', []);
         } else {
@@ -130,7 +136,7 @@ function Actions(senses) {
     function init() {
         rightEnable.digitalWrite(1);
         leftEnable.digitalWrite(1);
-        travel('stop');
+        travel(['stop']);
     }
 
     init();

@@ -57,6 +57,7 @@ function Behaviors(senses, actions) {
         for (ii = 0; ii < len; ii += 1) {
             actionParams = situations[behaviorTable[ii].situation](state);
             if (actionParams) {
+                //console.log(behaviorTable[ii].action, actionParams);
                 actions.dispatch(behaviorTable[ii].action, actionParams);
                 return true;
             }
