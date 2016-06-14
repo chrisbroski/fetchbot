@@ -1,8 +1,8 @@
 /*jslint node: true, sloppy: true */
 
 /*
-Brain.js loads and initializes senses, actions, and behaviors modules.
-If also connects to a viewer for perception visualization and manual action control.
+Brain.js loads and initializes Senses, Actions, and Behaviors modules.
+It also connects to a viewer for perception visualization and manual action control.
 */
 
 var app = require('express')(),
