@@ -29,10 +29,10 @@ function Behaviors(senses, actions) {
         }
 
         if (dir[0] > dir[1] && dir[0] > dir[2]) {
-            return ['pulseright'];
+            return ['rotateright', 0.02];
         }
         if (dir[2] > dir[0] && dir[2] > dir[1]) {
-            return ['pulseleft'];
+            return ['rotateleft', 0.02];
         }
         return ['forward'];
     };

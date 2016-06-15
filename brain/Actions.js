@@ -18,10 +18,8 @@ function Actions(senses) {
         movement = {};
 
     movement.forwardleft = [1, 0, 0, 0];
-    movement.pulseleft = [1, 0, 0, 0];
     movement.forward = [1, 0, 1, 0];
     movement.forwardright = [0, 0, 1, 0];
-    movement.pulseright = [0, 0, 1, 0];
     movement.rotateleft = [1, 0, 0, 1];
     movement.stop = [0, 0, 0, 0];
     movement.rotateright = [0, 1, 1, 0];
@@ -40,23 +38,6 @@ function Actions(senses) {
         senses.setMood(mood);
     };
 
-    performer.move = function move(params) {
-        var type = params[0] || 'stop';
-
-        // take action
-        if (type === 'pulseright' || type === 'pulseleft') {
-            pulseMove(type, 50);
-            senses.currentAction('move', [type]);
-        } else {
-            motor(movement[type]);
-        }
-        if (type === 'stop') {
-            senses.currentAction('', []);
-        } else {
-            senses.currentAction('move', [type]);
-        }
-    };
-
     function pulseMove(movetype, pulseTime) {
         motor(movement[movetype]);
         setTimeout(function () {
@@ -64,6 +45,23 @@ function Actions(senses) {
             senses.currentAction('', []);
         }, pulseTime);
     }
+
+    performer.move = function move(params) {
+        var type = params[0] || 'stop',
+            pulseTime = params[1] || 1.0;
+
+        if (pulseTime < 0.99) {
+            pulseTime = Math.floor(pulseTime * 1000);
+            pulseMove(type, pulseTime);
+        } else {
+            motor(movement[type]);
+        }
+        if (type === 'stop') {
+            senses.currentAction('', []);
+        } else {
+            senses.currentAction('move', [type, pulseTime]);
+        }
+    };
 
     performer.move.params = [
         {
@@ -81,7 +79,7 @@ function Actions(senses) {
             default: 'stop'
         },
         {
-            description: 'speed',
+            description: 'pulseTime',
             values: [
                 0.0,
                 1.0
@@ -94,6 +92,10 @@ function Actions(senses) {
         // spin around and look for the ball
         // If you don't see it in 360 degrees, pick a direction and move a short distance
         // repeat
+    };
+
+    performer.backupAndChange = function () {
+        // If an obstacle was encountered, back up and try a different direction
     };
 
     this.dispatch = function actionDispatch(type, params) {
