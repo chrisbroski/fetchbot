@@ -39,7 +39,7 @@ io.on('connection', function (socket) {
     sendSenseData();
 
     socket.on('move', function (moveType) {
-        actions.dispatch('move', moveType);
+        actions.dispatch('move', [moveType, 1.0]);
     });
 
     socket.on('control', function (controlType) {
