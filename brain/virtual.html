@@ -1,0 +1,65 @@
+<!doctype html>
+<title>Fetchbot Virtual Environment</title>
+<link rel="icon" type="image/png"  href="img/favicon.png">
+<style>
+* {box-sizing: border-box; }
+h1, h3 {margin: 0.5em 0; font-weight: normal; }
+h1 img {margin: 0 10px 0 0; vertical-align: middle; }
+#environment {
+    margin: 0 10px 10px 0;
+    position: relative;
+    overflow; auto;
+    width: 400px; height: 300px;
+    border: 1px solid #333;
+    float: left;
+    background: #000;
+}
+#environment canvas {
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+}
+
+</style>
+
+<article>
+<h1><img src="img/favicon.png">Fetchbot Brain Viewer</h1>
+
+<div id="environment">
+    <canvas id="robot" width="400" height="300"></canvas>
+    <canvas id="ball" width="400" height="300"></canvas>
+</div>
+
+<div id="manual">
+<p><button onclick="ball()">Random Ball Location</button>
+</div>
+
+</article>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+var socket, canvasRobot, ctxRobot, canvasBall, ctxBall, viewWidth, mag, halfMag, width;
+
+function sendToObservers() {
+    var senseData = [];
+    socket.emit('sensor', JSON.stringify(senseData));
+    window.setTimeout(sendToObservers, 250);
+}
+
+function init() {
+    socket = io();
+
+    canvasRobot = document.getElementById('robot');
+    ctxRobot = canvasEdge.getContext("2d");
+
+    canvasBall = document.getElementById('ball');
+    ctxBall = canvasBall.getContext("2d");
+    ctxBall.fillStyle = 'rgba(255, 0, 255, 0.5)';
+
+    socket.on('senseState', senseStateReceived);
+
+    socket.emit('move', type);
+}
+
+init();
+
+</script>

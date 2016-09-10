@@ -8,13 +8,28 @@ It also connects to a viewer for perception visualization and manual action cont
 var app = require('express')(),
     http = require('http').Server(app),
     io = require('socket.io')(http),
-    Senses = require('./Senses.js'),
-    Actions = require('./Actions.js'),
+    Senses,
+    Actions,
     Behaviors = require('./Behaviors.js'),
     port = 3791,
-    senses = new Senses(128, 96),
-    actions = new Actions(senses),
-    behaviors = new Behaviors(senses, actions);
+    virtual = !!process.argv[2],
+    senses,
+    actions,
+    behaviors;
+
+if (virtual) {
+    Senses = require('./VirtualSenses.js');
+    Actions = require('./VirtualActions.js');
+    senses = new Senses(128, 96, true);
+    actions = new Actions(senses);
+} else {
+    Senses = require('./Senses.js');
+    Actions = require('./Actions.js');
+    senses = new Senses(128, 96);
+    actions = new Actions(senses);
+}
+
+behaviors = new Behaviors(senses, actions);
 
 /*jslint unparam: true, nomen: true*/
 app.get('/', function (req, res) {
@@ -24,6 +39,12 @@ app.get('/', function (req, res) {
 app.get('/img/favicon.png', function (req, res) {
     res.sendFile(__dirname + '/favicon.png');
 });
+
+if (virtual) {
+    app.get('/virtual', function (req, res) {
+        res.sendFile(__dirname + '/virtual.html');
+    });
+}
 /*jslint unparam: false, nomen: false*/
 
 function sendSenseData() {
