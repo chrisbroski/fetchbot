@@ -1,0 +1,24 @@
+{
+  "name": "fetchbot",
+  "version": "1.0.0",
+  "description": "AI for a ball chasing robot",
+  "main": "brain/brain.js",
+  "dependencies": {
+    "express": "^4.14.0",
+    "socket.io": "^1.4.8"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chrisbroski/fetchbot.git"
+  },
+  "author": "Chris Broski",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chrisbroski/fetchbot/issues"
+  },
+  "homepage": "https://github.com/chrisbroski/fetchbot#readme"
+}
