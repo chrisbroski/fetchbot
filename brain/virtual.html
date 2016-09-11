@@ -12,24 +12,30 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
     width: 400px; height: 300px;
     border: 1px solid #333;
     float: left;
-    background: #000;
+    background: #fff;
 }
 #environment canvas {
     position: absolute;
     top: 0; right: 0; bottom: 0; left: 0;
 }
 
+#setting {
+    position: absolute;
+    left: 10px; top: 380px;
+}
+
 </style>
 
 <article>
-<h1><img src="img/favicon.png">Fetchbot Brain Viewer</h1>
+<h1><img src="img/favicon.png">Fetchbot Virtual Environment</h1>
 
 <div id="environment">
+    <canvas id="grid" width="400" height="300"></canvas>
     <canvas id="robot" width="400" height="300"></canvas>
     <canvas id="ball" width="400" height="300"></canvas>
 </div>
 
-<div id="manual">
+<div id="setting">
 <p><button onclick="ball()">Random Ball Location</button>
 </div>
 
@@ -37,7 +43,38 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-var socket, canvasRobot, ctxRobot, canvasBall, ctxBall, viewWidth, mag, halfMag, width;
+var socket,
+    canvasRobot,
+    ctxRobot,
+    canvasBall,
+    ctxBall,
+    viewWidth,
+    mag,
+    halfMag,
+    width,
+    ballPos,
+    robotPos;
+
+function ball() {
+    ballPos = [Math.random(), Math.random()];
+}
+
+function grid() {
+    var canvasGrid = document.getElementById('grid'),
+        ctxGrid = canvasGrid.getContext("2d");
+
+    ctxGrid.lineWidth = 1;
+    ctxGrid.strokeStyle = 'rgb(250 , 250, 250)';
+    ctxGrid.moveTo(49.5, 0);
+    ctxGrid.lineTo(49.5, 300);
+    ctxGrid.moveTo(199.5, 0);
+    ctxGrid.lineTo(199.5, 300);
+    ctxGrid.moveTo(349.5, 0);
+    ctxGrid.lineTo(349.5, 300);
+    ctxGrid.moveTo(0, 149.5);
+    ctxGrid.lineTo(400, 149.5);
+    ctxGrid.stroke();
+}
 
 function sendToObservers() {
     var senseData = [];
@@ -48,16 +85,17 @@ function sendToObservers() {
 function init() {
     socket = io();
 
+    grid();
     canvasRobot = document.getElementById('robot');
-    ctxRobot = canvasEdge.getContext("2d");
+    ctxRobot = canvasRobot.getContext("2d");
 
     canvasBall = document.getElementById('ball');
     ctxBall = canvasBall.getContext("2d");
     ctxBall.fillStyle = 'rgba(255, 0, 255, 0.5)';
 
-    socket.on('senseState', senseStateReceived);
+    //socket.on('senseState', senseStateReceived);
 
-    socket.emit('move', type);
+    //socket.emit('move', type);
 }
 
 init();
