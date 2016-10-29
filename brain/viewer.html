@@ -189,13 +189,13 @@ function senseStateReceived(senseState) {
     if (hashCode(jsonString) !== stateHash) {
         stateHash = hashCode(jsonString);
 
-        // Check for control change
+        /*// Check for control change
         if (control === 'auto' && hasMood(jsonState.mood, 'manual') > -1) {
             setControl('manual');
         }
         if (control === 'manual' && hasMood(jsonState.mood, 'manual') === -1) {
             setControl('auto');
-        }
+        }*/
 
         // Handle image dimension change
         if (viewWidth !== jsonState.perceptions.dimensions[0]) {
@@ -217,14 +217,17 @@ function manual() {
     var controlButton = document.querySelector('#manual button');
 
     controlButton.disabled = true;
+
     if (control === 'auto') {
         controlButton.innerHTML = 'Requesting manual control...';
-        manualOverrideTimer = window.setInterval(function () {
+        /*manualOverrideTimer = window.setInterval(function () {
             socket.emit('control', 'manual');
-        }, 2000);
+        }, 2000);*/
+        socket.emit('control', 'manual');
     } else {
         controlButton.innerHTML = 'Requesting autonomous control...';
-        window.clearInterval(manualOverrideTimer);
+        //window.clearInterval(manualOverrideTimer);
+        socket.emit('control', 'auto');
     }
 }
 

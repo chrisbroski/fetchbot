@@ -67,7 +67,8 @@ io.on('connection', function (socket) {
     });
 
     socket.on('control', function (controlType) {
-        senses.setMood(controlType);
+        //senses.setMood(controlType);
+        config.manual = (controlType === 'manual');
     });
 
     socket.on('disconnect', function () {
