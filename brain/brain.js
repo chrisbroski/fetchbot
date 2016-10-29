@@ -12,12 +12,15 @@ var app = require('express')(),
     Actions,
     Behaviors = require('./Behaviors.js'),
     port = 3791,
-    virtual = !!process.argv[2],
+    config = {},
     senses,
     actions,
     behaviors;
 
-if (virtual) {
+config.virtual = !!process.argv[2];
+config.manual = !!process.argv[3];
+
+if (config.virtual) {
     Senses = require('./VirtualSenses.js');
     Actions = require('./VirtualActions.js');
     senses = new Senses(128, 96, true);
@@ -29,7 +32,7 @@ if (virtual) {
     actions = new Actions(senses);
 }
 
-behaviors = new Behaviors(senses, actions);
+behaviors = new Behaviors(senses, actions, config);
 
 /*jslint unparam: true, nomen: true*/
 app.get('/', function (req, res) {
@@ -40,7 +43,7 @@ app.get('/img/favicon.png', function (req, res) {
     res.sendFile(__dirname + '/favicon.png');
 });
 
-if (virtual) {
+if (config.virtual) {
     app.get('/virtual', function (req, res) {
         res.sendFile(__dirname + '/virtual.html');
     });

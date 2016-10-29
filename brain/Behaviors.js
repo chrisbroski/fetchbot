@@ -1,19 +1,9 @@
 /*jslint node: true, bitwise: true */
 
-function Behaviors(senses, actions) {
+function Behaviors(senses, actions, config) {
     'use strict';
 
     var behaviorTable, situations = {}, stateHash;
-
-    function hasMood(moods, moodType) {
-        var ii, len = moods.length;
-        for (ii = 0; ii < len; ii += 1) {
-            if (moods[ii].name === moodType) {
-                return ii;
-            }
-        }
-        return -1;
-    }
 
     function sum(arr) {
         return arr.reduce(function (a, b) {
@@ -50,7 +40,7 @@ function Behaviors(senses, actions) {
         var ii, len = behaviorTable.length, actionParams;
 
         // Don't bother if under manual control
-        if (hasMood(state.mood, 'manual') > -1) {
+        if (config.manual) {
             return false;
         }
 
