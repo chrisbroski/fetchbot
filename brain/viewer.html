@@ -189,14 +189,6 @@ function senseStateReceived(senseState) {
     if (hashCode(jsonString) !== stateHash) {
         stateHash = hashCode(jsonString);
 
-        /*// Check for control change
-        if (control === 'auto' && hasMood(jsonState.mood, 'manual') > -1) {
-            setControl('manual');
-        }
-        if (control === 'manual' && hasMood(jsonState.mood, 'manual') === -1) {
-            setControl('auto');
-        }*/
-
         // Handle image dimension change
         if (viewWidth !== jsonState.perceptions.dimensions[0]) {
             setViewOptions(jsonState.perceptions.dimensions[0]);
@@ -207,6 +199,10 @@ function senseStateReceived(senseState) {
         displayEdges(jsonState.perceptions.edges);
         displayTargets(jsonState.perceptions.targets);
     }
+}
+
+function displayMoods(moods) {
+    console.log(JSON.parse(moods));
 }
 
 function move(type) {
@@ -220,14 +216,12 @@ function manual() {
 
     if (control === 'auto') {
         controlButton.innerHTML = 'Requesting manual control...';
-        /*manualOverrideTimer = window.setInterval(function () {
-            socket.emit('control', 'manual');
-        }, 2000);*/
         socket.emit('control', 'manual');
+        setControl('manual');
     } else {
         controlButton.innerHTML = 'Requesting autonomous control...';
-        //window.clearInterval(manualOverrideTimer);
         socket.emit('control', 'auto');
+        setControl('auto');
     }
 }
 
@@ -244,6 +238,7 @@ function init() {
     ctxBall.fillStyle = 'rgba(255, 0, 255, 0.5)';
 
     socket.on('senseState', senseStateReceived);
+    socket.on('moods', displayMoods);
 }
 
 init();

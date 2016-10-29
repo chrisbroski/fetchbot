@@ -64,8 +64,7 @@ function Senses(visionWidth, visionHeight) {
         chasing: 60,
         stuck: 30,
         relaxing: 60,
-        sleepy: 300,
-        manual: 5,
+        sleepy: 300
     };
 
     function hasMood(moodType) {

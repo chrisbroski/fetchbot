@@ -60,6 +60,7 @@ function sendSenseData() {
 io.on('connection', function (socket) {
     console.log('Fetchbot viewer client connected');
 
+    io.emit('moods', JSON.stringify(senses.setMood()));
     sendSenseData();
 
     socket.on('move', function (moveType) {
@@ -67,7 +68,6 @@ io.on('connection', function (socket) {
     });
 
     socket.on('control', function (controlType) {
-        //senses.setMood(controlType);
         config.manual = (controlType === 'manual');
     });
 
