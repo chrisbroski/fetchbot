@@ -69,6 +69,8 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 <p><button onclick="move('backleft')">bacward left</button>
     <button onclick="move('backward')">backward</button>
     <button onclick="move('backright')">backward right</button>
+
+<div id="moods"></div>
 </div>
 
 </article>
@@ -201,8 +203,26 @@ function senseStateReceived(senseState) {
     }
 }
 
-function displayMoods(moods) {
-    console.log(JSON.parse(moods));
+function displayMoods(moodString) {
+    console.log(moodString);
+    var moodData = JSON.parse(moodString),
+        moodSelect = document.createElement("select"),
+        moodOption,
+        moodContainer = document.getElementById('moods');
+
+    moodOption = document.createElement('option');
+    moodOption.value = "";
+    moodOption.textContent = "Available moods";
+    moodSelect.appendChild(moodOption);
+
+    Object.keys(moodData).forEach(function(mood) {
+        moodOption = document.createElement('option');
+        moodOption.value = mood;
+        moodOption.textContent = mood + " (" + moodData[mood] + "s)";
+        moodSelect.appendChild(moodOption);
+    });
+    moodContainer.innerHTML = "";
+    moodContainer.appendChild(moodSelect);
 }
 
 function move(type) {

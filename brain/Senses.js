@@ -90,7 +90,7 @@ function Senses(visionWidth, visionHeight) {
         var moodIndex, expTime;
         // if no type is given, return a list of available types and parameters
         if (!moodType) {
-            return JSON.stringify(moods, null, '    ');
+            return moods;
         }
 
         // if not a legal mood, return false
