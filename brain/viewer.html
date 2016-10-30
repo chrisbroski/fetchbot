@@ -248,17 +248,20 @@ function manual() {
 function init() {
     disableControlButtons(true);
 
-    socket = io();
+    socket = io({reconnection: false});
 
-    canvasEdge = document.getElementById('edges');
+    canvasEdge = document.getElementById("edges");
     ctxEdge = canvasEdge.getContext("2d");
 
     canvasBall = document.getElementById('ball');
     ctxBall = canvasBall.getContext("2d");
-    ctxBall.fillStyle = 'rgba(255, 0, 255, 0.5)';
+    ctxBall.fillStyle = "rgba(255, 0, 255, 0.5)";
 
-    socket.on('senseState', senseStateReceived);
-    socket.on('moods', displayMoods);
+    socket.on("senseState", senseStateReceived);
+    socket.on("moods", displayMoods);
+    socket.on("disconnect", function () {
+        console.log('disconnected');
+    });
 }
 
 init();

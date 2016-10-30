@@ -79,3 +79,24 @@ io.on('connection', function (socket) {
 http.listen(port, function () {
     console.log('Broadcasting to fetchbot viewer at http://0.0.0.0/:' + port);
 });
+
+// From http://stackoverflow.com/questions/14031763/doing-a-cleanup-action-just-before-node-js-exits#answer-14032965
+
+process.stdin.resume(); //so the program will not close instantly
+
+function exitHandler(options, err) {
+    if (err) console.log(err.stack);
+
+    actions.dispatch("move", ["stop", 1.0]);
+
+    if (options.exit) process.exit();
+}
+
+//do something when app is closing
+process.on('exit', exitHandler.bind(null, {cleanup: true}));
+
+//catches ctrl+c event
+process.on('SIGINT', exitHandler.bind(null, {exit: true}));
+
+//catches uncaught exceptions
+process.on('uncaughtException', exitHandler.bind(null, {exit: true}));
