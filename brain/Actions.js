@@ -110,7 +110,7 @@ function Actions(senses) {
                 });
             });
 
-            return JSON.stringify(actions, null, '    ');
+            return JSON.parse(JSON.stringify(actions));
         }
 
         if (type === 'move') {

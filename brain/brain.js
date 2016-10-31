@@ -61,6 +61,8 @@ io.on('connection', function (socket) {
     console.log('Fetchbot viewer client connected');
 
     io.emit('moods', JSON.stringify(senses.setMood()));
+    io.emit('actions', JSON.stringify(actions.dispatch()));
+    io.emit('behaviors', JSON.stringify(behaviors.behaviorTable()));
     sendSenseData();
 
     socket.on('move', function (moveType) {
@@ -80,23 +82,23 @@ http.listen(port, function () {
     console.log('Broadcasting to fetchbot viewer at http://0.0.0.0/:' + port);
 });
 
-// From http://stackoverflow.com/questions/14031763/doing-a-cleanup-action-just-before-node-js-exits#answer-14032965
+// Code below is to handle exits more gracefully
+// From http://stackoverflow.com/questions/14031763/#answer-14032965
 
-process.stdin.resume(); //so the program will not close instantly
+process.stdin.resume();
 
 function exitHandler(options, err) {
-    if (err) console.log(err.stack);
+    if (err) {
+        console.log(err.stack);
+    }
 
     actions.dispatch("move", ["stop", 1.0]);
 
-    if (options.exit) process.exit();
+    if (options.exit) {
+        process.exit();
+    }
 }
 
-//do something when app is closing
 process.on('exit', exitHandler.bind(null, {cleanup: true}));
-
-//catches ctrl+c event
 process.on('SIGINT', exitHandler.bind(null, {exit: true}));
-
-//catches uncaught exceptions
 process.on('uncaughtException', exitHandler.bind(null, {exit: true}));

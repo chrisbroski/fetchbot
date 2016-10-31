@@ -35,6 +35,9 @@ function Behaviors(senses, actions, config) {
         {situation: 'targetDirection', action: 'move'},
         {situation: 'default', action: 'move'}
     ];
+    this.behaviorTable = function getBehaviorTable() {
+        return JSON.parse(JSON.stringify(behaviorTable));
+    };
 
     function behavior(state) {
         var ii, len = behaviorTable.length, actionParams;

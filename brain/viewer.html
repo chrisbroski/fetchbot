@@ -204,7 +204,6 @@ function senseStateReceived(senseState) {
 }
 
 function displayMoods(moodString) {
-    console.log(moodString);
     var moodData = JSON.parse(moodString),
         moodSelect = document.createElement("select"),
         moodOption,
@@ -212,7 +211,7 @@ function displayMoods(moodString) {
 
     moodOption = document.createElement('option');
     moodOption.value = "";
-    moodOption.textContent = "Available moods";
+    moodOption.textContent = "Moods";
     moodSelect.appendChild(moodOption);
 
     Object.keys(moodData).forEach(function(mood) {
@@ -223,6 +222,14 @@ function displayMoods(moodString) {
     });
     moodContainer.innerHTML = "";
     moodContainer.appendChild(moodSelect);
+}
+
+function displayActions(actions) {
+    console.log(actions);
+}
+
+function displayBehaviors(behaviors) {
+    console.log(behaviors);
 }
 
 function move(type) {
@@ -259,6 +266,8 @@ function init() {
 
     socket.on("senseState", senseStateReceived);
     socket.on("moods", displayMoods);
+    socket.on("actions", displayActions);
+    socket.on("behaviors", displayBehaviors);
     socket.on("disconnect", function () {
         console.log('disconnected');
     });
