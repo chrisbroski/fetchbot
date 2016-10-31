@@ -5,6 +5,12 @@
 * {box-sizing: border-box; }
 h1, h3 {margin: 0.5em 0; font-weight: normal; }
 h1 img {margin: 0 10px 0 0; vertical-align: middle; }
+.column {
+    margin: 0 8px 8px;
+    width: 400px;
+    float: left;
+    overflow: auto;
+}
 #frogeye {
     margin: 0 10px 10px 0;
     position: relative;
@@ -20,39 +26,28 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 }
 #state {
     padding: 0 1em;
-    width: 400px;
-    float: left;
     color: #fff;
     background: #000;
 }
+
 #brightness {background-color: #333; }
 #loc > div {width: 25%; height: 33.333%; float: left; }
-#controls {
-    position: absolute;
-    left: 10px; top: 380px;
-}
+
 #controls button {
     margin: 0 1em;
-    width: 10em;
+    width: 104px;
 }
-#manual {
-    position: absolute;
-    left: 10px; top: 350px;
-}
+
 </style>
 
 <article>
 <h1><img src="img/favicon.png">Fetchbot Brain Viewer</h1>
 
+<div id="hud" class="column">
 <div id="frogeye">
     <div id="brightness"></div>
     <canvas id="edges" width="400" height="300"></canvas>
     <canvas id="ball" width="400" height="300"></canvas>
-</div>
-
-<div id="state">
-<h3>Sense State</h3>
-<pre id="senseState"></pre>
 </div>
 
 <div id="manual">
@@ -69,8 +64,17 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 <p><button onclick="move('backleft')">bacward left</button>
     <button onclick="move('backward')">backward</button>
     <button onclick="move('backright')">backward right</button>
+</div>
+</div>
 
+<div id="behaviors" class="column">
 <div id="moods"></div>
+<div id="behaviorTable"></div>
+</div>
+
+<div id="state" class="column">
+<h3>Sense State</h3>
+<pre id="senseState"></pre>
 </div>
 
 </article>
@@ -145,16 +149,6 @@ function setViewOptions(width) {
     halfMag = mag / 2;
 }
 
-function hasMood(moods, moodType) {
-    var ii, len = moods.length;
-    for (ii = 0; ii < len; ii += 1) {
-        if (moods[ii].name === moodType) {
-            return ii;
-        }
-    }
-    return -1;
-}
-
 function disableControlButtons(disOrEnable) {
     var buttons = document.querySelectorAll('#controls button'), ii, len;
     len = buttons.length;
@@ -196,7 +190,7 @@ function senseStateReceived(senseState) {
             setViewOptions(jsonState.perceptions.dimensions[0]);
         }
 
-        document.getElementById('senseState').innerHTML = jsonString;
+        document.querySelector('#state pre').innerHTML = jsonString;
         displayOverallBrightness(jsonState.perceptions.brightnessOverall);
         displayEdges(jsonState.perceptions.edges);
         displayTargets(jsonState.perceptions.targets);
@@ -230,6 +224,16 @@ function displayActions(actions) {
 
 function displayBehaviors(behaviors) {
     console.log(behaviors);
+    var bTable = document.getElementById("behaviorTable"),
+        bTableRow;
+
+    behaviors = behaviors || [];
+    behaviors = JSON.parse(behaviors);
+    behaviors.forEach(function (behavior) {
+        bTableRow = document.createElement("div");
+        bTableRow.textContent = JSON.stringify(behavior);
+        bTable.appendChild(bTableRow);
+    });
 }
 
 function move(type) {
