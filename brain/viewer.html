@@ -68,7 +68,8 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 </div>
 
 <div id="behaviors" class="column">
-<div id="moods"></div>
+<h3>Behaviors</h3>
+<p id="moods"></p>
 <div id="behaviorTable"></div>
 </div>
 
@@ -203,15 +204,15 @@ function displayMoods(moodString) {
         moodOption,
         moodContainer = document.getElementById('moods');
 
-    moodOption = document.createElement('option');
-    moodOption.value = "";
-    moodOption.textContent = "Moods";
-    moodSelect.appendChild(moodOption);
-
-    Object.keys(moodData).forEach(function(mood) {
+    Object.keys(moodData).forEach(function(mood, index) {
         moodOption = document.createElement('option');
-        moodOption.value = mood;
-        moodOption.textContent = mood + " (" + moodData[mood] + "s)";
+            moodOption.value = mood;
+        if (index === 0) {
+            moodOption.textContent = "Default (" + mood + ")";
+        } else {
+            moodOption.textContent = mood + " (" + moodData[mood] + "s)";
+        }
+
         moodSelect.appendChild(moodOption);
     });
     moodContainer.innerHTML = "";
@@ -222,13 +223,18 @@ function displayActions(actions) {
     console.log(actions);
 }
 
-function displayBehaviors(behaviors) {
-    console.log(behaviors);
-    var bTable = document.getElementById("behaviorTable"),
+function displayBehaviors(behaviorTable) {
+    console.log(behaviorTable);
+    var behaviors,
+        bTable = document.getElementById("behaviorTable"),
         bTableRow;
 
-    behaviors = behaviors || [];
-    behaviors = JSON.parse(behaviors);
+    if (behaviorTable) {
+        behaviors = JSON.parse(behaviorTable).default;
+    } else {
+        behaviors = [];
+    }
+    //behaviors = JSON.parse(behaviors);
     behaviors.forEach(function (behavior) {
         bTableRow = document.createElement("div");
         bTableRow.textContent = JSON.stringify(behavior);
