@@ -1,9 +1,11 @@
 /*jslint node: true, bitwise: true */
 
+var behaviorTable = require("./behavior/behaviorTable.json");
+
 function Behaviors(senses, actions, config) {
     'use strict';
 
-    var behaviorTable, situations = {}, stateHash;
+    var situations = {}, stateHash;
 
     function sum(arr) {
         return arr.reduce(function (a, b) {
@@ -31,22 +33,12 @@ function Behaviors(senses, actions, config) {
         return ['stop'];
     };
 
-    behaviorTable = {
-        "default": [
-            {situation: 'targetDirection', action: 'move'},
-            {situation: 'default', action: 'move'}
-        ],
-        "chasing": [],
-        "stuck": [],
-        "relaxing": [],
-        "sleepy": []
-    };
     this.behaviorTable = function getBehaviorTable() {
         return JSON.parse(JSON.stringify(behaviorTable));
     };
 
     function behavior(state) {
-        var ii, len = behaviorTable.default.length, actionParams;
+        var ii, len = behaviorTable.length, actionParams;
 
         // Don't bother if under manual control
         if (config.manual) {
@@ -54,9 +46,9 @@ function Behaviors(senses, actions, config) {
         }
 
         for (ii = 0; ii < len; ii += 1) {
-            actionParams = situations[behaviorTable.default[ii].situation](state);
+            actionParams = situations[behaviorTable[ii].situation](state);
             if (actionParams) {
-                actions.dispatch(behaviorTable.default[ii].action, actionParams);
+                actions.dispatch(behaviorTable[ii].action, actionParams);
                 return true;
             }
         }

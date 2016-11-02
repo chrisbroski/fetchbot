@@ -1,0 +1,4 @@
+[
+    {"situation": "targetDirection", "action": "move"},
+    {"situation": "default", "action": "move"}
+]

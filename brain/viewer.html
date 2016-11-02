@@ -230,7 +230,7 @@ function displayBehaviors(behaviorTable) {
         bTableRow;
 
     if (behaviorTable) {
-        behaviors = JSON.parse(behaviorTable).default;
+        behaviors = JSON.parse(behaviorTable);
     } else {
         behaviors = [];
     }
