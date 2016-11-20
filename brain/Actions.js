@@ -47,9 +47,10 @@ function Actions(senses) {
     }
 
     performer.move = function move(params) {
-        var type = params[0] || 'stop',
-            pulseTime = params[1] || 1.0;
-
+        //console.log("move", params);
+        var type = params.type || 'stop',
+            pulseTime = params.speed || 1.0;
+        console.log(type, pulseTime);
         if (pulseTime < 0.99) {
             pulseTime = Math.floor(pulseTime * 1000);
             pulseMove(type, pulseTime);
@@ -79,7 +80,7 @@ function Actions(senses) {
             default: 'stop'
         },
         {
-            description: 'pulseTime',
+            description: 'speed',
             values: [
                 0.0,
                 1.0
@@ -98,8 +99,12 @@ function Actions(senses) {
         // If an obstacle was encountered, back up and try a different direction
     };
 
-    this.dispatch = function actionDispatch(type, params) {
-        var actions = [];
+    this.dispatch = function actionDispatch(actionData) {
+        //console.log(actionData);
+        actionData = actionData || [];
+        var type = actionData[0] || '',
+            params = actionData[1] || {},
+            actions = [];
 
         // if no type is given, return a list of available types and parameters
         if (!type) {
@@ -113,9 +118,7 @@ function Actions(senses) {
             return JSON.parse(JSON.stringify(actions));
         }
 
-        if (type === 'move') {
-            performer.move(params);
-        }
+        performer[type](params);
     };
 
     function init() {
