@@ -15,19 +15,24 @@ function Behaviors(senses, actions, config) {
 
     // Situations should only return a boolean indicating if the situation was recognized
     situations.targetDirection = function (state) {
-        var dir = state.perceptions.targetDirection;
-
-        if (sum(dir) > 0) {
+        if (sum(state.perceptions.targetDirection) > 0) {
             return false;
         }
         return true;
+    };
+
+    situations.noTarget = function (state) {
+        if (sum(state.perceptions.targetDirection) === 0) {
+            return true;
+        }
+        return false;
     };
 
     situations.default = function () {
         return true;
     };
 
-    actionParameterize.chase = function chase(state) {
+    actionParameterize.chase = function (state) {
         var dir = state.perceptions.targetDirection;
 
         if (sum(dir) === 0) {
@@ -43,7 +48,15 @@ function Behaviors(senses, actions, config) {
         return ["move", {"type": "forward"}];
     };
 
-    this.behaviorTable = function getBehaviorTable() {
+    actionParameterize.search = function () {
+        return ["move", {"type": "stop"}];
+    };
+
+    actionParameterize.stop = function () {
+        return ["move", {"type": "stop"}];
+    };
+
+    this.behaviorTable = function () {
         return JSON.parse(JSON.stringify(behaviorTable));
     };
 
@@ -56,9 +69,7 @@ function Behaviors(senses, actions, config) {
         }
 
         for (ii = 0; ii < len; ii += 1) {
-            //actionParams = situations[behaviorTable[ii].situation](state);
             if (situations[behaviorTable[ii].situation](state)) {
-                //console.log(behaviorTable[ii].action, actionParameterize[](state));
                 actions.dispatch(actionParameterize[behaviorTable[ii].action](state));
                 return true;
             }

@@ -1,4 +1,5 @@
 [
     {"situation": "targetDirection", "action": "chase"},
-    {"situation": "default", "action": "chase"}
+    {"situation": "noTarget", "action": "search"},
+    {"situation": "default", "action": "stop"}
 ]

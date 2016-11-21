@@ -47,10 +47,9 @@ function Actions(senses) {
     }
 
     performer.move = function move(params) {
-        //console.log("move", params);
         var type = params.type || 'stop',
             pulseTime = params.speed || 1.0;
-        console.log(type, pulseTime);
+
         if (pulseTime < 0.99) {
             pulseTime = Math.floor(pulseTime * 1000);
             pulseMove(type, pulseTime);
@@ -100,7 +99,6 @@ function Actions(senses) {
     };
 
     this.dispatch = function actionDispatch(actionData) {
-        //console.log(actionData);
         actionData = actionData || [];
         var type = actionData[0] || '',
             params = actionData[1] || {},
