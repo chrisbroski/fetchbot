@@ -5,7 +5,7 @@ var behaviorTable = require("./behavior/behaviorTable.json");
 function Behaviors(senses, actions, config) {
     'use strict';
 
-    var situations = {}, actionParameterize = {}, stateHash;
+    var situations = {}, responses = {}, stateHash;
 
     function sum(arr) {
         return arr.reduce(function (a, b) {
@@ -32,7 +32,7 @@ function Behaviors(senses, actions, config) {
         return true;
     };
 
-    actionParameterize.chase = function (state) {
+    responses.chase = function (state) {
         var dir = state.perceptions.targetDirection;
 
         if (sum(dir) === 0) {
@@ -48,11 +48,11 @@ function Behaviors(senses, actions, config) {
         return ["move", {"type": "forward"}];
     };
 
-    actionParameterize.search = function () {
+    responses.search = function () {
         return ["move", {"type": "stop"}];
     };
 
-    actionParameterize.stop = function () {
+    responses.stop = function () {
         return ["move", {"type": "stop"}];
     };
 
@@ -70,7 +70,7 @@ function Behaviors(senses, actions, config) {
 
         for (ii = 0; ii < len; ii += 1) {
             if (situations[behaviorTable[ii].situation](state)) {
-                actions.dispatch(actionParameterize[behaviorTable[ii].action](state));
+                actions.dispatch(responses[behaviorTable[ii].action](state));
                 return true;
             }
         }
