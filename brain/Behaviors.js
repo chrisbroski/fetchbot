@@ -16,9 +16,9 @@ function Behaviors(senses, actions, config) {
     // Situations should only return a boolean indicating if the situation was recognized
     situations.targetDirection = function (state) {
         if (sum(state.perceptions.targetDirection) > 0) {
-            return false;
+            return true;
         }
-        return true;
+        return false;
     };
 
     situations.noTarget = function (state) {
@@ -70,7 +70,7 @@ function Behaviors(senses, actions, config) {
 
         for (ii = 0; ii < len; ii += 1) {
             if (situations[behaviorTable[ii].situation](state)) {
-                actions.dispatch(responses[behaviorTable[ii].action](state));
+                actions.dispatch(responses[behaviorTable[ii].response](state));
                 return true;
             }
         }
