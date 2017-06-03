@@ -5,9 +5,10 @@ Brain.js loads and initializes Senses, Actions, and Behaviors modules.
 It also connects to a viewer for perception visualization and manual action control.
 */
 
-var app = require('express')(),
-    http = require('http').Server(app),
-    io = require('socket.io')(http),
+var fs = require('fs'),
+    http = require('http'),
+    server = http.createServer(app),
+    io = require('socket.io')(server),
     Senses,
     Actions,
     Behaviors = require('./Behaviors.js'),
@@ -34,20 +35,16 @@ if (config.virtual) {
 
 behaviors = new Behaviors(senses, actions, config);
 
-/*jslint unparam: true, nomen: true*/
-app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/viewer.html');
-});
-
-app.get('/img/favicon.png', function (req, res) {
-    res.sendFile(__dirname + '/favicon.png');
-});
-
-if (config.virtual) {
-    app.get('/virtual', function (req, res) {
-        res.sendFile(__dirname + '/virtual.html');
-    });
+function app(req, rsp) {
+    if (req.url === "/img/favicon.png") {
+        rsp.writeHead(200, {'Content-Type': 'image/png'});
+        fs.createReadStream(__dirname + '/favicon.png').pipe(rsp);
+    } else {
+        rsp.writeHead(200, {'Content-Type': 'text/html'});
+        fs.createReadStream(__dirname + '/viewer.html').pipe(rsp);
+    }
 }
+
 /*jslint unparam: false, nomen: false*/
 
 function sendSenseData() {
@@ -78,7 +75,7 @@ io.on('connection', function (socket) {
     });
 });
 
-http.listen(port, function () {
+server.listen(port, function () {
     console.log('Broadcasting to fetchbot viewer at http://0.0.0.0/:' + port);
 });
 
