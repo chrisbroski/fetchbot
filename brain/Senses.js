@@ -6,7 +6,7 @@ function Senses(visionWidth, visionHeight) {
     // Import libraries
     var spawn = require('child_process').spawn,
         Frogeye = require('./sense/Frogeye.js'),
-        frogEye = new Frogeye(50, [22, 0.45]), // Edge contrast, target hue and saturation
+        frogEye = new Frogeye(50, [15.9, 0.41]), // Edge contrast, target hue and saturation
 
         // Declare private objects
         raw = {},
