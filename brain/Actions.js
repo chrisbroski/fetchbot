@@ -15,6 +15,8 @@ function Actions(senses) {
         leftForward = new Gpio(13, {mode: Gpio.OUTPUT}),
         leftBackward = new Gpio(6, {mode: Gpio.OUTPUT}),
 
+        camLED = new Gpio(32, {mode: Gpio.OUTPUT}),
+
         movement = {};
 
     movement.forwardleft = [1, 0, 0, 0];
@@ -120,6 +122,7 @@ function Actions(senses) {
     };
 
     function init() {
+        camLED.digitalWrite(0);
         rightEnable.digitalWrite(1);
         leftEnable.digitalWrite(1);
         motor([0, 0, 0, 0]);
