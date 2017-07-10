@@ -7,11 +7,9 @@ function Actions(senses) {
     var performer = {},
         // global values
         Gpio = require('pigpio').Gpio,
-        rightEnable = new Gpio(17, {mode: Gpio.OUTPUT}),
         rightForward = new Gpio(22, {mode: Gpio.OUTPUT}),
         rightBackward = new Gpio(27, {mode: Gpio.OUTPUT}),
 
-        leftEnable = new Gpio(5, {mode: Gpio.OUTPUT}),
         leftForward = new Gpio(13, {mode: Gpio.OUTPUT}),
         leftBackward = new Gpio(6, {mode: Gpio.OUTPUT}),
 
@@ -19,15 +17,15 @@ function Actions(senses) {
 
         movement = {};
 
-    movement.forwardleft = [1, 0, 0, 0];
-    movement.forward = [1, 0, 1, 0];
-    movement.forwardright = [0, 0, 1, 0];
-    movement.rotateleft = [1, 0, 0, 1];
+    movement.forwardleft = [0, 1, 1, 1];
+    movement.backward = [1, 0, 1, 0];
+    movement.forwardright = [1, 1, 0, 1];
+    movement.rotateright = [1, 0, 0, 1];
     movement.stop = [0, 0, 0, 0];
-    movement.rotateright = [0, 1, 1, 0];
-    movement.backleft = [0, 0, 0, 1];
-    movement.backward = [0, 1, 0, 1];
-    movement.backright = [0, 1, 0, 0];
+    movement.rotateleft = [0, 1, 1, 0];
+    movement.backleft = [1, 1, 1, 0];
+    movement.forward = [0, 1, 0, 1];
+    movement.backright = [1, 0, 1, 1];
 
     function motor(params) {
         rightForward.digitalWrite(params[0]);
@@ -123,8 +121,6 @@ function Actions(senses) {
 
     function init() {
         camLED.digitalWrite(0);
-        rightEnable.digitalWrite(1);
-        leftEnable.digitalWrite(1);
         motor([0, 0, 0, 0]);
     }
 
