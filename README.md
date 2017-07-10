@@ -4,9 +4,9 @@ Fetchbot is a robotics project with the end goal of creating a roving bot that c
 
 ## Fetchbot Alpha
 
-The first version only has the intermediate goal of chasing a ball, so no grabbing mechanism is needed.
+The second version has the intermediate goal of chasing a laser pointer dot.
 
-![Fetchbot Alpha](fetchbotalpha.jpeg)
+![Fetchbot Alpha](fetchbot-2.jpg)
 
 ### Hardware
 
@@ -14,33 +14,37 @@ The first version only has the intermediate goal of chasing a ball, so no grabbi
 * [Raspberry Pi 2](https://www.raspberrypi.org/products/raspberry-pi-2-model-b/)
 * [Raspberry Pi Camera](https://www.raspberrypi.org/products/camera-module/)
 * [Inland 2,600mAh Power Bank Battery Charger for Mobile Devices](http://www.microcenter.com/product/447265/2,600mAh_Power_Bank_Battery_Charger_for_Mobile_Devices) for remote power to the Raspberry Pi.
-* [L293D motor control chip](https://www.adafruit.com/product/807)
-* [Canakit Raspberry Pi GPIO Breakout Board](https://www.canakit.com/raspberry-pi-cobbler-gpio-breakout.html) and wires
-* A bunch of rubber bands to try and hold everything together.
+* L9110 dual H-bridge
+* [Actobotics Pi channel mount](https://www.sparkfun.com/products/13050)
 
 ### Software
 
 * OS - Raspbian Jessie
-* Development Language - Node.js 6.0
+* Development Language - Node.js 8.0
 * GPIO library - [pigpio](https://www.npmjs.com/package/pigpio)
+* [Socket.io](https://socket.io/) for web UI
 
 The AI architecture is based on [Behavioral Logic](http://behaviorallogic.com/api/spec). The visual processing is from [Frogeye](https://github.com/chrisbroski/frogeye).
 
 ### Notes
 
-Though inelegant and graceless, this mess actually works. Here are the major unsolved challenges with proposed solutions, if any.
+These are the next challenges on the path to playing robotic fetch.
 
-#### It's a Complete Mess
+#### Tunnel Vision
 
-I purchased an [Adafruit Perma-Proto Hat](https://www.adafruit.com/products/2310) that should, with some soldering, clean up the mess that is the breadboard. I'll need to get an [Actobotics Pi channel mount](https://www.sparkfun.com/products/13050) too as the one that came with the kit only fits Arduino. The front "caster" on the Actobitty is just a plastic skid. I'd like to find a better wheel, or maybe just upgrade to a more advanced rover kit.
+The peripheral vision of the Raspberry Pi camera is insufficient. I procured a fish-eye lens but I am still trying to figure out the best way to mount it and the camera to the chassis.
+
+#### Propulsion
+
+The front "caster" on the Actobitty is just a plastic skid. I'd rather have tracks.
 
 #### Vision Is Probably Not Enough Senses
 
-I believe that I will require a way to tell if the rover gets stuck or collides with something. I have a [Sense Hat](https://www.raspberrypi.org/products/sense-hat/) that includes accelerometer/gyroscope/magnetometer sensors so I may try to use that or look for a simpler solution.
+I believe that I will require a way to tell if the rover gets stuck or collides with something. A ammeter might indicate a motor stall, and maybe even battery level. A gyroscope or accelerometer could be used to detect movement and orientation.
 
 #### Raspberry Pi Camera Module
 
-The Pi camera comes with everything needed for this project (I use `child_process.spawn` to execute `raspiyuv` bash commands from Node.js.) It just doesn't work very well. Its main shortcomings are:
+The Pi camera comes with everything needed for this project (I use `child_process.spawn` to execute `raspiyuv` bash commands from Node.js.) It just doesn't work very well. I think I need to replace it with a USB camera. The Pi camera's main shortcomings are:
 
 ##### Low FPS
 
