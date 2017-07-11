@@ -33,16 +33,18 @@ function Behaviors(senses, actions, config) {
     };
 
     responses.chase = function (state) {
-        var dir = state.perceptions.targetDirection;
+        var dir = state.perceptions.targetDirection,
+            left = dir[0] + dir[1],
+            right = dir[3] + dir[4];
 
         if (sum(dir) === 0) {
             return ["move", {"type": "stop"}];
         }
 
-        if (dir[0] > dir[1] && dir[0] > dir[2]) {
+        if (left > dir[2] && left > right) {
             return ["move", {"type": "rotateright", "speed": 0.02}];
         }
-        if (dir[2] > dir[0] && dir[2] > dir[1]) {
+        if (right > dir[2] && right > left) {
             return ["move", {"type": "rotateleft", "speed": 0.02}];
         }
         return ["move", {"type": "forward"}];
