@@ -105,11 +105,11 @@ function Frogeye(edgeDifference, targetHS) {
     };
 
     this.ballDirection = function ballDirection(u, v, len, visionWidth) {
-        var hits = [0, 0, 0, 0, 0], ii;
+        var hits = [0, 0, 0], ii;
 
         for (ii = 0; ii < len; ii += 1) {
             if (isTargetColor(u[ii], v[ii])) {
-                hits[Math.floor((ii % visionWidth) / (visionWidth / 5))] += 1;
+                hits[Math.floor((ii % visionWidth) / (visionWidth / 3))] += 1;
             }
         }
 
