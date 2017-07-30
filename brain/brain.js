@@ -10,7 +10,7 @@ var fs = require('fs'),
     server = http.createServer(app),
     io = require('socket.io')(server),
     Senses = require('./Senses.js'),
-    Actions,
+    Actions = require('./Actions.js'),
     Behaviors = require('./Behaviors.js'),
     port = 3791,
     config = {},
@@ -18,19 +18,10 @@ var fs = require('fs'),
     actions,
     behaviors;
 
-config.virtual = !!process.argv[2];
 config.manual = !!process.argv[3];
 
-if (config.virtual) {
-    Actions = require('./VirtualActions.js');
-    senses = new Senses(128, 96, true);
-    actions = new Actions(senses);
-} else {
-    Actions = require('./Actions.js');
-    senses = new Senses(128, 96);
-    actions = new Actions(senses);
-}
-
+senses = new Senses(128, 96, !!process.argv[2]);
+actions = new Actions(senses, !!process.argv[2]);
 behaviors = new Behaviors(senses, actions, config);
 
 function app(req, rsp) {

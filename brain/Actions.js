@@ -1,21 +1,27 @@
 /*jslint node: true */
 
-function Actions(senses) {
+function Actions(senses, virtual) {
     'use strict';
 
     // Action performers
     var performer = {},
         // global values
-        Gpio = require('pigpio').Gpio,
-        rightForward = new Gpio(22, {mode: Gpio.OUTPUT}),
-        rightBackward = new Gpio(27, {mode: Gpio.OUTPUT}),
-
-        leftForward = new Gpio(13, {mode: Gpio.OUTPUT}),
-        leftBackward = new Gpio(6, {mode: Gpio.OUTPUT}),
-
-        camLED = new Gpio(32, {mode: Gpio.OUTPUT}),
-
+        Gpio,
+        rightForward,
+        rightBackward,
+        leftForward,
+        leftBackward,
+        camLED,
         movement = {};
+
+    if (!virtual) {
+        Gpio = require('pigpio').Gpio;
+        rightForward = new Gpio(22, {mode: Gpio.OUTPUT});
+        rightBackward = new Gpio(27, {mode: Gpio.OUTPUT});
+        leftForward = new Gpio(13, {mode: Gpio.OUTPUT});
+        leftBackward = new Gpio(6, {mode: Gpio.OUTPUT});
+        camLED = new Gpio(32, {mode: Gpio.OUTPUT});
+    }
 
     movement.forwardleft = [0, 1, 1, 1];
     movement.backward = [1, 0, 1, 0];
@@ -116,12 +122,18 @@ function Actions(senses) {
             return JSON.parse(JSON.stringify(actions));
         }
 
-        performer[type](params);
+        if (virtual) {
+            console.log('virtual:', type, params);
+        } else {
+            performer[type](params);
+        }
     };
 
     function init() {
-        camLED.digitalWrite(0);
-        motor([0, 0, 0, 0]);
+        if (!virtual) {
+            camLED.digitalWrite(0);
+            motor([0, 0, 0, 0]);
+        }
     }
 
     init();

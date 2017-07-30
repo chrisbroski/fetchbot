@@ -114,20 +114,8 @@ function Reddot() {
         }
 
         return hits;
-    };
-
-    this.detectMotion = function detectMotion(contrastPointAmount, luma, len) {
-        var ii, diff, moveCount = 0;
-        if (luma.previous.length) {
-            for (ii = 0; ii < len; ii += 1) {
-                diff = Math.abs(luma.previous[ii] - luma.current[ii]);
-                if (diff > edgeDifference) {
-                    moveCount += 1;
-                }
-            }
-        }
-        return moveCount / contrastPointAmount;
     };*/
+    
     this.edges = function () {
         return [0];
     };
