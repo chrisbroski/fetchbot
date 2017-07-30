@@ -128,6 +128,9 @@ function Reddot() {
         }
         return moveCount / contrastPointAmount;
     };*/
+    this.edges = function () {
+        return [0];
+    };
 }
 
 module.exports = Reddot;
