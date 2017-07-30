@@ -1,10 +1,11 @@
 /*jslint node: true */
 
-function Senses(visionWidth, visionHeight) {
+function Senses(visionWidth, visionHeight, virtual) {
     'use strict';
 
     // Import libraries
     var spawn = require('child_process').spawn,
+        fs = require("fs"),
         Frogeye = require('./sense/Frogeye.js'),
         frogEye = new Frogeye(50, [15.9, 0.41]), // Edge contrast, target hue and saturation
         Reddot = require('./sense/Reddot.js'),
@@ -166,6 +167,16 @@ function Senses(visionWidth, visionHeight) {
 
     // Other observers can be added here for sound, temperature, velocity, smell, whatever.
 
+    // virtual input
+    function virt(imgRawFileSize, imgPixelSize) {
+        fs.readFile(__dirname + '/reddot.raw', function (err, data) {
+            if (err) {
+                throw err;
+            }
+            observers.vision(data, imgRawFileSize, imgPixelSize);
+        });
+    }
+
     // *Attention* is responsible for triggering observers and perceivers.
     attention = {};
     attention.look = function (timeLapseInterval) {
@@ -175,36 +186,40 @@ function Senses(visionWidth, visionHeight) {
 
         timeLapseInterval = timeLapseInterval || 0;
 
-        /*
-        For better color detection, I recommend disabling the Pi camera light by adding
-        `disable_camera_led=1` to the /boot/config.txt file
-        */
-        cam = spawn('raspiyuv', [
-            '-w', visionWidth.toString(10),
-            '-h', visionHeight.toString(10),
-            //'-p', '50, 80, 400, 300', // small preview window
-            '--nopreview',
-            '-awb', 'fluorescent', // color detection more consistent
-            '-bm', // Burst mode - this causes a significant improvement in frame rate
-            '-vf', // My camera is upside-down so flip the image vertically
-            '-tl', timeLapseInterval.toString(10), // 0 = as fast as possible
-            '-t', '300000', // Restart every 5 min
-            '-o', '-' // To stdout
-        ]);
+        if (virtual) {
+            virt(imgRawFileSize, imgPixelSize);
+        } else {
+            /*
+            For better color detection, I recommend disabling the Pi camera light by adding
+            `disable_camera_led=1` to the /boot/config.txt file
+            */
+            cam = spawn('raspiyuv', [
+                '-w', visionWidth.toString(10),
+                '-h', visionHeight.toString(10),
+                //'-p', '50, 80, 400, 300', // small preview window
+                '--nopreview',
+                '-awb', 'fluorescent', // color detection more consistent
+                '-bm', // Burst mode - this causes a significant improvement in frame rate
+                '-vf', // My camera is upside-down so flip the image vertically
+                '-tl', timeLapseInterval.toString(10), // 0 = as fast as possible
+                '-t', '300000', // Restart every 5 min
+                '-o', '-' // To stdout
+            ]);
 
-        cam.stdout.on('data', function (data) {
-            observers.vision(data, imgRawFileSize, imgPixelSize);
-        });
+            cam.stdout.on('data', function (data) {
+                observers.vision(data, imgRawFileSize, imgPixelSize);
+            });
 
-        cam.stderr.on('data', function (data) {
-            console.log('stderr: ' + data);
-        });
+            cam.stderr.on('data', function (data) {
+                console.log('stderr: ' + data);
+            });
 
-        cam.on('exit', function (code) {
-            console.log('raspiyuv process exited with code ' + code);
-            console.log('Restarting raspiyuv time lapse');
-            attention.look(250);
-        });
+            cam.on('exit', function (code) {
+                console.log('raspiyuv process exited with code ' + code);
+                console.log('Restarting raspiyuv time lapse');
+                attention.look(250);
+            });
+        }
     };
 
     function init() {

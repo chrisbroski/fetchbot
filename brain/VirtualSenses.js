@@ -164,6 +164,16 @@ function Senses(visionWidth, visionHeight) {
 
     // Other observers can be added here for sound, temperature, velocity, smell, whatever.
 
+    // virtual input
+    function virt(imgNum, imgRawFileSize, imgPixelSize) {
+        fs.readFile(__dirname + '/reddot' + img + '.raw', function (err, data) {
+            if (err) {
+                throw err;
+            }
+            observers.vision(data, imgRawFileSize, imgPixelSize);
+        });
+    }
+
     // *Attention* is responsible for triggering observers and perceivers.
     attention = {};
     attention.look = function (timeLapseInterval) {
