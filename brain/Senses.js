@@ -114,7 +114,8 @@ function Senses(visionWidth, visionHeight, virtual) {
     // *Perceivers* process raw sense state into meaningful information
     perceivers.frogEye = function (imgPixelSize) {
         state.perceptions.edges = frogEye.findEdges(raw.luma.current, imgPixelSize, visionWidth);
-        state.perceptions.targets = frogEye.findTargets(raw.chroma.U, raw.chroma.V, imgPixelSize / 4);
+        //state.perceptions.targets = frogEye.findTargets(raw.chroma.U, raw.chroma.V, imgPixelSize / 4);
+        state.perceptions.targets = reddot.findRedEdges(raw.chroma.V, visionWidth / 2, raw.luma);
         state.perceptions.motion = frogEye.detectMotion(state.perceptions.edges.length, raw.luma, imgPixelSize);
         state.perceptions.targetDirection = frogEye.ballDirection(raw.chroma.U, raw.chroma.V, imgPixelSize / 4, visionWidth / 2);
     };

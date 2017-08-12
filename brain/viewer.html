@@ -272,7 +272,7 @@ function init() {
 
     canvasBall = document.getElementById('ball');
     ctxBall = canvasBall.getContext("2d");
-    ctxBall.fillStyle = "rgba(255, 0, 255, 0.5)";
+    ctxBall.fillStyle = "rgba(255, 0, 0, 0.5)";
 
     socket.on("senseState", senseStateReceived);
     socket.on("moods", displayMoods);

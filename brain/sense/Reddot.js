@@ -3,6 +3,92 @@
 function Reddot() {
     'use strict';
 
+    function isRedEdge(ii, visionWidth, imgPixelSize, v, difference, u) {
+        var adjacent = [];
+        var edge;
+
+        if (ii > visionWidth) {
+            adjacent.push(v[ii - visionWidth]); // top
+        }
+        if (ii % visionWidth < visionWidth - 1) {
+            adjacent.push(v[ii + 1]); // right
+        }
+        if (ii < imgPixelSize - visionWidth) {
+            adjacent.push(v[ii + visionWidth]); // bottom
+        }
+        if (ii % visionWidth > 0) {
+            adjacent.push(v[ii - 1]); // left
+        }
+
+        // if all adjacent luma < threshold, perist previous
+        /*function isAllAdjacentBelowDiff() {
+            return adjacent.every(function (adj) {
+                return adj < threshold;
+            });
+        }
+        if (isAllAdjacentBelowDiff()) {
+            return (previous.edges.indexOf(ii) > -1);
+        }*/
+
+        // If previous is true, decrease difference by, say 10%? (until jitter stops)
+        /*edge = luma[ii] * difference;
+        if (state.edge.previous.indexOf(ii) > -1) {
+            edge = edge * 0.9;
+        }*/
+
+        // check adjacent for a significant increase in luma
+        //console.log(ii, u[ii]);
+        return adjacent.some(function (compare) {
+            //console.log(u[ii], compare, u[ii] - compare);
+            return (v[ii] - compare > difference && v[ii] > 150);
+        });
+        //return (Math.random() > 0.9);
+    }
+
+    function loc2x(i, visionWidth) {
+        var row = Math.floor(i / visionWidth);
+        var col = i % visionWidth;
+
+        return [
+            col * 2 + row * 2,
+            col * 2 + row * 2 + 1,
+            col * 2 + row * 2 + visionWidth * 2,
+            col * 2 + row * 2 + visionWidth * 2 + 1
+        ];
+    }
+
+    this.findRedEdges = function findRedEdges(v, visionWidth, l) {
+        var ii,
+            contrast = [],
+            len = v.length,
+            loc2;
+        console.log(l);
+
+        for (ii = 0; ii < len; ii += 1) {
+            /*if (isRedEdge(ii, visionWidth, len, v, 10)) {
+                contrast.push(ii);
+            }*/
+            loc2 = loc2x(ii, visionWidth);
+            if (l[loc2[0]] > 190 || l[loc2[1]] > 190 || l[loc2[2]] > 190 || l[loc2[3]] > 190) {
+                contrast.push(ii);
+            }
+        }
+
+        return contrast;
+    };
+    this.findBlueEdges = function findBlueEdges(u, visionWidth) {
+        var ii,
+            contrast = [],
+            len = u.length;
+
+        for (ii = 0; ii < len; ii += 1) {
+            if (isRedEdge(ii, visionWidth, len, u, 30)) {
+                contrast.push(ii);
+            }
+        }
+
+        return contrast;
+    };
     /*function isEdge(ii, visionWidth, imgPixelSize, luma) {
         var val = luma[ii], compare;
         // check top, right, bottom, and left for a significant increase in luma
@@ -115,10 +201,11 @@ function Reddot() {
 
         return hits;
     };*/
-    
-    this.edges = function () {
-        return [0];
-    };
+
+    /*this.edges = function (u, visionWidth) {
+        //return [];
+        return findRedEdges(u, visionWidth, u.length);
+    };*/
 }
 
 module.exports = Reddot;
