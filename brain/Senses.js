@@ -10,6 +10,7 @@ function Senses(visionWidth, visionHeight, virtual) {
         frogEye = new Frogeye(50, [15.9, 0.41]), // Edge contrast, target hue and saturation
         Reddot = require('./sense/Reddot.js'),
         reddot = new Reddot(),
+        senselib = {},
 
         // Declare private objects
         raw = {},
@@ -109,6 +110,19 @@ function Senses(visionWidth, visionHeight, virtual) {
         } else {
             state.mood.push({"name": moodType, "expires": expTime});
         }
+    };
+
+    this.getParams = function getParams() {
+        // check all sense libraries for parameters
+        return {"reddot": reddot.getParams()};
+    };
+
+    senselib.reddot = reddot;
+    this.setParams = function setParams(params) {
+        var arrayParams = params.split(",");
+        senselib[arrayParams[0]].setParams(arrayParams.slice(1));
+        // refresh somehow
+        perceivers.frogEye(visionWidth * visionHeight);
     };
 
     // *Perceivers* process raw sense state into meaningful information

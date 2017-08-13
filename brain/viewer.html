@@ -3,7 +3,9 @@
 <link rel="icon" type="image/png"  href="img/favicon.png">
 <style>
 * {box-sizing: border-box; }
-h1, h3 {margin: 0.5em 0; font-weight: normal; }
+h1, h3 {margin: 0.5em 8px; font-weight: normal; }
+h3:first-child {margin-top: 0; }
+h4 {margin: 0; }
 h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 .column {
     margin: 0 8px 8px;
@@ -24,10 +26,12 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
     position: absolute;
     top: 0; right: 0; bottom: 0; left: 0;
 }
-#state {
-    padding: 0 1em;
+#senseState {
+    padding: 0.5em 1em;
     color: #fff;
     background: #000;
+    max-height: 310px;
+    overflow: auto;
 }
 
 #brightness {background-color: #333; }
@@ -38,6 +42,16 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
     width: 104px;
 }
 
+#senseParams label {
+    padding: 4px 0;
+    display: block;
+    /*overflow: auto;*/
+    text-align: right;
+}
+#senseParams label input {
+    margin: 0 8px;
+    width: 60px;
+}
 </style>
 
 <article>
@@ -68,14 +82,15 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 </div>
 
 <div id="behaviors" class="column">
-<h3>Behaviors</h3>
-<p id="moods"></p>
+<h3>Behavior</h3>
 <div id="behaviorTable"></div>
 </div>
 
 <div id="state" class="column">
 <h3>Sense State</h3>
 <pre id="senseState"></pre>
+<h3>Sense Params</h3>
+<div id="senseParams"></div>
 </div>
 
 <div style="float: left; clear: left; ">
@@ -234,7 +249,6 @@ function displayActions(actions) {
 }
 
 function displayBehaviors(behaviorTable) {
-    console.log(behaviorTable);
     var behaviors,
         bTable = document.getElementById("behaviorTable"),
         bTableRow;
@@ -272,6 +286,49 @@ function manual() {
     }
 }
 
+function setSenseParam(senselib, sense, perceiver, val) {
+    socket.emit("setSenseParam", senselib + "," + sense + "," + perceiver + "," + val);
+}
+
+function displaySenseParams(params) {
+    var senseParamDiv = document.getElementById("senseParams");
+    params = JSON.parse(params);
+
+    Object.keys(params).forEach(function (key) {
+        var fieldset = document.createElement("fieldset");
+        var legend = document.createElement("legend");
+        legend.textContent = key;
+        fieldset.appendChild(legend);
+
+        Object.keys(params[key]).forEach(function (perceiver) {
+            var h4 = document.createElement("h4");
+            h4.textContent = perceiver;
+            fieldset.appendChild(h4);
+
+            Object.keys(params[key][perceiver]).forEach(function (param) {
+                var label = document.createElement("label");
+                label.textContent = param;
+
+                var input = document.createElement("input");
+                input.type = "number";
+                input.value = params[key][perceiver][param];
+                input.onchange = function () {
+                    setSenseParam(key, perceiver, param, this.value);
+                };
+
+                var button = document.createElement("button");
+                button.type = "button";
+                button.textContent = "Update";
+
+                label.appendChild(input);
+                label.appendChild(button);
+                fieldset.appendChild(label);
+            });
+        });
+        senseParamDiv.appendChild(fieldset);
+    });
+}
+
 function init() {
     disableControlButtons(true);
 
@@ -285,9 +342,10 @@ function init() {
     ctxBall.fillStyle = "rgba(255, 0, 0, 0.5)";
 
     socket.on("senseState", senseStateReceived);
-    socket.on("moods", displayMoods);
+    //socket.on("moods", displayMoods);
     socket.on("actions", displayActions);
     socket.on("behaviors", displayBehaviors);
+    socket.on("getSenseParams", displaySenseParams);
     socket.on("disconnect", function () {
         console.log('disconnected');
     });

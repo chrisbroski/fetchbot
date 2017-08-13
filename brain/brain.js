@@ -46,9 +46,10 @@ function sendSenseData() {
 io.on('connection', function (socket) {
     console.log('Fetchbot viewer client connected');
 
-    io.emit('moods', JSON.stringify(senses.setMood()));
+    //io.emit('moods', JSON.stringify(senses.setMood()));
     io.emit('actions', JSON.stringify(actions.dispatch()));
     io.emit('behaviors', JSON.stringify(behaviors.behaviorTable()));
+    io.emit('getSenseParams', JSON.stringify(senses.getParams()));
     sendSenseData();
 
     socket.on('move', function (moveType) {
@@ -57,6 +58,10 @@ io.on('connection', function (socket) {
 
     socket.on('control', function (controlType) {
         config.manual = (controlType === 'manual');
+    });
+
+    socket.on('setSenseParam', function (senseParams) {
+        senses.setParams(senseParams);
     });
 
     socket.on('disconnect', function () {
