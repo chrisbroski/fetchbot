@@ -9,6 +9,7 @@ function Reddot() {
             chromaV: 190
         }
     };
+    var dots = [];
 
     this.getParams = function getParams() {
         return params;
@@ -17,6 +18,24 @@ function Reddot() {
         params[p[0]][p[1]] = p[2];
         return true;
     }
+
+    function redColumns(visionWidth) {
+        //go through dots. Add up each column
+        // Return the column index with the greatest value
+        var redCount = [0, 0, 0];
+        dots.forEach(function (dot) {
+            var colNum = ((dot - 1) % visionWidth) + 1;
+            if (colNum < visionWidth * 0.4) {
+                redCount[0] += 1;
+            } else if (colNum > visionWidth * 0.6) {
+                redCount[2] += 1;
+            } else {
+                redCount[1] += 1;
+            }
+        });
+        return redCount;
+    }
+    this.redColumns = redColumns;
 
     function loc2x(i, visionWidth) {
         var row = Math.floor(i / visionWidth) + 1,
@@ -34,10 +53,11 @@ function Reddot() {
 
     this.findRedEdges = function findRedEdges(v, visionWidth, l) {
         var ii,
-            contrast = [],
             len = v.length,
             loc2,
             loc2val;
+
+        dots.length = 0;
 
         for (ii = 0; ii < len; ii += 1) {
             loc2 = loc2x(ii, visionWidth);
@@ -48,11 +68,11 @@ function Reddot() {
             }, 0);
 
             if (v[ii] > params.findRed.chromaV && loc2val / 4 > params.findRed.luma) {
-                contrast.push(ii);
+                dots.push(ii);
             }
         }
 
-        return contrast;
+        return dots;
     };
 }
 
