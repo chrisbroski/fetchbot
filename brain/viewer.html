@@ -203,15 +203,22 @@ function setControl(autoOrManual) {
     disableControlButtons(disOrEnabled);
 }
 
+function describeAction(action) {
+    if (action && action.type) {
+        return action.type + ': ' + action.parameters.join(", ");
+    }
+    return "none";
+}
+
 function senseStateReceived(senseState) {
     var jsonState = JSON.parse(senseState),
-        jsonString;// = JSON.stringify(jsonState, null, '    ');
+        jsonString;
 
     width = jsonState.perceptions.dimensions[0];
     mag = 400 / width;
     halfMag = mag / 2;
     currentAction = jsonState.currentAction;
-    document.getElementById("current-action").textContent = currentAction.type + ':' + currentAction.parameters.join(", ");
+    document.getElementById("current-action").textContent = describeAction(currentAction);
     delete jsonState.currentAction;
     jsonString = JSON.stringify(jsonState, null, '    ');
 
