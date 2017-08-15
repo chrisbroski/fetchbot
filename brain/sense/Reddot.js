@@ -51,7 +51,7 @@ function Reddot() {
         ];
     }
 
-    this.findRedEdges = function findRedEdges(v, visionWidth, l) {
+    this.findBrightRed = function findBrightRed(v, visionWidth, l) {
         var ii,
             len = v.length,
             loc2,
@@ -62,7 +62,6 @@ function Reddot() {
         for (ii = 0; ii < len; ii += 1) {
             loc2 = loc2x(ii, visionWidth);
 
-            //loc2val = +l[loc2[0]] + +l[loc2[1]] + +l[loc2[2]] + +l[loc2[3]];
             loc2val = loc2.reduce(function (a, b) {
                 return a + l[b];
             }, 0);

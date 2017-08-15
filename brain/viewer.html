@@ -211,7 +211,7 @@ function senseStateReceived(senseState) {
     mag = 400 / width;
     halfMag = mag / 2;
     currentAction = jsonState.currentAction;
-    document.getElementById("current-action").textContent = JSON.stringify(currentAction);
+    document.getElementById("current-action").textContent = currentAction.type + ':' + currentAction.parameters.join(", ");
     delete jsonState.currentAction;
     jsonString = JSON.stringify(jsonState, null, '    ');
 
