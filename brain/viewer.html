@@ -99,11 +99,9 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 
 <div style="float: left; clear: left; ">
 <ul>
-<li>Expose sense and action parameters to UI
 <li>Create detectors from sensors for behavior creation
 <li>Get sensors from npm library
 <li>Build and order behaviors
-<li>Display current action better
 </ul>
 </div>
 
@@ -112,20 +110,6 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 <script src="/socket.io/socket.io.js"></script>
 <script>
 var socket, canvasEdge, ctxEdge, canvasBall, ctxBall, viewWidth, mag, halfMag, width, stateHash = 0, control = 'auto', manualOverrideTimer;
-
-/* From http://stackoverflow.com/questions/7616461#answer-7616484 */
-function hashCode(s) {
-    var hash = 0, i, chr, len = s.length;
-    if (len === 0) {
-        return hash;
-    }
-    for (i = 0; i < len; i++) {
-        chr = s.charCodeAt(i);
-        hash = ((hash << 5) - hash) + chr;
-        hash |= 0; // Convert to 32bit integer
-    }
-    return hash;
-}
 
 function displayOverallBrightness(brightnessNormalized) {
     var brightnessAmplified = brightnessNormalized + 0.1,
@@ -223,19 +207,19 @@ function senseStateReceived(senseState) {
     jsonString = JSON.stringify(jsonState, null, '    ');
 
     // only update screen if data is new
-    if (hashCode(jsonString) !== stateHash) {
-        stateHash = hashCode(jsonString);
+    //if (hashCode(jsonString) !== stateHash) {
+    stateHash = hashCode(jsonString);
 
-        // Handle image dimension change
-        if (viewWidth !== jsonState.perceptions.dimensions[0]) {
-            setViewOptions(jsonState.perceptions.dimensions[0]);
-        }
-
-        document.querySelector('#state pre').innerHTML = jsonString;
-        displayOverallBrightness(jsonState.perceptions.brightnessOverall);
-        displayEdges(jsonState.perceptions.edges);
-        displayTargets(jsonState.perceptions.targets);
+    // Handle image dimension change
+    if (viewWidth !== jsonState.perceptions.dimensions[0]) {
+        setViewOptions(jsonState.perceptions.dimensions[0]);
     }
+
+    document.querySelector('#state pre').innerHTML = jsonString;
+    displayOverallBrightness(jsonState.perceptions.brightnessOverall);
+    displayEdges(jsonState.perceptions.edges);
+    displayTargets(jsonState.perceptions.targets);
+    //}
 }
 
 function displayMoods(moodString) {
