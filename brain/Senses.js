@@ -46,6 +46,8 @@ function Senses(visionWidth, visionHeight, virtual) {
         edges: []
     };
 
+    state.detectors = {};
+
     // Sense state is publically readable (but not changeable).
     this.senseState = function (type) {
         if (type) {
@@ -135,6 +137,12 @@ function Senses(visionWidth, visionHeight, virtual) {
         //state.perceptions.targetDirection = frogEye.ballDirection(raw.chroma.U, raw.chroma.V, imgPixelSize / 4, visionWidth / 2);
     };
 
+    function detectors() {
+        state.detectors.reddot = !!state.perceptions.targetDirection.some(function (dir) {
+            return (dir > 0);
+        });
+    }
+
     // *Observers* populate raw sense state from a creature's sensors.
     observers.vision = function (yuvData, imgRawFileSize, imgPixelSize) {
         var lumaData = [],
@@ -179,6 +187,7 @@ function Senses(visionWidth, visionHeight, virtual) {
         */
         state.perceptions.brightnessOverall = brightness / imgPixelSize / 256;
         perceivers.frogEye(imgPixelSize);
+        detectors();
     };
 
     // Other observers can be added here for sound, temperature, velocity, smell, whatever.
