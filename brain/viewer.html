@@ -3,6 +3,8 @@
 <link rel="icon" type="image/png"  href="img/favicon.png">
 <style>
 * {box-sizing: border-box; }
+html {margin: 0; }
+body {margin: 8px 0; }
 h1, h3 {margin: 0.5em 8px; font-weight: normal; }
 h3:first-child {margin-top: 0; }
 h4 {margin: 0; }
@@ -30,13 +32,13 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
     padding: 0.5em 1em;
     color: #fff;
     background: #000;
-    max-height: 310px;
     overflow: auto;
 }
 
 #brightness {background-color: #333; }
 #loc > div {width: 25%; height: 33.333%; float: left; }
 
+#manual button {float: right; }
 #controls button {
     margin: 0 1em;
     width: 104px;
@@ -58,7 +60,6 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 </style>
 
 <article>
-<h1><img src="img/favicon.png">Fetchbot Brain Viewer</h1>
 
 <div id="hud" class="column">
 <div id="frogeye">
@@ -67,9 +68,32 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
     <canvas id="ball" width="400" height="300"></canvas>
 </div>
 
+<h3>Sense State</h3>
+<pre id="senseState"></pre>
+</div>
+
+<div id="behaviors" class="column">
+<h3>Behavior</h3>
+<div id="behaviorTable"></div>
+
+<h3>Sense Params</h3>
+<div id="senseParams"></div>
+
+<h3>TODO</h3>
+<ul>
+<li>Create detectors from sensors for behavior creation
+<li>Get sensors from npm library
+<li>Build and order behaviors
+</ul>
+
+</div>
+
+<div id="action" class="column">
+
 <div id="manual">
-<p><button onclick="manual()">Request manual control</button>
-    Action: <span id="current-action"></span>
+<p>
+    <button onclick="manual()">Request manual control</button>
+    <h3>Action: <span id="current-action"></span></h3>
 </div>
 
 <div id="controls">
@@ -83,26 +107,6 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
     <button onclick="move('backward')">backward</button>
     <button onclick="move('backright')">backward right</button>
 </div>
-</div>
-
-<div id="behaviors" class="column">
-<h3>Behavior</h3>
-<div id="behaviorTable"></div>
-</div>
-
-<div id="state" class="column">
-<h3>Sense State</h3>
-<pre id="senseState"></pre>
-<h3>Sense Params</h3>
-<div id="senseParams"></div>
-</div>
-
-<div style="float: left; clear: left; ">
-<ul>
-<li>Create detectors from sensors for behavior creation
-<li>Get sensors from npm library
-<li>Build and order behaviors
-</ul>
 </div>
 
 </article>
@@ -208,14 +212,14 @@ function senseStateReceived(senseState) {
 
     // only update screen if data is new
     //if (hashCode(jsonString) !== stateHash) {
-    stateHash = hashCode(jsonString);
+    //stateHash = hashCode(jsonString);
 
     // Handle image dimension change
     if (viewWidth !== jsonState.perceptions.dimensions[0]) {
         setViewOptions(jsonState.perceptions.dimensions[0]);
     }
 
-    document.querySelector('#state pre').innerHTML = jsonString;
+    document.querySelector('#senseState').innerHTML = jsonString;
     displayOverallBrightness(jsonState.perceptions.brightnessOverall);
     displayEdges(jsonState.perceptions.edges);
     displayTargets(jsonState.perceptions.targets);
