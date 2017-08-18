@@ -35,6 +35,9 @@ function Senses(visionWidth, visionHeight, virtual) {
     // They are set with a duration and will automatically remove themselves after time expires
     state.mood = [];
 
+    // Detectors are booleans used to initiate behaviors
+    state.detectors = {};
+
     // *Perceptions* are the results of processing raw sense state
     // They can only be written by perceivers, but can be read by anything
     state.perceptions = {
@@ -45,8 +48,6 @@ function Senses(visionWidth, visionHeight, virtual) {
         targets: [],
         edges: []
     };
-
-    state.detectors = {};
 
     // Sense state is publically readable (but not changeable).
     this.senseState = function (type) {
@@ -145,6 +146,7 @@ function Senses(visionWidth, visionHeight, virtual) {
         state.detectors.reddot = !!state.perceptions.targetDirection.some(function (dir) {
             return (dir > 0);
         });
+        state.detectors.lowLight = (state.perceptions.brightnessOverall < 0.1);
     }
 
     // *Observers* populate raw sense state from a creature's sensors.
