@@ -59,6 +59,10 @@ function Senses(visionWidth, visionHeight, virtual) {
         return JSON.parse(JSON.stringify(state));
     };
 
+    this.senseRaw = function () {
+        return JSON.stringify(raw);
+    };
+
     // *current action* can be modified by the Actions module
     this.currentAction = function currentAction(type, params) {
         state.currentAction.type = type;
@@ -148,8 +152,9 @@ function Senses(visionWidth, visionHeight, virtual) {
         var lumaData = [],
             chromaU = [],
             chromaV = [],
-            brightness = 0,
             ii;
+
+        raw.brightness = 0;
 
         // The Pi camera gives a lot of crap data in yuv time lapse mode.
         // This recovers some of it
@@ -166,7 +171,7 @@ function Senses(visionWidth, visionHeight, virtual) {
         // Data conversion. In this case an array is built from part of a binary buffer.
         for (ii = 0; ii < imgPixelSize; ii += 1) {
             lumaData.push(yuvData.readUInt8(ii));
-            brightness += yuvData.readUInt8(ii);
+            raw.brightness += yuvData.readUInt8(ii);
         }
         for (ii = imgPixelSize; ii < imgPixelSize * 1.25; ii += 1) {
             chromaU.push(yuvData.readUInt8(ii));
@@ -185,7 +190,7 @@ function Senses(visionWidth, visionHeight, virtual) {
         Perceivers should typically be handled by the attention object as a separate
         process, but for simplicity we'll just fire them off after the observer completes.
         */
-        state.perceptions.brightnessOverall = brightness / imgPixelSize / 256;
+        state.perceptions.brightnessOverall = raw.brightness / imgPixelSize / 256;
         perceivers.frogEye(imgPixelSize);
         detectors();
     };
@@ -214,10 +219,6 @@ function Senses(visionWidth, visionHeight, virtual) {
         if (virtual) {
             virt(imgRawFileSize, imgPixelSize);
         } else {
-            /*
-            For better color detection, I recommend disabling the Pi camera light by adding
-            `disable_camera_led=1` to the /boot/config.txt file
-            */
             cam = spawn('raspiyuv', [
                 '-w', visionWidth.toString(10),
                 '-h', visionHeight.toString(10),

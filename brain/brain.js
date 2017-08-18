@@ -40,6 +40,7 @@ function sendSenseData() {
     setInterval(function () {
         // send sense data to viewer 10x per second
         io.emit('senseState', JSON.stringify(senses.senseState()));
+        io.emit('senseRaw', senses.senseRaw());
     }, 100);
 }
 

@@ -22,7 +22,7 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
     width: 400px; height: 300px;
     border: 1px solid #333;
     float: left;
-    background: #000;
+    /*background: #000;*/
 }
 #frogeye > div, #frogeye canvas {
     position: absolute;
@@ -35,7 +35,7 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
     overflow: auto;
 }
 
-#brightness {background-color: #333; }
+#brightness {background-color: #333; display: none; }
 #loc > div {width: 25%; height: 33.333%; float: left; }
 
 #manual button {float: right; }
@@ -64,8 +64,19 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 <div id="hud" class="column">
 <div id="frogeye">
     <div id="brightness"></div>
+    <canvas id="luma" width="400" height="300"></canvas>
+    <canvas id="chromaU" width="400" height="300"></canvas>
+    <canvas id="chromaV" width="400" height="300"></canvas>
     <canvas id="edges" width="400" height="300"></canvas>
-    <canvas id="ball" width="400" height="300"></canvas>
+    <canvas id="target" width="400" height="300"></canvas>
+</div>
+
+<div>
+    <label><input type="checkbox" id="layer-luma"> Luma</label>
+    <label><input type="checkbox" id="layer-chromaU"> Chroma U</label>
+    <label><input type="checkbox" id="layer-chromaV"> Chroma V</label>
+    <label><input type="checkbox" id="layer-edges" checked="checked"> Edges</label>
+    <label><input type="checkbox" id="layer-target" checked="checked"> Target</label>
 </div>
 
 <h3>Sense State</h3>
@@ -112,7 +123,9 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-var socket, canvasEdge, ctxEdge, canvasBall, ctxBall, viewWidth, mag, halfMag, width, stateHash = 0, control = 'auto', manualOverrideTimer;
+var socket, canvasEdge, ctxEdge, canvasBall, ctxBall, viewWidth, mag, halfMag, width, stateHash = 0, control = 'auto', manualOverrideTimer, canvasLuma, ctxLuma, canvasChromaU, ctxChromaU, canvasChromaV, canvasChromaV, layers;
+
+layers = ["luma", "chromaU", "chromaV", "edges", "target"];
 
 function displayOverallBrightness(brightnessNormalized) {
     var brightnessAmplified = brightnessNormalized + 0.1,
@@ -197,6 +210,49 @@ function describeAction(action) {
     return "none";
 }
 
+function displayRaw(raw) {
+    var raw = JSON.parse(raw);
+
+    ctxLuma.clearRect(0, 0, canvasEdge.width, canvasEdge.height);
+    raw.luma.current.forEach(function (dot, index) {
+        var x = (index % (width)) * mag,
+            y = (Math.floor(index / (width))) * mag,
+            size = mag;
+
+        ctxLuma.fillStyle = "rgba(" + dot + ", " + dot + ", " + dot + ", 0.5)";
+        ctxLuma.beginPath();
+        ctxLuma.fillRect(x, y, size, size);
+        ctxLuma.closePath();
+        ctxLuma.fill();
+    });
+
+    ctxChromaU.clearRect(0, 0, canvasEdge.width, canvasEdge.height);
+    raw.chroma.U.forEach(function (dot, index) {
+        var x = (index % (width / 2)) * mag * 2,
+            y = (Math.floor(index / (width / 2))) * mag * 2,
+            size = mag * 2;
+
+        ctxChromaU.fillStyle = "rgba(0, 0, 255, " + (dot / 512) + ")";
+        ctxChromaU.beginPath();
+        ctxChromaU.fillRect(x, y, size, size);
+        ctxChromaU.closePath();
+        ctxChromaU.fill();
+    });
+
+    ctxChromaV.clearRect(0, 0, canvasEdge.width, canvasEdge.height);
+    raw.chroma.V.forEach(function (dot, index) {
+        var x = (index % (width / 2)) * mag * 2,
+            y = (Math.floor(index / (width / 2))) * mag * 2,
+            size = mag * 2;
+
+        ctxChromaV.fillStyle = "rgba(255, 0, 0, " + (dot / 512) + ")";
+        ctxChromaV.beginPath();
+        ctxChromaV.fillRect(x, y, size, size);
+        ctxChromaV.closePath();
+        ctxChromaV.fill();
+    });
+}
+
 function senseStateReceived(senseState) {
     var jsonState = JSON.parse(senseState),
         jsonString;
@@ -219,7 +275,7 @@ function senseStateReceived(senseState) {
     }
 
     document.querySelector('#senseState').innerHTML = jsonString;
-    displayOverallBrightness(jsonState.perceptions.brightnessOverall);
+    //displayOverallBrightness(jsonState.perceptions.brightnessOverall);
     displayEdges(jsonState.perceptions.edges);
     displayTargets(jsonState.perceptions.targets);
     //}
@@ -331,19 +387,39 @@ function displaySenseParams(params) {
     });
 }
 
+function checkLayers() {
+    layers.forEach(function (layer) {
+        var check = document.getElementById("layer-" + layer);
+        document.getElementById(layer).style.display = (check.checked) ? "block" : "none";
+    })
+}
+
 function init() {
     disableControlButtons(true);
+
+    layers.forEach(function (layer) {
+        document.getElementById("layer-" + layer).onclick = checkLayers;
+    });
+    checkLayers();
 
     socket = io({reconnection: false});
 
     canvasEdge = document.getElementById("edges");
     ctxEdge = canvasEdge.getContext("2d");
 
-    canvasBall = document.getElementById('ball');
+    canvasBall = document.getElementById('target');
     ctxBall = canvasBall.getContext("2d");
     ctxBall.fillStyle = "rgba(255, 0, 0, 0.5)";
 
+    canvasLuma = document.getElementById("luma");
+    ctxLuma = canvasLuma.getContext("2d");
+    canvasChromaU = document.getElementById("chromaU");
+    ctxChromaU = canvasChromaU.getContext("2d");
+    canvasChromaV = document.getElementById("chromaV");
+    ctxChromaV = canvasChromaV.getContext("2d");
+
     socket.on("senseState", senseStateReceived);
+    socket.on("senseRaw", displayRaw);
     //socket.on("moods", displayMoods);
     socket.on("actions", displayActions);
     socket.on("behaviors", displayBehaviors);
