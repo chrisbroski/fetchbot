@@ -214,7 +214,7 @@ function displayRaw(raw) {
     var raw = JSON.parse(raw);
 
     ctxLuma.clearRect(0, 0, canvasEdge.width, canvasEdge.height);
-    raw.luma.current.forEach(function (dot, index) {
+    raw.luma.forEach(function (dot, index) {
         var x = (index % (width)) * mag,
             y = (Math.floor(index / (width))) * mag,
             size = mag;
@@ -227,7 +227,7 @@ function displayRaw(raw) {
     });
 
     ctxChromaU.clearRect(0, 0, canvasEdge.width, canvasEdge.height);
-    raw.chroma.U.forEach(function (dot, index) {
+    raw.chromaU.forEach(function (dot, index) {
         var x = (index % (width / 2)) * mag * 2,
             y = (Math.floor(index / (width / 2))) * mag * 2,
             size = mag * 2;
@@ -240,7 +240,7 @@ function displayRaw(raw) {
     });
 
     ctxChromaV.clearRect(0, 0, canvasEdge.width, canvasEdge.height);
-    raw.chroma.V.forEach(function (dot, index) {
+    raw.chromaV.forEach(function (dot, index) {
         var x = (index % (width / 2)) * mag * 2,
             y = (Math.floor(index / (width / 2))) * mag * 2,
             size = mag * 2;
