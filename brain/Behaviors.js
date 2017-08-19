@@ -5,7 +5,7 @@ var behaviorTable = require("./behavior/behaviorTable.json");
 function Behaviors(senses, actions, config) {
     'use strict';
 
-    var situations = {}, responses = {}, stateHash;
+    var responses = {};
 
     function sum(arr) {
         return arr.reduce(function (a, b) {
@@ -13,24 +13,29 @@ function Behaviors(senses, actions, config) {
         });
     }
 
-    // Situations should only return a boolean indicating if the situation was recognized
-    situations.targetDirection = function (state) {
-        if (sum(state.perceptions.targetDirection) > 0) {
+    function trueDetectors() {
+        var detectors = senses.senseState().detectors;
+
+        return Object.keys(detectors).filter(function (detector) {
+            if (detectors[detector]) {
+                return detector;
+            }
+        });
+    }
+
+    function detectorMatch(a, b) {
+        if (a === b) {
             return true;
         }
-        return false;
-    };
-
-    situations.noTarget = function (state) {
-        if (sum(state.perceptions.targetDirection) === 0) {
-            return true;
+        if (a === null || b === null) {
+            return false;
         }
-        return false;
-    };
+        if (a.length !== b.length) {
+            return false;
+        }
 
-    situations.default = function () {
-        return true;
-    };
+        return (a.join(",") === b.join(","));
+    }
 
     responses.chase = function (state) {
         var dir = state.perceptions.targetDirection;
@@ -48,10 +53,6 @@ function Behaviors(senses, actions, config) {
         return ["move", {"type": "forward"}];
     };
 
-    responses.search = function () {
-        return ["move", {"type": "stop"}];
-    };
-
     responses.stop = function () {
         return ["move", {"type": "stop"}];
     };
@@ -60,46 +61,30 @@ function Behaviors(senses, actions, config) {
         return JSON.parse(JSON.stringify(behaviorTable));
     };
 
-    function behavior(state) {
-        var ii, len = behaviorTable.length;//, actionParams;
+    function respond(state) {
+        var response, selectedBehavior, situationEnv = trueDetectors();
 
         // Skip if under manual control
+        // This should be handled by the Actions module so we still set current action state
         if (config.manual) {
             return false;
         }
 
-        for (ii = 0; ii < len; ii += 1) {
-            if (situations[behaviorTable[ii].situation](state)) {
-                actions.dispatch(responses[behaviorTable[ii].response](state));
-                return true;
-            }
-        }
+        selectedBehavior = behaviorTable.find(function (behavior) {
+            return (detectorMatch(behavior.situation, situationEnv));
+        });
 
-        return false;
-    }
-
-    /* From http://stackoverflow.com/questions/7616461#answer-7616484 */
-    function hashCode(s) {
-        var hash = 0, i, chr, len = s.length;
-        if (len === 0) {
-            return hash;
+        if (!selectedBehavior) {
+            response = behaviorTable[0].response;
+        } else {
+            response = selectedBehavior.response;
         }
-        for (i = 0; i < len; i += 1) {
-            chr = s.charCodeAt(i);
-            hash = ((hash << 5) - hash) + chr;
-            hash |= 0; // Convert to 32bit integer
-        }
-        return hash;
+        actions.dispatch(responses[response](state));
     }
 
     function monitor() {
-        var state = senses.senseState(),
-            currentStateHash = hashCode(JSON.stringify(state));
-
-        if (currentStateHash !== stateHash) {
-            stateHash = currentStateHash;
-            behavior(state);
-        }
+        var state = senses.senseState();
+        respond(state);
     }
 
     function init() {

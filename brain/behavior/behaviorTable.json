@@ -1,5 +1,4 @@
 [
-    {"situation": "targetDirection", "response": "chase"},
-    {"situation": "noTarget", "response": "search"},
-    {"situation": "default", "response": "stop"}
+    {"situation": [], "response": "stop"},
+    {"situation": ["reddot"], "response": "chase"}
 ]
