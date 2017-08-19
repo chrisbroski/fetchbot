@@ -3,12 +3,41 @@
 <link rel="icon" type="image/png"  href="img/favicon.png">
 <style>
 * {box-sizing: border-box; }
-html {margin: 0; }
+html {margin: 0; background: #555; color: #fff; font-family: sans-serif; }
 body {margin: 8px 0; }
 h1, h3 {margin: 0.5em 8px; font-weight: normal; }
 h3:first-child {margin-top: 0; }
 h4 {margin: 0; }
 h1 img {margin: 0 10px 0 0; vertical-align: middle; }
+button {
+    border: 1px solid #333;
+    border-radius: 4px;
+    background: #666;
+    color: #fff;
+    background: linear-gradient(0deg, #666, #888);
+}
+button:focus {
+    outline: none;
+}
+button:active {
+    background: linear-gradient(0deg, #222, #444);
+}
+button:disabled {
+    background: #999;
+    border: 1px solid #666;
+    color: #666;
+}
+input {
+    padding: 4px;
+    background: #444;
+    border: 1px solid #777;
+    border-radius: 4px;
+    color: #fff;
+}
+label {
+    padding-right: 0.8em;
+    font-size: 12px;
+}
 .column {
     margin: 0 8px 8px;
     width: 400px;
@@ -20,13 +49,57 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
     position: relative;
     overflow; auto;
     width: 400px; height: 300px;
-    border: 1px solid #333;
+    /*border: 1px solid #333;*/
     float: left;
-    /*background: #000;*/
+    background: #fff;
 }
 #frogeye > div, #frogeye canvas {
     position: absolute;
     top: 0; right: 0; bottom: 0; left: 0;
+}
+#ruler-x {
+    position: relative;
+    width: 400px;
+    height: 14px;
+}
+#ruler-x span {
+    display: inline-block;
+    border-left: 1px solid #ccc;
+    width: 25%;
+    padding: 0 2px;
+    font-size: 10px;
+    line-height: 12px;
+    vertical-align: middle;
+    background: #333;
+    /*position: absolute;
+    bottom: 0;*/
+}
+#ruler-x span:last-child {
+    position: absolute;
+    bottom: -1px;
+    right: 0;
+    width: auto;
+    border-left: 0 none;
+    border-right: 1px solid #ccc;
+}
+
+#ruler-y {
+    display: none;
+    position: absolute;
+    width: 14px;
+    height: 300px;
+    left: 0;
+    top: 0;
+}
+#ruler-x span {
+    display: inline-block;
+    border-left: 1px solid #ccc;
+    width: 25%;
+    padding: 0 2px;
+    font-size: 10px;
+    line-height: 12px;
+    vertical-align: middle;
+    background: #333;
 }
 #senseState {
     padding: 0.5em 1em;
@@ -62,6 +135,8 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 <article>
 
 <div id="hud" class="column">
+<div id="ruler-x"><span>0</span><span>32</span><span>64</span><span>96</span><span>128</span></div>
+<div id="ruler-y"><span>0</span><span>24</span><span>48</span><span>72</span><span>96</span></div>
 <div id="frogeye">
     <div id="brightness"></div>
     <canvas id="luma" width="400" height="300"></canvas>
@@ -115,7 +190,7 @@ h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 <p><button onclick="move('rotateleft')">rotate left</button>
     <button onclick="move('stop')">stop</button>
     <button onclick="move('rotateright')">rotate right</button>
-<p><button onclick="move('backleft')">bacward left</button>
+<p><button onclick="move('backleft')">backward left</button>
     <button onclick="move('backward')">backward</button>
     <button onclick="move('backright')">backward right</button>
 </div>
