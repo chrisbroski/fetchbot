@@ -1,0 +1,158 @@
+* {box-sizing: border-box; }
+html {margin: 0; background: #555; color: #fff; font-family: sans-serif; }
+body {margin: 8px 0; }
+h1, h3 {margin: 0.5em 0; font-weight: normal; }
+h3:first-child {margin-top: 0; }
+h3 {font-size: 14px; text-transform: uppercase; }
+h4 {margin: 0; font-weight: normal; }
+h1 img {margin: 0 10px 0 0; vertical-align: middle; }
+
+button {
+    border: 1px solid #333;
+    border-radius: 4px;
+    background: #666;
+    color: #fff;
+    background: linear-gradient(0deg, #666, #888);
+}
+button:focus {
+    outline: none;
+}
+button:active {
+    background: linear-gradient(0deg, #222, #444);
+}
+button:disabled {
+    background: #999;
+    border: 1px solid #666;
+    color: #666;
+}
+input {
+    padding: 4px;
+    background: #444;
+    border: 1px solid #777;
+    border-radius: 4px;
+    color: #fff;
+}
+label {
+    padding-right: 0.8em;
+    font-size: 12px;
+}
+.column {
+    margin: 0 8px 8px;
+    width: 400px;
+    float: left;
+    overflow: auto;
+}
+#hud {
+    width: 414px;
+}
+#behaviors {
+    width: 340px;
+}
+#action {
+    width: 340px;
+}
+#frogeye {
+    margin: 0 10px 10px 14px;
+    position: relative;
+    overflow; auto;
+    width: 400px; height: 300px;
+    /*border: 1px solid #333;*/
+    float: left;
+    background: #fff;
+}
+#frogeye > div, #frogeye canvas {
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+}
+#ruler-x {
+    margin-left: 14px;
+    position: relative;
+    width: 400px;
+    height: 14px;
+}
+#ruler-x span {
+    display: inline-block;
+    border-left: 1px solid #ccc;
+    width: 25%;
+    padding: 0 2px;
+    font-size: 10px;
+    line-height: 12px;
+    vertical-align: middle;
+    background: #333;
+    /*position: absolute;
+    bottom: 0;*/
+}
+#ruler-x span:last-child {
+    position: absolute;
+    bottom: -1px;
+    right: 0;
+    width: auto;
+    border-left: 0 none;
+    border-right: 1px solid #ccc;
+}
+
+#ruler-y {
+    /*display: none;*/
+    position: absolute;
+    width: 14px;
+    height: 300px;
+    left: 8px;
+    top: 22px;
+}
+#ruler-y span {
+    display: inline-block;
+    border-top: 1px solid #ccc;
+    width: 14px;
+    height: 25%;
+    padding: 0 2px;
+    font-size: 10px;
+    line-height: 12px;
+    vertical-align: middle;
+    background: #333;
+    text-align: right;
+}
+#ruler-y span:last-child {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: auto;
+    border-top: 0 none;
+    border-bottom: 1px solid #ccc;
+}
+#senseState {
+    padding: 0.5em 1em;
+    color: #fff;
+    background: #000;
+    overflow: auto;
+}
+
+#brightness {background-color: #333; display: none; }
+#loc > div {width: 25%; height: 33.333%; float: left; }
+
+#manual button {float: right; }
+#controls button {
+    margin-right: 10px;
+    width: 103px;
+}
+#controls button:last-child {
+    margin-right: 0;
+}
+
+#senseParams label {
+    padding: 4px 0;
+    display: block;
+    /*overflow: auto;*/
+    text-align: right;
+}
+#senseParams label input {
+    margin: 0 8px;
+    width: 60px;
+}
+#current-action {
+    font-size: 12px;
+    text-transform: none;
+}
+#behaviorTable {
+    width: 400px;
+    height: 100px;
+}
