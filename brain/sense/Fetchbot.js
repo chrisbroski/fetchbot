@@ -10,24 +10,7 @@ global.params.fetchbot.edge.diff = 50;
 function Fetchbot() {
     'use strict';
 
-    /*var params = {
-        reddot: {
-            luma: 100,
-            chromaV: 190
-        },
-        edge: {
-            diff: 50
-        }
-    };*/
     var dots = [];
-
-    /*this.getParams = function getParams() {
-        return params;
-    }
-    this.setParams = function setParams(p) {
-        params[p[0]][p[1]] = p[2];
-        return true;
-    }*/
 
     function isEdge(ii, visionWidth, imgPixelSize, luma) {
         var adjacent = [], val = luma[ii], difference = global.params.fetchbot.edge.diff;

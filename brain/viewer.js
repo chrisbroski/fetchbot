@@ -233,7 +233,6 @@ function setSenseParam(senselib, sense, perceiver, val) {
 }
 
 function displaySenseParams(params) {
-    //console.log(params);
     var senseParamDiv = document.getElementById("senseParams");
     params = JSON.parse(params);
 

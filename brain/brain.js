@@ -70,15 +70,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('setSenseParam', function (senseParams) {
-        //senses.setParams(senseParams);
-        /*
-        var arrayParams = params.split(",");
-        senselib[arrayParams[0]].setParams(arrayParams.slice(1));
-        // refresh somehow
-        perceivers.frogEye(visionWidth * visionHeight);
-        */
         var arrayParams = senseParams.split(",");
-        console.log(arrayParams);
         global.params[arrayParams[0]][arrayParams[1]][arrayParams[2]] = +arrayParams[3];
         senses.perceive();
     });

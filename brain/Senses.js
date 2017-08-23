@@ -116,19 +116,6 @@ function Senses(visionWidth, visionHeight, virtual) {
         }
     };
 
-    /*this.getParams = function getParams() {
-        // check all sense libraries for parameters
-        return {"fetchbot": fetchbot.getParams()};
-    };
-
-    //senselib.reddot = fetchbot;
-    this.setParams = function setParams(params) {
-        var arrayParams = params.split(",");
-        fetchbot.setParams(arrayParams.slice(1));
-        // refresh somehow
-        perceivers.frogEye(visionWidth * visionHeight);
-    };*/
-
     function detectors() {
         state.detectors.reddot = !!state.perceptions.targetDirection.some(function (dir) {
             return (dir > 0);
@@ -146,13 +133,6 @@ function Senses(visionWidth, visionHeight, virtual) {
 
     // *Perceivers* process raw sense state into meaningful information
     perceivers.frogEye = function (imgPixelSize) {
-        /*state.perceptions.edges = frogEye.findEdges(raw.luma.current, imgPixelSize, visionWidth);
-        //state.perceptions.targets = frogEye.findTargets(raw.chroma.U, raw.chroma.V, imgPixelSize / 4);
-        state.perceptions.targets = reddot.findBrightRed(raw.chroma.V, visionWidth / 2, raw.luma.current);
-        state.perceptions.targetDirection = reddot.redColumns(visionWidth / 2);*/
-        //state.perceptions.motion = frogEye.detectMotion(state.perceptions.edges.length, raw.luma, imgPixelSize);
-        //state.perceptions.targetDirection = frogEye.ballDirection(raw.chroma.U, raw.chroma.V, imgPixelSize / 4, visionWidth / 2);
-
         state.perceptions.edges = fetchbot.findEdges(raw.luma.current, imgPixelSize, visionWidth);
         state.perceptions.targets = fetchbot.findBrightRed(raw.chroma.V, visionWidth / 2, raw.luma.current);
         state.perceptions.targetDirection = fetchbot.redColumns(visionWidth / 2);
