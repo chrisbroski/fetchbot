@@ -1,15 +1,22 @@
 /*jslint node: true */
 
+// Set global params: global.params[module name][param name]
+global.params.reddot = {};
+global.params.reddot.findRed = {};
+global.params.reddot.findRed.luma = 100;
+global.params.reddot.findRed.chromaV = 190;
+
 function Reddot() {
     'use strict';
 
-    var params = {
+    var dots = [];
+
+    /*var params = {
         findRed: {
             luma: 100,
             chromaV: 190
         }
     };
-    var dots = [];
 
     this.getParams = function getParams() {
         return params;
@@ -17,7 +24,7 @@ function Reddot() {
     this.setParams = function setParams(p) {
         params[p[0]][p[1]] = p[2];
         return true;
-    }
+    }*/
 
     function redColumns(visionWidth) {
         //go through dots. Add up each column
@@ -55,18 +62,21 @@ function Reddot() {
         var ii,
             len = v.length,
             loc2,
-            loc2val;
+            loc2val,
+            redChromaV = global.params.reddot.findRed.chromaV,
+            redLuma = global.params.reddot.findRed.luma;
 
         dots.length = 0;
 
+        function loc2valReduce(a, b) {
+            return a + l[b];
+        }
+
         for (ii = 0; ii < len; ii += 1) {
             loc2 = loc2x(ii, visionWidth);
+            loc2val = loc2.reduce(loc2valReduce, 0);
 
-            loc2val = loc2.reduce(function (a, b) {
-                return a + l[b];
-            }, 0);
-
-            if (v[ii] > params.findRed.chromaV && loc2val / 4 > params.findRed.luma) {
+            if (v[ii] > redChromaV && loc2val / 4 > redLuma) {
                 dots.push(ii);
             }
         }

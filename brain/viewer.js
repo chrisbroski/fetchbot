@@ -1,6 +1,7 @@
 /*jslint browser: true, sloppy: true */
+/*global io */
 
-var socket, canvasEdge, ctxEdge, canvasBall, ctxBall, viewWidth, mag, halfMag, width, stateHash = 0, control = 'auto', manualOverrideTimer, canvasLuma, ctxLuma, canvasChromaU, ctxChromaU, canvasChromaV, canvasChromaV, layers;
+var socket, canvasEdge, ctxEdge, canvasBall, ctxBall, viewWidth, mag, halfMag, width, stateHash = 0, control = 'auto', manualOverrideTimer, canvasLuma, ctxLuma, canvasChromaU, ctxChromaU, canvasChromaV, ctxChromaV, layers;
 
 layers = ["luma", "chromaU", "chromaV", "edges", "target"];
 
@@ -88,12 +89,12 @@ function describeAction(action) {
 }
 
 function displayRaw(raw) {
-    var raw = JSON.parse(raw);
+    raw = JSON.parse(raw);
 
     ctxLuma.clearRect(0, 0, canvasEdge.width, canvasEdge.height);
     raw.luma.forEach(function (dot, index) {
-        var x = (index % (width)) * mag,
-            y = (Math.floor(index / (width))) * mag,
+        var x = (index % width) * mag,
+            y = (Math.floor(index / width)) * mag,
             size = mag;
 
         ctxLuma.fillStyle = "rgba(" + dot + ", " + dot + ", " + dot + ", 0.5)";
@@ -132,7 +133,8 @@ function displayRaw(raw) {
 
 function senseStateReceived(senseState) {
     var jsonState = JSON.parse(senseState),
-        jsonString;
+        jsonString,
+        currentAction;
 
     width = jsonState.perceptions.dimensions[0];
     mag = 400 / width;
@@ -164,9 +166,9 @@ function displayMoods(moodString) {
         moodOption,
         moodContainer = document.getElementById('moods');
 
-    Object.keys(moodData).forEach(function(mood, index) {
+    Object.keys(moodData).forEach(function (mood, index) {
         moodOption = document.createElement('option');
-            moodOption.value = mood;
+        moodOption.value = mood;
         if (index === 0) {
             moodOption.textContent = "Default (" + mood + ")";
         } else {
@@ -231,12 +233,13 @@ function setSenseParam(senselib, sense, perceiver, val) {
 }
 
 function displaySenseParams(params) {
+    //console.log(params);
     var senseParamDiv = document.getElementById("senseParams");
     params = JSON.parse(params);
 
     Object.keys(params).forEach(function (key) {
-        var fieldset = document.createElement("fieldset");
-        var legend = document.createElement("legend");
+        var fieldset = document.createElement("fieldset"),
+            legend = document.createElement("legend");
         legend.textContent = key;
         fieldset.appendChild(legend);
 
@@ -244,19 +247,20 @@ function displaySenseParams(params) {
             var h4 = document.createElement("h4");
             h4.textContent = perceiver;
             fieldset.appendChild(h4);
+            console.log(perceiver);
 
             Object.keys(params[key][perceiver]).forEach(function (param) {
-                var label = document.createElement("label");
-                label.textContent = param;
+                var label = document.createElement("label"),
+                    input = document.createElement("input"),
+                    button = document.createElement("button");
 
-                var input = document.createElement("input");
+                label.textContent = param;
                 input.type = "number";
                 input.value = params[key][perceiver][param];
                 input.onchange = function () {
                     setSenseParam(key, perceiver, param, this.value);
                 };
 
-                var button = document.createElement("button");
                 button.type = "button";
                 button.textContent = "Update";
 
@@ -273,7 +277,7 @@ function checkLayers() {
     layers.forEach(function (layer) {
         var check = document.getElementById("layer-" + layer);
         document.getElementById(layer).style.display = (check.checked) ? "block" : "none";
-    })
+    });
 }
 
 function init() {

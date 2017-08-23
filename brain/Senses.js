@@ -10,7 +10,7 @@ function Senses(visionWidth, visionHeight, virtual) {
         frogEye = new Frogeye(50, [15.9, 0.41]), // Edge contrast, target hue and saturation
         Reddot = require('./sense/Reddot.js'),
         reddot = new Reddot(),
-        senselib = {},
+        //senselib = {},
 
         // Declare private objects
         raw = {},
@@ -119,7 +119,7 @@ function Senses(visionWidth, visionHeight, virtual) {
         }
     };
 
-    this.getParams = function getParams() {
+    /*this.getParams = function getParams() {
         // check all sense libraries for parameters
         return {"reddot": reddot.getParams()};
     };
@@ -130,7 +130,22 @@ function Senses(visionWidth, visionHeight, virtual) {
         senselib[arrayParams[0]].setParams(arrayParams.slice(1));
         // refresh somehow
         perceivers.frogEye(visionWidth * visionHeight);
-    };
+    };*/
+
+    function detectors() {
+        state.detectors.reddot = !!state.perceptions.targetDirection.some(function (dir) {
+            return (dir > 0);
+        });
+        state.detectors.lowLight = (state.perceptions.brightnessOverall < 0.1);
+    }
+
+    function perceive() {
+        var imgPixelSize = visionWidth * visionHeight;
+        state.perceptions.brightnessOverall = raw.brightness / imgPixelSize / 256;
+        perceivers.frogEye(imgPixelSize);
+        detectors();
+    }
+    this.perceive = perceive;
 
     // *Perceivers* process raw sense state into meaningful information
     perceivers.frogEye = function (imgPixelSize) {
@@ -141,13 +156,6 @@ function Senses(visionWidth, visionHeight, virtual) {
         //state.perceptions.motion = frogEye.detectMotion(state.perceptions.edges.length, raw.luma, imgPixelSize);
         //state.perceptions.targetDirection = frogEye.ballDirection(raw.chroma.U, raw.chroma.V, imgPixelSize / 4, visionWidth / 2);
     };
-
-    function detectors() {
-        state.detectors.reddot = !!state.perceptions.targetDirection.some(function (dir) {
-            return (dir > 0);
-        });
-        state.detectors.lowLight = (state.perceptions.brightnessOverall < 0.1);
-    }
 
     // *Observers* populate raw sense state from a creature's sensors.
     observers.vision = function (yuvData, imgRawFileSize, imgPixelSize) {
@@ -192,9 +200,7 @@ function Senses(visionWidth, visionHeight, virtual) {
         Perceivers should typically be handled by the attention object as a separate
         process, but for simplicity we'll just fire them off after the observer completes.
         */
-        state.perceptions.brightnessOverall = raw.brightness / imgPixelSize / 256;
-        perceivers.frogEye(imgPixelSize);
-        detectors();
+        perceive(imgPixelSize);
     };
 
     // Other observers can be added here for sound, temperature, velocity, smell, whatever.
