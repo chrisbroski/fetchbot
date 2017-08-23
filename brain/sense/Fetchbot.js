@@ -4,12 +4,13 @@ global.params.fetchbot = {};
 global.params.fetchbot.findRed = {};
 global.params.fetchbot.findRed.luma = 100;
 global.params.fetchbot.findRed.chromaV = 190;
+global.params.fetchbot.edge = {};
 global.params.fetchbot.edge.diff = 50;
 
 function Fetchbot() {
     'use strict';
 
-    var params = {
+    /*var params = {
         reddot: {
             luma: 100,
             chromaV: 190
@@ -17,19 +18,19 @@ function Fetchbot() {
         edge: {
             diff: 50
         }
-    };
+    };*/
     var dots = [];
 
-    this.getParams = function getParams() {
+    /*this.getParams = function getParams() {
         return params;
     }
     this.setParams = function setParams(p) {
         params[p[0]][p[1]] = p[2];
         return true;
-    }
+    }*/
 
     function isEdge(ii, visionWidth, imgPixelSize, luma) {
-        var adjacent = [], val = luma[ii], difference = params.edge.diff;
+        var adjacent = [], val = luma[ii], difference = global.params.fetchbot.edge.diff;
 
         if (ii > visionWidth) {
             adjacent.push(luma[ii - visionWidth]); // top
@@ -110,7 +111,7 @@ function Fetchbot() {
                 return a + l[b];
             }, 0);
 
-            if (v[ii] > params.reddot.chromaV && loc2val / 4 > params.reddot.luma) {
+            if (v[ii] > global.params.fetchbot.findRed.chromaV && loc2val / 4 > global.params.fetchbot.findRed.luma) {
                 dots.push(ii);
             }
         }

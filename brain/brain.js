@@ -5,6 +5,8 @@ Brain.js loads and initializes Senses, Actions, and Behaviors modules.
 It also connects to a viewer for perception visualization and manual action control.
 */
 
+global.params = {};
+
 var fs = require('fs'),
     http = require('http'),
     server = http.createServer(app),
@@ -56,7 +58,7 @@ io.on('connection', function (socket) {
     //io.emit('moods', JSON.stringify(senses.setMood()));
     io.emit('actions', JSON.stringify(actions.dispatch()));
     io.emit('behaviors', JSON.stringify(behaviors.behaviorTable()));
-    io.emit('getSenseParams', JSON.stringify(senses.getParams()));
+    io.emit('getSenseParams', JSON.stringify(global.params));
     sendSenseData();
 
     socket.on('move', function (moveType) {
@@ -68,7 +70,17 @@ io.on('connection', function (socket) {
     });
 
     socket.on('setSenseParam', function (senseParams) {
-        senses.setParams(senseParams);
+        //senses.setParams(senseParams);
+        /*
+        var arrayParams = params.split(",");
+        senselib[arrayParams[0]].setParams(arrayParams.slice(1));
+        // refresh somehow
+        perceivers.frogEye(visionWidth * visionHeight);
+        */
+        var arrayParams = senseParams.split(",");
+        console.log(arrayParams);
+        global.params[arrayParams[0]][arrayParams[1]][arrayParams[2]] = +arrayParams[3];
+        senses.perceive();
     });
 
     socket.on('disconnect', function () {
