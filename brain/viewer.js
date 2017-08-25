@@ -182,7 +182,7 @@ function displayMoods(moodString) {
 }
 
 function displayActions(actions) {
-    console.log(actions);
+    window.console.log(actions);
 }
 
 function displayBehaviors(behaviorTable) {
@@ -228,46 +228,41 @@ function manual() {
     }
 }
 
-function setSenseParam(senselib, sense, perceiver, val) {
-    socket.emit("setSenseParam", senselib + "," + sense + "," + perceiver + "," + val);
+function setSenseParam(sense, perceiver, val) {
+    socket.emit("setSenseParam", sense + "," + perceiver + "," + val);
 }
 
 function displaySenseParams(params) {
-    var senseParamDiv = document.getElementById("senseParams");
+    var senseParamDiv = document.getElementById("senseParams"),
+        fieldset = document.createElement("fieldset");
+
     params = JSON.parse(params);
 
-    Object.keys(params).forEach(function (key) {
-        var fieldset = document.createElement("fieldset"),
-            legend = document.createElement("legend");
-        legend.textContent = key;
-        fieldset.appendChild(legend);
+    Object.keys(params).forEach(function (perceiver) {
+        var h4 = document.createElement("h4");
+        h4.textContent = perceiver;
+        fieldset.appendChild(h4);
 
-        Object.keys(params[key]).forEach(function (perceiver) {
-            var h4 = document.createElement("h4");
-            h4.textContent = perceiver;
-            fieldset.appendChild(h4);
-            console.log(perceiver);
+        Object.keys(params[perceiver]).forEach(function (param) {
+            var label = document.createElement("label"),
+                input = document.createElement("input"),
+                button = document.createElement("button");
 
-            Object.keys(params[key][perceiver]).forEach(function (param) {
-                var label = document.createElement("label"),
-                    input = document.createElement("input"),
-                    button = document.createElement("button");
+            label.textContent = param;
+            input.type = "number";
+            input.value = params[perceiver][param];
+            input.onchange = function () {
+                setSenseParam(perceiver, param, this.value);
+            };
 
-                label.textContent = param;
-                input.type = "number";
-                input.value = params[key][perceiver][param];
-                input.onchange = function () {
-                    setSenseParam(key, perceiver, param, this.value);
-                };
+            button.type = "button";
+            button.textContent = "Update";
 
-                button.type = "button";
-                button.textContent = "Update";
-
-                label.appendChild(input);
-                label.appendChild(button);
-                fieldset.appendChild(label);
-            });
+            label.appendChild(input);
+            label.appendChild(button);
+            fieldset.appendChild(label);
         });
+
         senseParamDiv.appendChild(fieldset);
     });
 }
@@ -310,7 +305,7 @@ function init() {
     socket.on("behaviors", displayBehaviors);
     socket.on("getSenseParams", displaySenseParams);
     socket.on("disconnect", function () {
-        console.log('disconnected');
+        window.console.log('disconnected');
     });
 }
 

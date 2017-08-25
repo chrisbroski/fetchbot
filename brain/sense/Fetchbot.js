@@ -1,11 +1,10 @@
 /*jslint node: true */
 
-global.params.fetchbot = {};
-global.params.fetchbot.findRed = {};
-global.params.fetchbot.findRed.luma = 100;
-global.params.fetchbot.findRed.chromaV = 190;
-global.params.fetchbot.edge = {};
-global.params.fetchbot.edge.diff = 50;
+global.params.senses.findRed = {};
+global.params.senses.findRed.luma = 100;
+global.params.senses.findRed.chromaV = 190;
+global.params.senses.edge = {};
+global.params.senses.edge.diff = 50;
 
 function Fetchbot() {
     'use strict';
@@ -13,7 +12,7 @@ function Fetchbot() {
     var dots = [];
 
     function isEdge(ii, visionWidth, imgPixelSize, luma) {
-        var adjacent = [], val = luma[ii], difference = global.params.fetchbot.edge.diff;
+        var adjacent = [], val = luma[ii], diff = global.params.senses.edge.diff;
 
         if (ii > visionWidth) {
             adjacent.push(luma[ii - visionWidth]); // top
@@ -30,7 +29,7 @@ function Fetchbot() {
 
         // check adjacent for a significant increase in luma
         return adjacent.some(function (compare) {
-            return (compare - val > difference);
+            return (compare - val > diff);
         });
     }
 
@@ -94,7 +93,7 @@ function Fetchbot() {
                 return a + l[b];
             }, 0);
 
-            if (v[ii] > global.params.fetchbot.findRed.chromaV && loc2val / 4 > global.params.fetchbot.findRed.luma) {
+            if (v[ii] > global.params.senses.findRed.chromaV && loc2val / 4 > global.params.senses.findRed.luma) {
                 dots.push(ii);
             }
         }

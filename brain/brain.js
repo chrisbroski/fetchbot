@@ -1,4 +1,4 @@
-/*jslint node: true, sloppy: true */
+/*jslint node: true, sloppy: true, bitwise: true, nomen: true */
 
 /*
 Brain.js loads and initializes Senses, Actions, and Behaviors modules.
@@ -6,6 +6,7 @@ It also connects to a viewer for perception visualization and manual action cont
 */
 
 global.params = {};
+global.params.senses = {};
 
 var fs = require('fs'),
     http = require('http'),
@@ -18,7 +19,8 @@ var fs = require('fs'),
     config = {},
     senses,
     actions,
-    behaviors;
+    behaviors,
+    stateHash = 0;
 
 config.manual = !!process.argv[3];
 
@@ -42,13 +44,33 @@ function app(req, rsp) {
     }
 }
 
+/* From http://stackoverflow.com/questions/7616461#answer-7616484 */
+function hashCode(s) {
+    var hash = 0, i, chr, len = s.length;
+    if (len === 0) {
+        return hash;
+    }
+    for (i = 0; i < len; i += 1) {
+        chr = s.charCodeAt(i);
+        hash = ((hash << 5) - hash) + chr;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+}
+
 /*jslint unparam: false, nomen: false*/
 
 function sendSenseData() {
     setInterval(function () {
-        // send sense data to viewer 10x per second
-        io.emit('senseState', JSON.stringify(senses.senseState()));
-        io.emit('senseRaw', senses.senseRaw());
+        var stateString = JSON.stringify(senses.senseState()),
+            newStateHash = hashCode(stateString);
+
+        // if changed, send sense data to viewer 10x per second
+        if (newStateHash !== stateHash) {
+            stateHash = newStateHash;
+            io.emit('senseState', stateString);
+            io.emit('senseRaw', senses.senseRaw());
+        }
     }, 100);
 }
 
@@ -58,7 +80,7 @@ io.on('connection', function (socket) {
     //io.emit('moods', JSON.stringify(senses.setMood()));
     io.emit('actions', JSON.stringify(actions.dispatch()));
     io.emit('behaviors', JSON.stringify(behaviors.behaviorTable()));
-    io.emit('getSenseParams', JSON.stringify(global.params));
+    io.emit('getSenseParams', JSON.stringify(global.params.senses));
     sendSenseData();
 
     socket.on('move', function (moveType) {
@@ -71,7 +93,7 @@ io.on('connection', function (socket) {
 
     socket.on('setSenseParam', function (senseParams) {
         var arrayParams = senseParams.split(",");
-        global.params[arrayParams[0]][arrayParams[1]][arrayParams[2]] = +arrayParams[3];
+        global.params.senses[arrayParams[0]][arrayParams[1]] = +arrayParams[2];
         senses.perceive();
     });
 
