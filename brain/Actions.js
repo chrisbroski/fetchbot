@@ -1,5 +1,9 @@
 /*jslint node: true */
 
+global.params.actions = {};
+global.params.actions.turn = {};
+global.params.actions.turn.speed = 0.02;
+
 function Actions(senses, virtual) {
     'use strict';
 
@@ -11,7 +15,6 @@ function Actions(senses, virtual) {
         rightBackward,
         leftForward,
         leftBackward,
-        camLED,
         movement = {};
 
     if (!virtual) {
@@ -20,7 +23,6 @@ function Actions(senses, virtual) {
         rightBackward = new Gpio(27, {mode: Gpio.OUTPUT});
         leftForward = new Gpio(13, {mode: Gpio.OUTPUT});
         leftBackward = new Gpio(6, {mode: Gpio.OUTPUT});
-        camLED = new Gpio(32, {mode: Gpio.OUTPUT});
     }
 
     movement.forwardleft = [0, 1, 1, 1];
@@ -131,7 +133,6 @@ function Actions(senses, virtual) {
 
     function init() {
         if (!virtual) {
-            camLED.digitalWrite(0);
             motor([0, 0, 0, 0]);
         }
     }

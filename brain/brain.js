@@ -66,6 +66,7 @@ io.on('connection', function (socket) {
     io.emit('actions', JSON.stringify(actions.dispatch()));
     io.emit('behaviors', JSON.stringify(behaviors.behaviorTable()));
     io.emit('getSenseParams', JSON.stringify(global.params.senses));
+    io.emit('getActionParams', JSON.stringify(global.params.actions));
     sendSenseData();
 
     socket.on('move', function (moveType) {
@@ -76,7 +77,7 @@ io.on('connection', function (socket) {
         config.manual = (controlType === 'manual');
     });
 
-    socket.on('setSenseParam', function (senseParams) {
+    socket.on('setsenseParam', function (senseParams) {
         var arrayParams = senseParams.split(",");
         global.params.senses[arrayParams[0]][arrayParams[1]] = +arrayParams[2];
         senses.perceive();

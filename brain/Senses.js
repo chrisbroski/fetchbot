@@ -6,6 +6,8 @@ function Senses(visionWidth, visionHeight, virtual) {
     // Import libraries
     var spawn = require('child_process').spawn,
         fs = require("fs"),
+        Gpio,
+        camLED,
         Fetchbot = require('./sense/Fetchbot.js'),
         fetchbot = new Fetchbot(),
 
@@ -17,6 +19,11 @@ function Senses(visionWidth, visionHeight, virtual) {
         attention = {},
         moods,
         partialImgData = '';
+
+    if (!virtual) {
+        Gpio = require('pigpio').Gpio;
+        camLED = new Gpio(32, {mode: Gpio.OUTPUT});
+    }
 
     // *Raw* state is unprocessed environment measurements received from sensors.
     // Raw state can only be written by observers and only read by perceivers
@@ -239,6 +246,9 @@ function Senses(visionWidth, visionHeight, virtual) {
 
     function init() {
         console.log('Initialize senses module');
+        if (!virtual) {
+            camLED.digitalWrite(0);
+        }
         attention.look(250);
         setInterval(cleanupMoods, 5000);
     }

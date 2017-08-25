@@ -141,13 +141,13 @@ label {
     margin-right: 0;
 }
 
-#senseParams label {
+#senseParams label, #actionParams label {
     padding: 4px 0;
     display: block;
     /*overflow: auto;*/
     text-align: right;
 }
-#senseParams label input {
+#senseParams label input, #actionParams label input {
     margin: 0 8px;
     width: 60px;
 }
