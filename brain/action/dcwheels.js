@@ -1,15 +1,11 @@
 /*jslint node: true */
 
-global.params.actions = {};
-global.params.actions.turn = {};
-global.params.actions.turn.speed = 0.02;
-
-function Actions(senses, virtual) {
+function DcWheels(senses, virtual) {
     'use strict';
 
     // Action performers
     var performer = {},
-        response = {},
+        maneuver = {},
         // global values
         Gpio,
         rightForward,
