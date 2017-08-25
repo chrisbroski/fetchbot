@@ -20,7 +20,7 @@ var fs = require('fs'),
     senses,
     actions,
     behaviors,
-    stateHash = 0;
+    prevStateString = "";
 
 config.manual = !!process.argv[3];
 
@@ -44,30 +44,15 @@ function app(req, rsp) {
     }
 }
 
-/* From http://stackoverflow.com/questions/7616461#answer-7616484 */
-function hashCode(s) {
-    var hash = 0, i, chr, len = s.length;
-    if (len === 0) {
-        return hash;
-    }
-    for (i = 0; i < len; i += 1) {
-        chr = s.charCodeAt(i);
-        hash = ((hash << 5) - hash) + chr;
-        hash |= 0; // Convert to 32bit integer
-    }
-    return hash;
-}
-
 /*jslint unparam: false, nomen: false*/
 
 function sendSenseData() {
     setInterval(function () {
-        var stateString = JSON.stringify(senses.senseState()),
-            newStateHash = hashCode(stateString);
+        var stateString = JSON.stringify(senses.senseState());
 
         // if changed, send sense data to viewer 10x per second
-        if (newStateHash !== stateHash) {
-            stateHash = newStateHash;
+        if (stateString !== prevStateString) {
+            prevStateString = stateString;
             io.emit('senseState', stateString);
             io.emit('senseRaw', senses.senseRaw());
         }
