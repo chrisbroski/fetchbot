@@ -54,6 +54,11 @@ label {
 #action {
     width: 340px;
 }
+#action pre {
+    padding: 4px;
+    width: 100%;
+    overflow: auto;
+}
 #frogeye {
     margin: 0 10px 10px 14px;
     position: relative;
@@ -158,4 +163,20 @@ label {
 #behaviorTable {
     width: 340px;
     height: 100px;
+}
+#newBehavior {
+    float: right;
+}
+dialog {
+    width: 800px;
+}
+dialog > div {
+    width: 50%;
+    float: left;
+}
+dialog pre {
+    padding: 4px;
+    max-height: 400px;
+    background: #eee;
+    overflow: auto;
 }

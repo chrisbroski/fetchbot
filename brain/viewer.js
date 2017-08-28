@@ -82,10 +82,11 @@ function setControl(autoOrManual) {
 }
 
 function describeAction(action) {
-    if (action && action.type) {
+    /*if (action && action.type) {
         return action.type + ': ' + action.parameters.join(", ");
-    }
-    return "none";
+    }*/
+    return JSON.stringify(action);
+    //return "none";
 }
 
 function displayRaw(raw) {
@@ -182,7 +183,9 @@ function displayMoods(moodString) {
 }
 
 function displayActions(actions) {
-    window.console.log(actions);
+    //window.console.log(actions);
+    document.querySelector("#behaviorEdit pre").textContent = JSON.stringify(JSON.parse(actions), null, "    ");
+    //document.querySelector("#behaviorEdit pre").textContent = actions;
 }
 
 function displayBehaviors(behaviorTable) {
@@ -290,6 +293,13 @@ function checkLayers() {
 
 function init() {
     disableControlButtons(true);
+    document.getElementById("newBehavior").onclick = function () {
+        document.getElementById("behaviorEdit").showModal();
+    };
+    document.getElementById("closeBehaviorEdit").onclick = function () {
+        document.getElementById("behaviorEdit").close();
+    };
+
 
     layers.forEach(function (layer) {
         document.getElementById("layer-" + layer).onclick = checkLayers;
