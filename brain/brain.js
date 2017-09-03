@@ -51,6 +51,7 @@ function sendSenseData() {
         var stateString = JSON.stringify(senses.senseState());
 
         // if changed, send sense data to viewer 10x per second
+        // This needs to accomodate viewer refresh
         if (stateString !== prevStateString) {
             prevStateString = stateString;
             io.emit('senseState', stateString);

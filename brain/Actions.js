@@ -16,7 +16,6 @@ function Actions(senses, virtual) {
                     description: 'type',
                     values: [
                         'searching',
-                        'stuck',
                         'relaxing',
                         'sleepy'
                     ],
@@ -38,6 +37,7 @@ function Actions(senses, virtual) {
     // Set up performers and ameuvers from libraries
     perform.move = dcwheels.perform.move;
     maneuver.chase = dcwheels.maneuver.chase;
+    maneuver.search = dcwheels.maneuver.search;
 
     this.dispatch = function actionDispatch(actionData) {
         actionData = actionData || [];
@@ -49,18 +49,18 @@ function Actions(senses, virtual) {
 
         // if no action is given, return a list of available types and parameters
         if (!type) {
-            actions.perform = [];
-            actions.maneuver = [];
+            actions.perform = {};
+            actions.maneuver = {};
             Object.keys(perform).forEach(function (act) {
-                var p = {};
-                p[act] = perform[act]();
-                actions.perform.push(p);
+                //var p = {};
+                //p[act] = perform[act]();
+                actions.perform[act] = perform[act]();
             });
 
             Object.keys(maneuver).forEach(function (act) {
-                var m = {};
-                m[act] = maneuver[act]();
-                actions.maneuver.push(m);
+                //var m = {};
+                //m[act] = maneuver[act]();
+                actions.maneuver[act] = act;
             });
 
             return JSON.parse(JSON.stringify(actions));
@@ -78,7 +78,7 @@ function Actions(senses, virtual) {
         if (!virtual) {
         //    console.log('virtual:', type, params);
         //} else {
-            performer[type](params);
+            perform[type](params);
         }
     };
 }

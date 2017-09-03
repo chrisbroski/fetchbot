@@ -1,7 +1,7 @@
 /*jslint browser: true, sloppy: true */
 /*global io */
 
-var socket, canvasEdge, ctxEdge, canvasBall, ctxBall, viewWidth, mag, halfMag, width, stateHash = 0, control = 'auto', manualOverrideTimer, canvasLuma, ctxLuma, canvasChromaU, ctxChromaU, canvasChromaV, ctxChromaV, layers;
+var socket, canvasEdge, ctxEdge, canvasBall, ctxBall, viewWidth, mag, halfMag, width, stateHash = 0, control = 'auto', manualOverrideTimer, canvasLuma, ctxLuma, canvasChromaU, ctxChromaU, canvasChromaV, ctxChromaV, layers, detectors, actionData;
 
 layers = ["luma", "chromaU", "chromaV", "edges", "target"];
 
@@ -132,10 +132,59 @@ function displayRaw(raw) {
     });
 }
 
+function displayDetectors(ds) {
+    var detectorArea,
+        detectorRow,
+        detectorLabel,
+        detectorInput;
+
+    detectorArea = document.querySelector("#behaviorEdit div");
+    Object.keys(ds).forEach(function (d) {
+        detectorRow = document.createElement("div");
+        //detectorRow.textContent = d + ": " + jsonState.ds[d];
+
+        detectorLabel = document.createElement("label");
+        detectorInput = document.createElement("input");
+        detectorInput.type = "radio";
+        detectorInput.name = "di-" + d;
+        detectorInput.value = "";
+        detectorInput.checked = true;
+        detectorLabel.appendChild(detectorInput);
+        detectorLabel.appendChild(document.createTextNode("-"));
+        detectorRow.appendChild(detectorLabel);
+
+        detectorLabel = document.createElement("label");
+        detectorInput = document.createElement("input");
+        detectorInput.type = "radio";
+        detectorInput.name = "di-" + d;
+        detectorInput.value = "1";
+        detectorLabel.appendChild(detectorInput);
+        detectorLabel.appendChild(document.createTextNode("1"));
+        detectorRow.appendChild(detectorLabel);
+
+        detectorLabel = document.createElement("label");
+        detectorInput = document.createElement("input");
+        detectorInput.type = "radio";
+        detectorInput.name = "di-" + d;
+        detectorInput.value = "0";
+        detectorLabel.appendChild(detectorInput);
+        detectorLabel.appendChild(document.createTextNode("0"));
+        detectorRow.appendChild(detectorLabel);
+
+        detectorRow.appendChild(document.createTextNode(d));
+        detectorArea.appendChild(detectorRow);
+    });
+}
+
 function senseStateReceived(senseState) {
     var jsonState = JSON.parse(senseState),
         jsonString,
         currentAction;
+
+    if (!detectors) {
+        detectors = true;
+        displayDetectors(jsonState.detectors);
+    }
 
     width = jsonState.perceptions.dimensions[0];
     mag = 400 / width;
@@ -183,8 +232,38 @@ function displayMoods(moodString) {
 }
 
 function displayActions(actions) {
-    //window.console.log(actions);
-    document.querySelector("#behaviorEdit pre").textContent = JSON.stringify(JSON.parse(actions), null, "    ");
+    window.console.log('displayActions');
+    var actionSelect = document.createElement("select"),
+        actionOption,
+        actionOptionGroup,
+        tmpPre = document.createElement("pre");
+
+    actionData = JSON.parse(actions);
+
+    actionOptionGroup = document.createElement("optgroup");
+    actionOptionGroup.label = "perform";
+    Object.keys(actionData.perform).forEach(function (act) {
+        actionOption = document.createElement("option");
+        actionOption.textContent = act;
+        actionOption.value = act;
+        actionOptionGroup.appendChild(actionOption);
+    });
+    actionSelect.appendChild(actionOptionGroup);
+
+    actionOptionGroup = document.createElement("optgroup");
+    actionOptionGroup.label = "maneuver";
+    Object.keys(actionData.maneuver).forEach(function (act) {
+        actionOption = document.createElement("option");
+        actionOption.textContent = act;
+        actionOption.value = act;
+        actionOptionGroup.appendChild(actionOption);
+    });
+    actionSelect.appendChild(actionOptionGroup);
+
+    document.querySelector("#behaviorActions").appendChild(actionSelect);
+
+    tmpPre.textContent = JSON.stringify(actionData, null, "    ");
+    document.querySelector("#behaviorActions").appendChild(tmpPre);
     //document.querySelector("#behaviorEdit pre").textContent = actions;
 }
 
