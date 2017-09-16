@@ -9,8 +9,8 @@ function Actions(senses, virtual) {
         perform = {},
         maneuver = {};
 
-    perform.setMood = function setMood(mood) {
-        if (!mood) {
+    perform.setMood = function setMood(params) {
+        if (!params) {
             return [
                 {
                     description: 'type',
@@ -31,7 +31,7 @@ function Actions(senses, virtual) {
                 }
             ];
         }
-        senses.setMood(mood.type);
+        senses.setMood(params.type);
     };
 
     // Set up performers and ameuvers from libraries

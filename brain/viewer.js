@@ -249,6 +249,7 @@ function manualAction() {
         actType = actGroup.getAttribute("data-action-type"),
         paramInputs = actGroup.getElementsByTagName("input"),
         paramSelects = actGroup.getElementsByTagName("select"),
+        actionName = this.textContent,
         paramData = {};
 
     Array.from(paramSelects).forEach(function (inp) {
@@ -257,8 +258,12 @@ function manualAction() {
     Array.from(paramInputs).forEach(function (inp) {
         paramData[inp.getAttribute("data-action-param")] = inp.value;
     });
-    window.console.log(actType, this.textContent, paramData);
-    socket.emit("action", JSON.stringify([actType, this.textContent, paramData]));
+    if (this.getAttribute("data-action")) {
+        paramData[this.getAttribute("data-action-param")] = actionName;
+        actionName = this.getAttribute("data-action");
+    }
+    window.console.log(actType, actionName, paramData);
+    socket.emit("action", JSON.stringify([actType, actionName, paramData]));
 }
 
 function actionParamFragment(act, params) {
@@ -270,23 +275,22 @@ function actionParamFragment(act, params) {
         input,
         isButtonSeries = params.some(function (param) {return param.values; });
 
-    //window.console.log(type, act, params);
-
     params.forEach(function (param, index) {
         if (index === 0 && !isButtonSeries) {
             button = document.createElement("button");
             button.textContent = act;
-            //window.console.log(act + "," + JSON.stringify(param));
-            //button.setAttribute("data-action", act + "," + param);
             button.onclick = manualAction;
             button.disabled = true;
             actFragment.appendChild(button);
         }
 
         if (param.values) {
+            // This is got a "button set"
             param.values.forEach(function (val) {
                 button = document.createElement("button");
                 button.textContent = val;
+                button.setAttribute("data-action", act);
+                button.setAttribute("data-action-param", param.description);
                 button.onclick = manualAction;
                 button.disabled = true;
                 actFragment.appendChild(button);
@@ -304,7 +308,6 @@ function actionParamFragment(act, params) {
             actFragment.appendChild(select);
         }
         if (param.val) {
-            // value
             label = document.createElement("label");
             label.textContent = param.description;
             input = document.createElement("input");
@@ -390,10 +393,6 @@ function displayBehaviors(behaviorTable) {
     }
 
     behaviors.forEach(function (behavior, index) {
-        /*var sit = behavior.situation.join(", ");
-        if (behavior.situation.length === 0) {
-            sit = "default";
-        }*/
         var detectTrue = [], detectFalse = [], sit;
         Object.keys(behavior.situation).forEach(function (d) {
             if (d) {
@@ -414,15 +413,9 @@ function displayBehaviors(behaviorTable) {
         }
         bTableRow = document.createElement("option");
         bTableRow.value = index;
-        //window.console.log(behavior.response);
         bTableRow.textContent = sit + " : " + JSON.stringify(behavior.response);
         bTable.appendChild(bTableRow);
     });
-}
-
-function move(type) {
-    // This needs to be genericized from a list of all performers and maneuvers
-    socket.emit('move', type);
 }
 
 function manual() {

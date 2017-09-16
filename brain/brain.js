@@ -75,9 +75,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on("action", function (actionData) {
-        console.log(actionData);
         var actionArray = JSON.parse(actionData);
-        console.log(actionArray)
         actions.dispatch(actionArray[0], actionArray[1], actionArray[2]);
     });
 
@@ -111,7 +109,7 @@ function exitHandler(options, err) {
         console.log(err.stack);
     }
 
-    actions.dispatch("perform", "move", {"": "stop", "speed": 1.0});
+    actions.dispatch("perform", "move", {"type": "stop", "speed": 1.0});
 
     if (options.exit) {
         process.exit();
