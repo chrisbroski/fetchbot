@@ -256,7 +256,7 @@ function manualAction() {
         paramData[inp.getAttribute("data-action-param")] = inp.value;
     });
     Array.from(paramInputs).forEach(function (inp) {
-        paramData[inp.getAttribute("data-action-param")] = inp.value;
+        paramData[inp.getAttribute("data-action-param")] = +inp.value;
     });
     if (this.getAttribute("data-action")) {
         paramData[this.getAttribute("data-action-param")] = actionName;

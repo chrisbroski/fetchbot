@@ -70,10 +70,6 @@ io.on('connection', function (socket) {
     io.emit('getActionParams', JSON.stringify(global.params.actions));
     sendSenseData();
 
-    socket.on('move', function (moveType) {
-        actions.dispatch(["move", {"type": moveType, "speed": 1.0}]);
-    });
-
     socket.on("action", function (actionData) {
         var actionArray = JSON.parse(actionData);
         actions.dispatch(actionArray[0], actionArray[1], actionArray[2]);
