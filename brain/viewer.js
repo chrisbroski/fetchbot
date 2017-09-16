@@ -58,7 +58,7 @@ function setViewOptions(width) {
 }
 
 function disableControlButtons(disOrEnable) {
-    var buttons = document.querySelectorAll('#controls button'), ii, len;
+    var buttons = document.querySelectorAll('#controls button, #actions button'), ii, len;
     len = buttons.length;
     for (ii = 0; ii < len; ii += 1) {
         buttons[ii].disabled = disOrEnable;
@@ -82,11 +82,7 @@ function setControl(autoOrManual) {
 }
 
 function describeAction(action) {
-    /*if (action && action.type) {
-        return action.type + ': ' + action.parameters.join(", ");
-    }*/
-    return JSON.stringify(action);
-    //return "none";
+    return action[0] + ": " + action[1] + " " + JSON.stringify(action[2]);
 }
 
 function displayRaw(raw) {
@@ -132,45 +128,30 @@ function displayRaw(raw) {
     });
 }
 
+function createRadio(name, val) {
+    var detectorLabel = document.createElement("label"),
+        detectorInput = document.createElement("input");
+    detectorInput.type = "radio";
+    detectorInput.name = "di-" + name;
+    detectorInput.value = val;
+    detectorInput.checked = true;
+    detectorLabel.appendChild(detectorInput);
+    detectorLabel.appendChild(document.createTextNode(val || "-"));
+
+    return detectorLabel;
+}
+
 function displayDetectors(ds) {
     var detectorArea,
-        detectorRow,
-        detectorLabel,
-        detectorInput;
+        detectorRow;
 
     detectorArea = document.querySelector("#behaviorEdit div");
     Object.keys(ds).forEach(function (d) {
         detectorRow = document.createElement("div");
-        //detectorRow.textContent = d + ": " + jsonState.ds[d];
 
-        detectorLabel = document.createElement("label");
-        detectorInput = document.createElement("input");
-        detectorInput.type = "radio";
-        detectorInput.name = "di-" + d;
-        detectorInput.value = "";
-        detectorInput.checked = true;
-        detectorLabel.appendChild(detectorInput);
-        detectorLabel.appendChild(document.createTextNode("-"));
-        detectorRow.appendChild(detectorLabel);
-
-        detectorLabel = document.createElement("label");
-        detectorInput = document.createElement("input");
-        detectorInput.type = "radio";
-        detectorInput.name = "di-" + d;
-        detectorInput.value = "1";
-        detectorLabel.appendChild(detectorInput);
-        detectorLabel.appendChild(document.createTextNode("1"));
-        detectorRow.appendChild(detectorLabel);
-
-        detectorLabel = document.createElement("label");
-        detectorInput = document.createElement("input");
-        detectorInput.type = "radio";
-        detectorInput.name = "di-" + d;
-        detectorInput.value = "0";
-        detectorLabel.appendChild(detectorInput);
-        detectorLabel.appendChild(document.createTextNode("0"));
-        detectorRow.appendChild(detectorLabel);
-
+        detectorRow.appendChild(createRadio("di-" + d, ""));
+        detectorRow.appendChild(createRadio("di-" + d, "1"));
+        detectorRow.appendChild(createRadio("di-" + d, "0"));
         detectorRow.appendChild(document.createTextNode(d));
         detectorArea.appendChild(detectorRow);
     });
@@ -210,42 +191,169 @@ function senseStateReceived(senseState) {
     //}
 }
 
-function displayMoods(moodString) {
-    var moodData = JSON.parse(moodString),
-        moodSelect = document.createElement("select"),
-        moodOption,
-        moodContainer = document.getElementById('moods');
+function displayActionParams() {
+    var actionType = document.getElementById("action-type"),
+        actionParam = document.getElementById("action-param"),
+        actionInfo = actionType.value.split("-"),
+        paramData = actionData[actionInfo.shift()][actionInfo.join("-")],
+        paramLabel,
+        paramInput,
+        paramOption;
 
-    Object.keys(moodData).forEach(function (mood, index) {
-        moodOption = document.createElement('option');
-        moodOption.value = mood;
-        if (index === 0) {
-            moodOption.textContent = "Default (" + mood + ")";
+    actionParam.innerHTML = "";
+    paramData.forEach(function (param) {
+        paramLabel = document.createElement("label");
+        paramLabel.textContent = param.description;
+        if (param.values) {
+            paramInput = document.createElement("select");
+            param.values.forEach(function (val) {
+                paramOption = document.createElement("option");
+                paramOption.textContent = val;
+                paramOption.value = val;
+                paramInput.appendChild(paramOption);
+            });
+        } else if (param.options) {
+            paramInput = document.createElement("select");
+            param.options.forEach(function (val) {
+                paramOption = document.createElement("option");
+                paramOption.textContent = val;
+                paramOption.value = val;
+                if (param.auto === val) {
+                    paramOption.selected = true;
+                }
+                paramInput.appendChild(paramOption);
+            });
         } else {
-            moodOption.textContent = mood + " (" + moodData[mood] + "s)";
+            paramInput = document.createElement("input");
+            paramInput.setAttribute("type", "number");
+            paramInput.value = param.auto;
+            paramInput.setAttribute("min", param.val[0]);
+            paramInput.setAttribute("max", param.val[1]);
+            if (param.val[0] === 0.0 && param.val[1] === 1.0) {
+                paramInput.setAttribute("step", "0.01");
+            }
+        }
+        paramLabel.appendChild(paramInput);
+        actionParam.appendChild(paramLabel);
+    });
+}
+
+function isActParamsValues(params) {
+    return params.find(function (param) {
+        return param.values;
+    });
+}
+
+function manualAction() {
+    var actGroup = this.parentElement,
+        actType = actGroup.getAttribute("data-action-type"),
+        paramInputs = actGroup.getElementsByTagName("input"),
+        paramSelects = actGroup.getElementsByTagName("select"),
+        paramData = {};
+
+    Array.from(paramSelects).forEach(function (inp) {
+        paramData[inp.getAttribute("data-action-param")] = inp.value;
+    });
+    Array.from(paramInputs).forEach(function (inp) {
+        paramData[inp.getAttribute("data-action-param")] = inp.value;
+    });
+    window.console.log(actType, this.textContent, paramData);
+    socket.emit("action", JSON.stringify([actType, this.textContent, paramData]));
+}
+
+function actionParamFragment(act, params) {
+    var actFragment = document.createDocumentFragment(),
+        label,
+        button,
+        select,
+        option,
+        input,
+        isButtonSeries = params.some(function (param) {return param.values; });
+
+    //window.console.log(type, act, params);
+
+    params.forEach(function (param, index) {
+        if (index === 0 && !isButtonSeries) {
+            button = document.createElement("button");
+            button.textContent = act;
+            //window.console.log(act + "," + JSON.stringify(param));
+            //button.setAttribute("data-action", act + "," + param);
+            button.onclick = manualAction;
+            button.disabled = true;
+            actFragment.appendChild(button);
         }
 
-        moodSelect.appendChild(moodOption);
+        if (param.values) {
+            param.values.forEach(function (val) {
+                button = document.createElement("button");
+                button.textContent = val;
+                button.onclick = manualAction;
+                button.disabled = true;
+                actFragment.appendChild(button);
+            });
+        }
+        if (param.options) {
+            select = document.createElement("select");
+            select.setAttribute("data-action-param", param.description);
+            param.options.forEach(function (opt) {
+                option = document.createElement("option");
+                option.textContent = opt;
+                option.value = opt;
+                select.appendChild(option);
+            });
+            actFragment.appendChild(select);
+        }
+        if (param.val) {
+            // value
+            label = document.createElement("label");
+            label.textContent = param.description;
+            input = document.createElement("input");
+            input.setAttribute("type", "number");
+            input.setAttribute("data-action-param", param.description);
+            input.value = param.auto;
+            input.setAttribute("min", param.val[0]);
+            input.setAttribute("max", param.val[1]);
+            if (param.val[0] === 0.0 && param.val[1] === 1.0) {
+                input.setAttribute("step", "0.01");
+            }
+            label.appendChild(input);
+            actFragment.appendChild(label);
+        }
     });
-    moodContainer.innerHTML = "";
-    moodContainer.appendChild(moodSelect);
+
+    return actFragment;
 }
 
 function displayActions(actions) {
-    window.console.log('displayActions');
     var actionSelect = document.createElement("select"),
         actionOption,
         actionOptionGroup,
+        actionSection = document.getElementById("actions"),
+        actionDiv,
+        actionH,
+        actionParam = document.createElement("div"),
         tmpPre = document.createElement("pre");
 
     actionData = JSON.parse(actions);
+    actionSelect.id = "action-type";
+    actionSelect.onchange = displayActionParams;
 
     actionOptionGroup = document.createElement("optgroup");
     actionOptionGroup.label = "perform";
     Object.keys(actionData.perform).forEach(function (act) {
+        // Actions section
+        actionDiv = document.createElement("fieldset");
+        actionDiv.setAttribute("data-action-type", "perform");
+        actionH = document.createElement("h4");
+        actionH.textContent = act;
+        actionDiv.appendChild(actionH);
+        actionDiv.appendChild(actionParamFragment(act, actionData.perform[act]));
+        actionSection.appendChild(actionDiv);
+
+        // Behavior popup
         actionOption = document.createElement("option");
         actionOption.textContent = act;
-        actionOption.value = act;
+        actionOption.value = "perform-" + act;
         actionOptionGroup.appendChild(actionOption);
     });
     actionSelect.appendChild(actionOptionGroup);
@@ -255,16 +363,19 @@ function displayActions(actions) {
     Object.keys(actionData.maneuver).forEach(function (act) {
         actionOption = document.createElement("option");
         actionOption.textContent = act;
-        actionOption.value = act;
+        actionOption.value = "maneuver-" + act;
         actionOptionGroup.appendChild(actionOption);
     });
     actionSelect.appendChild(actionOptionGroup);
 
     document.querySelector("#behaviorActions").appendChild(actionSelect);
+    actionParam.id = "action-param";
+    document.querySelector("#behaviorActions").appendChild(actionParam);
 
     tmpPre.textContent = JSON.stringify(actionData, null, "    ");
     document.querySelector("#behaviorActions").appendChild(tmpPre);
-    //document.querySelector("#behaviorEdit pre").textContent = actions;
+
+    displayActionParams();
 }
 
 function displayBehaviors(behaviorTable) {
@@ -279,18 +390,38 @@ function displayBehaviors(behaviorTable) {
     }
 
     behaviors.forEach(function (behavior, index) {
-        var sit = behavior.situation.join(", ");
+        /*var sit = behavior.situation.join(", ");
         if (behavior.situation.length === 0) {
             sit = "default";
+        }*/
+        var detectTrue = [], detectFalse = [], sit;
+        Object.keys(behavior.situation).forEach(function (d) {
+            if (d) {
+                detectTrue.push(d);
+            } else {
+                detectFalse.push(d);
+            }
+        });
+        if (detectTrue.length === 0 && detectFalse.length === 0) {
+            sit = "default";
+        } else {
+            if (detectTrue.length > 0) {
+                sit = detectTrue.join(", ") + " ";
+            }
+            if (detectFalse.length > 0) {
+                sit = sit + "(" + detectFalse.join(", ") + ")";
+            }
         }
         bTableRow = document.createElement("option");
         bTableRow.value = index;
-        bTableRow.textContent = sit + " : " + behavior.response;
+        //window.console.log(behavior.response);
+        bTableRow.textContent = sit + " : " + JSON.stringify(behavior.response);
         bTable.appendChild(bTableRow);
     });
 }
 
 function move(type) {
+    // This needs to be genericized from a list of all performers and maneuvers
     socket.emit('move', type);
 }
 
@@ -308,10 +439,6 @@ function manual() {
         socket.emit('control', 'auto');
         setControl('auto');
     }
-}
-
-function setSenseParam(sense, perceiver, val) {
-    socket.emit("setsenseParam", sense + "," + perceiver + "," + val);
 }
 
 function displayParams(params, paramType) {
@@ -334,8 +461,7 @@ function displayParams(params, paramType) {
             input.type = "number";
             input.value = params[perceiver][param];
             input.onchange = function () {
-                socket.emit("set" + paramType + "Param", sense + "," + perceiver + "," + val);
-                //setSenseParam(perceiver, param, this.value);
+                socket.emit("setsenseParam", perceiver + "," + param + "," + this.value);
             };
 
             button.type = "button";
@@ -353,15 +479,6 @@ function displayParams(params, paramType) {
 function displaySenseParams(params) {
     displayParams(params, "sense");
 }
-
-function displayActionParams(params) {
-    displayParams(params, "action");
-}
-
-/*function displayActionParams(params) {
-    window.console.log(params);
-    //actionParams
-}*/
 
 function checkLayers() {
     layers.forEach(function (layer) {
@@ -403,7 +520,6 @@ function init() {
 
     socket.on("senseState", senseStateReceived);
     socket.on("senseRaw", displayRaw);
-    //socket.on("moods", displayMoods);
     socket.on("actions", displayActions);
     socket.on("behaviors", displayBehaviors);
     socket.on("getSenseParams", displaySenseParams);

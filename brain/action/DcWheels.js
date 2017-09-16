@@ -59,20 +59,21 @@ function DcWheels(senses, virtual) {
                 'forward-right',
                 'rotate-right',
                 'back-right',
+                "stop",
                 'backward',
                 'back-left',
                 'rotate-left',
                 'forward-left'
             ],
-            default: 'stop'
+            auto: 'stop'
         },
         {
             description: 'speed',
-            values: [
+            val: [
                 0.0,
                 1.0
             ],
-            default: 1.0
+            auto: 1.0
         }
     ];
 
@@ -93,13 +94,14 @@ function DcWheels(senses, virtual) {
             motor(movement[type]);
         }
         if (type === 'stop') {
-            senses.currentAction('', []);
+            senses.currentAction('', {});
         } else {
             senses.currentAction('move', [type, pulseTime]);
         }
     };
 
     this.maneuver.chase = function () {
+        // get sense state and do maneuver
         console.log("maneuver.chase");
     };
 

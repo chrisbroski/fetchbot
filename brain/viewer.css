@@ -8,7 +8,9 @@ h4 {margin: 0; font-weight: normal; font-size: 14px; }
 h1 img {margin: 0 10px 0 0; vertical-align: middle; }
 
 fieldset {
+    margin: 0 0 10px 0;
     border: 2px groove #888;
+    padding: 10px;
 }
 button {
     border: 1px solid #333;
@@ -178,7 +180,27 @@ dialog > div {
 }
 dialog pre {
     padding: 4px;
-    max-height: 400px;
+    max-height: 200px;
     background: #eee;
     overflow: auto;
+}
+#action-type {
+    margin: 4px 0;
+}
+#action-param label {
+    padding: 4px 0;
+    display: block;
+}
+#action-param label select {
+    margin: 0 4px;
+}
+#actions fieldset select {
+    margin: 0 4px 0 0;
+}
+#actions fieldset {
+    padding-right: 0;
+}
+#actions fieldset button {
+    margin: 0 10px 10px 0;
+    min-width: 97px;
 }

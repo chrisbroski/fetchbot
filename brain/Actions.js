@@ -14,24 +14,24 @@ function Actions(senses, virtual) {
             return [
                 {
                     description: 'type',
-                    values: [
+                    options: [
                         'searching',
                         'relaxing',
                         'sleepy'
                     ],
-                    default: 'searching'
+                    auto: 'searching'
                 },
                 {
                     description: 'duration',
-                    value: [
+                    val: [
                         0,
                         86400
                     ],
-                    default: 60
+                    auto: 60
                 }
             ];
         }
-        senses.setMood(mood);
+        senses.setMood(mood.type);
     };
 
     // Set up performers and ameuvers from libraries
@@ -39,11 +39,10 @@ function Actions(senses, virtual) {
     maneuver.chase = dcwheels.maneuver.chase;
     maneuver.search = dcwheels.maneuver.search;
 
-    this.dispatch = function actionDispatch(actionData) {
-        actionData = actionData || [];
-        var type = actionData[0] || '',
-            params = actionData[1] || {},
-            actions = {},
+    this.dispatch = function actionDispatch(type, name, params) {
+        params = params || {};
+
+        var actions = {},
             currentAction,
             newAction;
 
@@ -52,14 +51,10 @@ function Actions(senses, virtual) {
             actions.perform = {};
             actions.maneuver = {};
             Object.keys(perform).forEach(function (act) {
-                //var p = {};
-                //p[act] = perform[act]();
                 actions.perform[act] = perform[act]();
             });
 
             Object.keys(maneuver).forEach(function (act) {
-                //var m = {};
-                //m[act] = maneuver[act]();
                 actions.maneuver[act] = act;
             });
 
@@ -67,18 +62,15 @@ function Actions(senses, virtual) {
         }
 
         currentAction = JSON.stringify(senses.senseState().currentAction);
-        newAction = JSON.stringify({"type": type, "parameters": params});
+        newAction = JSON.stringify([type, name, params]);
         if (currentAction !== newAction) { // if not current action
-            //console.log(senses.senseState().currentAction);
-            //console.log({"type": type, parameters: params.parameters});
-            console.log({"type": type, "parameters": params});
-            senses.currentAction(type, params);
-            //console.log(senses.senseState().currentAction);
+            senses.currentAction(type, name, params);
+            console.log(type, name, params);
         }
         if (!virtual) {
         //    console.log('virtual:', type, params);
         //} else {
-            perform[type](params);
+            this[type][name](params);
         }
     };
 }

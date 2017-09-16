@@ -33,7 +33,7 @@ function Senses(visionWidth, visionHeight, virtual) {
     // *Sense state* is a collection of all current sensory data.
 
     // *current action* indicates what the creature is doing
-    state.currentAction = {type: '', parameters: []};
+    state.currentAction = ["", "", {}];
 
     // *mood* is a peristent indicator of a creature's short-term goal
     // They are set with a duration and will automatically remove themselves after time expires
@@ -69,9 +69,8 @@ function Senses(visionWidth, visionHeight, virtual) {
     };
 
     // *current action* can be modified by the Actions module
-    this.currentAction = function currentAction(type, params) {
-        state.currentAction.type = type;
-        state.currentAction.parameters = params;
+    this.currentAction = function currentAction(type, name, params) {
+        state.currentAction = [type, name, params];
     };
 
     moods = {

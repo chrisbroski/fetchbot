@@ -5,39 +5,22 @@ var behaviorTable = require("./behavior/behaviorTable.json");
 function Behaviors(senses, actions, config) {
     'use strict';
 
-    var responses = {};
+    function detectorMatch(situation, detector) {
+        var ii, keys = Object.keys(situation), len = keys.length;
 
-    function sum(arr) {
-        return arr.reduce(function (a, b) {
-            return a + b;
-        });
-    }
+        if (len === 0) {
+            return false;
+        }
 
-    function trueDetectors() {
-        var detectors = senses.senseState().detectors;
-
-        return Object.keys(detectors).filter(function (detector) {
-            if (detectors[detector]) {
-                return detector;
+        for (ii = 0; ii < len; ii += 1) {
+            if (!detector[keys[ii]]) {
+                return false;
             }
-        });
+        }
+        return true;
     }
 
-    function detectorMatch(a, b) {
-        if (a === b) {
-            return true;
-        }
-        if (a === null || b === null) {
-            return false;
-        }
-        if (a.length !== b.length) {
-            return false;
-        }
-
-        return (a.join(",") === b.join(","));
-    }
-
-    responses.chase = function (state) {
+    /*responses.chase = function (state) {
         var dir = state.perceptions.targetDirection;
 
         if (sum(dir) === 0) {
@@ -55,14 +38,14 @@ function Behaviors(senses, actions, config) {
 
     responses.stop = function () {
         return ["move", {"type": "stop"}];
-    };
+    };*/
 
-    this.behaviorTable = function () {
-        return JSON.parse(JSON.stringify(behaviorTable));
-    };
+    /*this.behaviorTable = function () {
+        return JSON.parse(JSON.stringify(global.behaviorTable));
+    };*/
 
-    function respond(state) {
-        var response, selectedBehavior, situationEnv = trueDetectors();
+    function respond() {
+        var selectedBehavior;
 
         // Skip if under manual control
         // This should be handled by the Actions module so we still set current action state
@@ -70,25 +53,39 @@ function Behaviors(senses, actions, config) {
             return false;
         }
 
-        selectedBehavior = behaviorTable.find(function (behavior) {
-            return (detectorMatch(behavior.situation, situationEnv));
+        selectedBehavior = global.behaviorTable.find(function (behavior) {
+            return (detectorMatch(behavior.situation, senses.senseState().detectors));
         });
 
-        if (!selectedBehavior) {
-            response = behaviorTable[0].response;
+        //console.log(selectedBehavior);
+        if (!selectedBehavior || !selectedBehavior.response) {
+            console.log("No response found for situation:");
+            console.log(senses.senseState().detectors);
+            return;
+        }
+        //console.log(selectedBehavior.response.lenth);
+
+        // params are optional
+        if (selectedBehavior.response.length < 3) {
+            selectedBehavior.response.push([]);
+        }
+
+        /*if (!selectedBehavior) {
+            response = global.behaviorTable[0].response;
         } else {
             response = selectedBehavior.response;
-        }
-        actions.dispatch(responses[response](state));
+        }*/
+        actions.dispatch(selectedBehavior.response[0], selectedBehavior.response[1], selectedBehavior.response[2]);
     }
 
-    function monitor() {
+    /*function monitor() {
         var state = senses.senseState();
         respond(state);
-    }
+    }*/
 
     function init() {
-        setInterval(monitor, 200);
+        global.behaviorTable = behaviorTable;
+        setInterval(respond, 200);
     }
 
     init();

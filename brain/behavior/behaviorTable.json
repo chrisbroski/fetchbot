@@ -1,4 +1,4 @@
 [
-    {"situation": [], "response": "stop"},
-    {"situation": ["reddot"], "response": "chase"}
+    {"situation": {}, "response": ["perform", "move", {"type": "stop"}]},
+    {"situation": {"reddot": true}, "response": ["maneuver", "chase", {}]}
 ]

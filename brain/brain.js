@@ -65,13 +65,20 @@ io.on('connection', function (socket) {
 
     //io.emit('moods', JSON.stringify(senses.setMood()));
     io.emit('actions', JSON.stringify(actions.dispatch()));
-    io.emit('behaviors', JSON.stringify(behaviors.behaviorTable()));
+    io.emit('behaviors', JSON.stringify(global.behaviorTable));
     io.emit('getSenseParams', JSON.stringify(global.params.senses));
     io.emit('getActionParams', JSON.stringify(global.params.actions));
     sendSenseData();
 
     socket.on('move', function (moveType) {
-        actions.dispatch(['move', {"type": moveType, "speed": 1.0}]);
+        actions.dispatch(["move", {"type": moveType, "speed": 1.0}]);
+    });
+
+    socket.on("action", function (actionData) {
+        console.log(actionData);
+        var actionArray = JSON.parse(actionData);
+        console.log(actionArray)
+        actions.dispatch(actionArray[0], actionArray[1], actionArray[2]);
     });
 
     socket.on('control', function (controlType) {
@@ -80,6 +87,7 @@ io.on('connection', function (socket) {
 
     socket.on('setsenseParam', function (senseParams) {
         var arrayParams = senseParams.split(",");
+        console.log(arrayParams);
         global.params.senses[arrayParams[0]][arrayParams[1]] = +arrayParams[2];
         senses.perceive();
     });
@@ -103,7 +111,7 @@ function exitHandler(options, err) {
         console.log(err.stack);
     }
 
-    actions.dispatch("move", ["stop", 1.0]);
+    actions.dispatch("perform", "move", {"": "stop", "speed": 1.0});
 
     if (options.exit) {
         process.exit();
