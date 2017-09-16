@@ -61,16 +61,22 @@ function Actions(senses, virtual) {
             return JSON.parse(JSON.stringify(actions));
         }
 
+        // log only if action is different
+        // Should we only execute if different too?
         currentAction = JSON.stringify(senses.senseState().currentAction);
         newAction = JSON.stringify([type, name, params]);
         if (currentAction !== newAction) { // if not current action
             senses.currentAction(type, name, params);
             console.log(type, name, params);
         }
+
+        // Execute action
         if (!virtual) {
-        //    console.log('virtual:', type, params);
-        //} else {
-            this[type][name](params);
+            if (type === "maneuver") {
+                maneuver[name](params);
+            } else {
+                perform[name](params);
+            }
         }
     };
 }
