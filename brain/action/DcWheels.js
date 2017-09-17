@@ -13,7 +13,9 @@ function DcWheels(senses, virtual) {
         leftForward,
         leftBackward,
         performParams = {},
-        movement = {};
+        movement = {},
+        pulseOn,
+        pulseTimer;
 
     this.perform = {};
     this.maneuver = {};
@@ -43,11 +45,15 @@ function DcWheels(senses, virtual) {
         leftBackward.digitalWrite(params[3]);
     }
 
-    function pulseMove(movetype, pulseTime) {
-        motor(movement[movetype]);
-        setTimeout(function () {
+    function pulseMove(movetype, pulseTime, isOn) {
+        console.log(movetype, pulseTime, isOn);
+        if (isOn) {
+            motor(movement[movetype]);
+        } else {
             motor(movement.stop);
-            //senses.currentAction('', []);
+        }
+        pulseTimer = setTimeout(function () {
+            pulseMove(movetype, 1000 - pulseTime, !isOn);
         }, pulseTime);
     }
 
@@ -87,9 +93,11 @@ function DcWheels(senses, virtual) {
         type = params.type || 'stop';
         pulseTime = params.speed || 1.0;
 
+        clearTimeout(pulseTimer);
         if (pulseTime < 0.99) {
             pulseTime = Math.floor(pulseTime * 1000);
-            pulseMove(params.type.replace(/-/, ""), pulseTime);
+            pulseOn = true;
+            pulseMove(params.type.replace(/-/, ""), pulseTime, true);
         } else {
             motor(movement[params.type.replace(/-/, "")]);
         }
