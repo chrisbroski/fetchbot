@@ -89,9 +89,9 @@ function DcWheels(senses, virtual) {
 
         if (pulseTime < 0.99) {
             pulseTime = Math.floor(pulseTime * 1000);
-            pulseMove(type, pulseTime);
+            pulseMove(params.type.replace(/-/, ""), pulseTime);
         } else {
-            motor(movement[type]);
+            motor(movement[params.type.replace(/-/, "")]);
         }
         if (type === 'stop') {
             senses.currentAction('', {});
