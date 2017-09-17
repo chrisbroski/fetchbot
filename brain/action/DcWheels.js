@@ -53,19 +53,19 @@ function DcWheels(senses, virtual) {
 
     performParams.move = [
         {
-            description: 'type',
+            description: "type",
             values: [
-                'forward',
-                'forward-right',
-                'rotate-right',
-                'back-right',
+                "forward-left",
+                "forward",
+                "forward-right",
+                "rotate-left",
                 "stop",
-                'backward',
-                'back-left',
-                'rotate-left',
-                'forward-left'
+                "rotate-right",
+                "back-left",
+                "backward",
+                "back-right"
             ],
-            auto: 'stop'
+            auto: "stop"
         },
         {
             description: 'speed',
