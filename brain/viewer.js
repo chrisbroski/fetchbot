@@ -128,6 +128,14 @@ function displayRaw(raw) {
     });
 }
 
+function clearDetectors() {
+    var detectorRadios = document.querySelectorAll('#behaviorEdit div:first-child input[type="radio"]');
+    Array.from(detectorRadios).forEach(function (cb) {
+        cb.checked = !cb.value;
+    });
+    document.getElementById("action-type").selectedIndex = 0;
+}
+
 function createRadio(name, val) {
     var detectorLabel = document.createElement("label"),
         detectorInput = document.createElement("input");
@@ -148,10 +156,11 @@ function displayDetectors(ds) {
     detectorArea = document.querySelector("#behaviorEdit div");
     Object.keys(ds).forEach(function (d) {
         detectorRow = document.createElement("div");
+        detectorRow.setAttribute("data-detector", d);
 
-        detectorRow.appendChild(createRadio("di-" + d, ""));
-        detectorRow.appendChild(createRadio("di-" + d, "1"));
-        detectorRow.appendChild(createRadio("di-" + d, "0"));
+        detectorRow.appendChild(createRadio(d, ""));
+        detectorRow.appendChild(createRadio(d, "1"));
+        detectorRow.appendChild(createRadio(d, "0"));
         detectorRow.appendChild(document.createTextNode(d));
         detectorArea.appendChild(detectorRow);
     });
@@ -192,13 +201,17 @@ function senseStateReceived(senseState) {
 }
 
 function displayActionParams() {
-    var actionType = document.getElementById("action-type"),
-        actionParam = document.getElementById("action-param"),
-        actionInfo = actionType.value.split("-"),
+    var actionType = document.getElementById("action-type").value,
+        actionParam = document.getElementById("action-param");
+    console.log(actionType);
+    console.log(actionData);
+    var actionInfo = actionType.split("-"),
         paramData = actionData[actionInfo.shift()][actionInfo.join("-")],
         paramLabel,
         paramInput,
         paramOption;
+
+    console.log(paramData);
 
     actionParam.innerHTML = "";
     paramData.forEach(function (param) {
@@ -414,6 +427,24 @@ function displayBehaviors(behaviorTable) {
         bTableRow = document.createElement("option");
         bTableRow.value = index;
         bTableRow.textContent = sit + " : " + JSON.stringify(behavior.response);
+        bTableRow.ondblclick = function () {
+            clearDetectors();
+            var behaviorData = this.textContent,
+                detector = behaviorData.slice(0, behaviorData.indexOf(" ")),
+                response = JSON.parse(behaviorData.slice(behaviorData.indexOf("[")));
+            window.console.log(behaviorData);
+            window.console.log(response);
+            // This will need to handle multiple detectos and false values
+            if (detector !== "default") {
+                document.querySelector('#behaviorEdit div[data-detector="' + detector + '"] input[value="1"]').checked = true;
+            }
+            document.querySelector("#action-type").value = response[0] + '-' + response[1];
+            displayActionParams();
+            // var
+            // fill in values
+            //document.getElementById("actions").
+            document.getElementById("behaviorEdit").showModal();
+        };
         bTable.appendChild(bTableRow);
     });
 }
@@ -483,6 +514,7 @@ function checkLayers() {
 function init() {
     disableControlButtons(true);
     document.getElementById("newBehavior").onclick = function () {
+        clearDetectors();
         document.getElementById("behaviorEdit").showModal();
     };
     document.getElementById("closeBehaviorEdit").onclick = function () {
