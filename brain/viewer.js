@@ -200,20 +200,26 @@ function senseStateReceived(senseState) {
     //}
 }
 
-function displayActionParams() {
+function isSelectedParam(paramDesc, selectedParams) {
+    if (!selectedParams) {
+        return false;
+    }
+    return (paramDesc === selectedParams.type);
+}
+
+function displayActionParams(selectedParams) {
     var actionType = document.getElementById("action-type").value,
-        actionParam = document.getElementById("action-param");
-    console.log(actionType);
-    console.log(actionData);
-    var actionInfo = actionType.split("-"),
+        actionParam = document.getElementById("action-param"),
+        actionInfo = actionType.split("-"),
         paramData = actionData[actionInfo.shift()][actionInfo.join("-")],
         paramLabel,
         paramInput,
         paramOption;
 
-    console.log(paramData);
-
     actionParam.innerHTML = "";
+    if (typeof paramData === "string") {
+        return;
+    }
     paramData.forEach(function (param) {
         paramLabel = document.createElement("label");
         paramLabel.textContent = param.description;
@@ -223,6 +229,9 @@ function displayActionParams() {
                 paramOption = document.createElement("option");
                 paramOption.textContent = val;
                 paramOption.value = val;
+                if (isSelectedParam(val, selectedParams)) {
+                    paramOption.selected = true;
+                }
                 paramInput.appendChild(paramOption);
             });
         } else if (param.options) {
@@ -231,7 +240,8 @@ function displayActionParams() {
                 paramOption = document.createElement("option");
                 paramOption.textContent = val;
                 paramOption.value = val;
-                if (param.auto === val) {
+
+                if (isSelectedParam(val, selectedParams) || param.auto === val) {
                     paramOption.selected = true;
                 }
                 paramInput.appendChild(paramOption);
@@ -239,12 +249,19 @@ function displayActionParams() {
         } else {
             paramInput = document.createElement("input");
             paramInput.setAttribute("type", "number");
-            paramInput.value = param.auto;
+
+            if (selectedParams && selectedParams[param.description]) {
+                paramInput.value = selectedParams[param.description];
+            } else {
+                paramInput.value = param.auto;
+            }
+
             paramInput.setAttribute("min", param.val[0]);
             paramInput.setAttribute("max", param.val[1]);
             if (param.val[0] === 0.0 && param.val[1] === 1.0) {
                 paramInput.setAttribute("step", "0.01");
             }
+
         }
         paramLabel.appendChild(paramInput);
         actionParam.appendChild(paramLabel);
@@ -432,17 +449,18 @@ function displayBehaviors(behaviorTable) {
             var behaviorData = this.textContent,
                 detector = behaviorData.slice(0, behaviorData.indexOf(" ")),
                 response = JSON.parse(behaviorData.slice(behaviorData.indexOf("[")));
-            window.console.log(behaviorData);
-            window.console.log(response);
+
             // This will need to handle multiple detectos and false values
             if (detector !== "default") {
                 document.querySelector('#behaviorEdit div[data-detector="' + detector + '"] input[value="1"]').checked = true;
+            } else {
+                Array.from(document.querySelectorAll('#behaviorEdit div input[value=""]')).forEach(function (d) {
+                    d.checked = true;
+                });
             }
             document.querySelector("#action-type").value = response[0] + '-' + response[1];
-            displayActionParams();
-            // var
-            // fill in values
-            //document.getElementById("actions").
+            displayActionParams(response[2]);
+
             document.getElementById("behaviorEdit").showModal();
         };
         bTable.appendChild(bTableRow);
