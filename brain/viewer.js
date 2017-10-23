@@ -411,6 +411,28 @@ function displayActions(actions) {
     displayActionParams();
 }
 
+function populateBehavior(data) {
+    clearDetectors();
+    // var behaviorData = this.textContent,
+    var detector = data.slice(0, data.indexOf(" ")),
+        response = JSON.parse(data.slice(data.indexOf("[")));
+
+    // This will need to handle multiple detectors and false values
+    if (detector !== "default") {
+        document.querySelector('#behaviorEdit div[data-detector="' + detector + '"] input[value="1"]').checked = true;
+    } else {
+        Array.from(document.querySelectorAll('#behaviorEdit div input[value=""]')).forEach(function (d) {
+            d.checked = true;
+        });
+    }
+
+    // Actions
+    document.querySelector("#action-type").value = response[0] + '-' + response[1];
+    displayActionParams(response[2]);
+
+    document.getElementById("behaviorEdit").showModal();
+}
+
 function displayBehaviors(behaviorTable) {
     var behaviors,
         bTable = document.getElementById("behaviorTable"),
@@ -425,7 +447,7 @@ function displayBehaviors(behaviorTable) {
     behaviors.forEach(function (behavior, index) {
         var detectTrue = [], detectFalse = [], sit;
         Object.keys(behavior.situation).forEach(function (d) {
-            if (d) {
+            if (behavior.situation[d]) {
                 detectTrue.push(d);
             } else {
                 detectFalse.push(d);
@@ -445,23 +467,7 @@ function displayBehaviors(behaviorTable) {
         bTableRow.value = index;
         bTableRow.textContent = sit + " : " + JSON.stringify(behavior.response);
         bTableRow.ondblclick = function () {
-            clearDetectors();
-            var behaviorData = this.textContent,
-                detector = behaviorData.slice(0, behaviorData.indexOf(" ")),
-                response = JSON.parse(behaviorData.slice(behaviorData.indexOf("[")));
-
-            // This will need to handle multiple detectos and false values
-            if (detector !== "default") {
-                document.querySelector('#behaviorEdit div[data-detector="' + detector + '"] input[value="1"]').checked = true;
-            } else {
-                Array.from(document.querySelectorAll('#behaviorEdit div input[value=""]')).forEach(function (d) {
-                    d.checked = true;
-                });
-            }
-            document.querySelector("#action-type").value = response[0] + '-' + response[1];
-            displayActionParams(response[2]);
-
-            document.getElementById("behaviorEdit").showModal();
+            populateBehavior(this.textContent);
         };
         bTable.appendChild(bTableRow);
     });
