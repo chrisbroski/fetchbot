@@ -544,7 +544,9 @@ function init() {
     document.getElementById("closeBehaviorEdit").onclick = function () {
         document.getElementById("behaviorEdit").close();
     };
-
+    document.getElementById("saveBehavior").onclick = function () {
+        // socket call
+    };
 
     layers.forEach(function (layer) {
         document.getElementById("layer-" + layer).onclick = checkLayers;

@@ -85,6 +85,10 @@ function Behaviors(senses, actions, config) {
         respond(state);
     }*/
 
+    function updateBTable(newBTable) {
+        global.behaviorTable = newBTable;
+    }
+
     function init() {
         global.behaviorTable = behaviorTable;
         setInterval(respond, 200);

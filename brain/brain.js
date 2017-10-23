@@ -79,6 +79,12 @@ io.on('connection', function (socket) {
         config.manual = (controlType === 'manual');
     });
 
+    socket.on('btable', function (btable) {
+        //config.manual = (controlType === 'manual');
+        console.log(btable);
+        behaviors.updateBTable(btable);
+    });
+
     socket.on('setsenseParam', function (senseParams) {
         var arrayParams = senseParams.split(",");
         console.log(arrayParams);
