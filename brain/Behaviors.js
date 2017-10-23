@@ -13,7 +13,7 @@ function Behaviors(senses, actions, config) {
         }
 
         for (ii = 0; ii < len; ii += 1) {
-            if (!detector[keys[ii]]) {
+            if (detector[keys[ii]] !== situation[keys[ii]]) {
                 return false;
             }
         }
