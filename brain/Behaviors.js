@@ -5,6 +5,8 @@ var behaviorTable = require("./behavior/behaviorTable.json");
 function Behaviors(senses, actions, config) {
     'use strict';
 
+    var currentBehavior;
+
     function detectorMatch(situation, detector) {
         var ii, keys = Object.keys(situation), len = keys.length;
 
@@ -57,13 +59,13 @@ function Behaviors(senses, actions, config) {
             return (detectorMatch(behavior.situation, senses.senseState().detectors));
         });
 
-        //console.log(selectedBehavior);
-        if (!selectedBehavior || !selectedBehavior.response) {
+        if (currentBehavior !== JSON.stringify(selectedBehavior) && (!selectedBehavior || !selectedBehavior.response)) {
+            currentBehavior = JSON.stringify(selectedBehavior);
             console.log("No response found for situation:");
             console.log(senses.senseState().detectors);
             return;
         }
-        //console.log(selectedBehavior.response.lenth);
+        currentBehavior = JSON.stringify(selectedBehavior);
 
         // params are optional
         if (selectedBehavior.response.length < 3) {
