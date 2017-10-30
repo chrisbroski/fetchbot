@@ -80,9 +80,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('btable', function (btable) {
-        //config.manual = (controlType === 'manual');
-        console.log(btable);
-        behaviors.updateBTable(btable);
+        behaviors.updateBTable(JSON.parse(btable));
     });
 
     socket.on('setsenseParam', function (senseParams) {

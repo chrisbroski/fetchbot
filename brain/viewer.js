@@ -1,7 +1,7 @@
 /*jslint browser: true, sloppy: true */
 /*global io */
 
-var socket, canvasEdge, ctxEdge, canvasBall, ctxBall, viewWidth, mag, halfMag, width, stateHash = 0, control = 'auto', manualOverrideTimer, canvasLuma, ctxLuma, canvasChromaU, ctxChromaU, canvasChromaV, ctxChromaV, layers, detectors, actionData;
+var socket, canvasEdge, ctxEdge, canvasBall, ctxBall, viewWidth, mag, halfMag, width, stateHash = 0, control = 'auto', manualOverrideTimer, canvasLuma, ctxLuma, canvasChromaU, ctxChromaU, canvasChromaV, ctxChromaV, layers, detectors, actionData, editingBehavior;
 
 layers = ["luma", "chromaU", "chromaV", "edges", "target"];
 
@@ -222,6 +222,7 @@ function displayActionParams(selectedParams) {
     }
     paramData.forEach(function (param) {
         paramLabel = document.createElement("label");
+        paramLabel.setAttribute("data-action-param", param.description);
         paramLabel.textContent = param.description;
         if (param.values) {
             paramInput = document.createElement("select");
@@ -418,6 +419,7 @@ function populateBehavior(data) {
         response = JSON.parse(data.slice(data.indexOf("[")));
 
     // This will need to handle multiple detectors and false values
+    // Yes it will, past Chris. I should do that now.
     if (detector !== "default") {
         document.querySelector('#behaviorEdit div[data-detector="' + detector + '"] input[value="1"]').checked = true;
     } else {
@@ -433,6 +435,35 @@ function populateBehavior(data) {
     document.getElementById("behaviorEdit").showModal();
 }
 
+function behaviorDisplay(behavior) {
+    var detectTrue = [], detectFalse = [], sit;
+    Object.keys(behavior.situation).forEach(function (d) {
+        if (behavior.situation[d]) {
+            detectTrue.push(d);
+        } else {
+            detectFalse.push(d);
+        }
+    });
+    if (detectTrue.length === 0 && detectFalse.length === 0) {
+        sit = "default";
+    } else {
+        if (detectTrue.length > 0) {
+            sit = detectTrue.join(", ") + " ";
+        }
+        if (detectFalse.length > 0) {
+            sit = sit + "(" + detectFalse.join(", ") + ")";
+        }
+    }
+    // bTableRow = document.createElement("option");
+    // bTableRow.value = index;
+    return sit + " : " + JSON.stringify(behavior.response);
+}
+
+function editBehavior() {
+    editingBehavior = this.value;
+    populateBehavior(this.textContent);
+}
+
 function displayBehaviors(behaviorTable) {
     var behaviors,
         bTable = document.getElementById("behaviorTable"),
@@ -445,7 +476,7 @@ function displayBehaviors(behaviorTable) {
     }
 
     behaviors.forEach(function (behavior, index) {
-        var detectTrue = [], detectFalse = [], sit;
+        /*var detectTrue = [], detectFalse = [], sit;
         Object.keys(behavior.situation).forEach(function (d) {
             if (behavior.situation[d]) {
                 detectTrue.push(d);
@@ -462,13 +493,11 @@ function displayBehaviors(behaviorTable) {
             if (detectFalse.length > 0) {
                 sit = sit + "(" + detectFalse.join(", ") + ")";
             }
-        }
+        }*/
         bTableRow = document.createElement("option");
         bTableRow.value = index;
-        bTableRow.textContent = sit + " : " + JSON.stringify(behavior.response);
-        bTableRow.ondblclick = function () {
-            populateBehavior(this.textContent);
-        };
+        bTableRow.textContent = behaviorDisplay(behavior);// sit + " : " + JSON.stringify(behavior.response);
+        bTableRow.ondblclick = editBehavior;
         bTable.appendChild(bTableRow);
     });
 }
@@ -535,17 +564,103 @@ function checkLayers() {
     });
 }
 
+function getBehaviorTable() {
+    var behaviorData = [],
+        bTable = document.getElementById('behaviorTable');
+
+    Array.from(bTable.options).forEach(function (b) {
+        var strSit = b.textContent.slice(0, b.textContent.indexOf(":")).trim(),
+            strRsp = b.textContent.slice(b.textContent.indexOf(":") + 1).trim(),
+            bData = {},
+            trueSit,
+            falseSit = [],
+            situation = {};
+
+        // situation
+        if (strSit !== "default") {
+            if (strSit.indexOf("(") > -1) {
+                falseSit = strSit.slice(strSit.indexOf("(") + 1, -1).split(", ");
+                trueSit = strSit.slice(0, strSit.indexOf(" (")).split(", ");
+            } else {
+                trueSit = strSit.split(", ");
+            }
+            trueSit.forEach(function (d) {
+                situation[d] = true;
+            });
+            falseSit.forEach(function (d) {
+                situation[d] = false;
+            });
+        }
+        bData.situation = situation;
+        bData.response = JSON.parse(strRsp);
+        behaviorData.push(bData);
+    });
+    return JSON.stringify(behaviorData);
+}
+
+function createBehaviorData() {
+    // go through dialog and build the behavior
+    var situations = document.querySelectorAll("#behaviorEdit > div:first-child > div"),
+        situation = {},
+        actionSelect = document.getElementById("action-type"),
+        actionParams,
+        actionParam = {},
+        response = [];
+
+    Array.from(situations).forEach(function (s) {
+        var radios = Array.from(s.getElementsByTagName("input")),
+            detector = s.getAttribute("data-detector");
+
+        radios.forEach(function (r) {
+            if (r.checked && r.value !== "") {
+                situation[detector] = !!+r.value;
+            }
+        });
+    });
+
+    response.push(actionSelect.value.slice(0, actionSelect.value.indexOf("-")));
+    response.push(actionSelect.value.slice(actionSelect.value.indexOf("-") + 1));
+    actionParams = Array.from(document.querySelectorAll("#action-param > label"));
+    actionParams.forEach(function (ap) {
+        var paramValue = ap.getElementsByTagName("select");
+        if (paramValue.length === 0) {
+            paramValue = ap.getElementsByTagName("input");
+        }
+        actionParam[ap.getAttribute("data-action-param")] = paramValue[0].value;
+    });
+    if (actionParams.length) {
+        response.push(actionParam);
+    }
+    return {"situation": situation, "response": response};
+}
+
 function init() {
     disableControlButtons(true);
     document.getElementById("newBehavior").onclick = function () {
         clearDetectors();
+        editingBehavior = -1;
         document.getElementById("behaviorEdit").showModal();
     };
     document.getElementById("closeBehaviorEdit").onclick = function () {
         document.getElementById("behaviorEdit").close();
     };
     document.getElementById("saveBehavior").onclick = function () {
-        // socket call
+        socket.emit('btable', getBehaviorTable());
+    };
+    document.getElementById("saveBehaviorEdit").onclick = function () {
+        var bTable = document.getElementById("behaviorTable"),
+            option = document.createElement("option");
+
+        if (editingBehavior === -1) {
+            // add to list
+            option.value = bTable.options.length;
+            option.textContent = behaviorDisplay(createBehaviorData());
+            option.ondblclick = editBehavior;
+            bTable.appendChild(option);
+        } else {
+            // update list
+            window.console.log(editingBehavior);
+        }
     };
 
     layers.forEach(function (layer) {
