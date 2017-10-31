@@ -660,6 +660,7 @@ function init() {
         } else {
             // update list
             window.console.log(editingBehavior);
+            bTable.options[editingBehavior].textContent = behaviorDisplay(createBehaviorData());
         }
     };
 
