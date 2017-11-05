@@ -5,6 +5,8 @@ global.params.senses.findRed.luma = 100;
 global.params.senses.findRed.chromaV = 190;
 global.params.senses.edge = {};
 global.params.senses.edge.diff = 50;
+global.params.senses.isCenter = {};
+global.params.senses.isCenter.width = 0.2;
 
 function Fetchbot() {
     'use strict';
@@ -47,14 +49,17 @@ function Fetchbot() {
     };
 
     function redColumns(visionWidth) {
+        var centerWidth = global.params.senses.isCenter.width,
+            leftSide = (1.0 - centerWidth) / 2.0,
+            rightSide = leftSide + centerWidth;
         //go through dots. Add up each column
         // Return the column index with the greatest value
         var redCount = [0, 0, 0];
         dots.forEach(function (dot) {
             var colNum = ((dot - 1) % visionWidth) + 1;
-            if (colNum < visionWidth * 0.4) {
+            if (colNum < visionWidth * leftSide) {
                 redCount[0] += 1;
-            } else if (colNum > visionWidth * 0.6) {
+            } else if (colNum > visionWidth * rightSide) {
                 redCount[2] += 1;
             } else {
                 redCount[1] += 1;
