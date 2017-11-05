@@ -66,14 +66,16 @@ function disableControlButtons(disOrEnable) {
 }
 
 function setControl(autoOrManual) {
-    var controlButton = document.querySelector('#manual button');
+    var controlButton = document.querySelector("#manual button");
 
     control = autoOrManual;
-    if (control === 'manual') {
-        document.querySelector('#manual button').innerHTML = 'Relinquish control';
+    if (control === "manual") {
+        document.querySelector('#manual button').innerHTML = "Relinquish control";
         disableControlButtons(false);
+        document.getElementById("display-action-type").textContent = "manual";
     } else {
-        document.querySelector('#manual button').innerHTML = 'Request manual control';
+        document.querySelector("#manual button").innerHTML = "Request manual control";
+        document.getElementById("display-action-type").textContent = "";
         disableControlButtons(true);
     }
 
@@ -82,7 +84,13 @@ function setControl(autoOrManual) {
 }
 
 function describeAction(action) {
-    return action[0] + ": " + action[1] + " " + JSON.stringify(action[2]);
+    var actionType = document.getElementById("display-action-type");
+    // display manual + perform too
+    if (actionType.textContent !== "manual") {
+        document.getElementById("action-type").textContent = action[0];
+    }
+    document.getElementById("current-action").textContent = action[1] + " " + JSON.stringify(action[2]);
+    //return action[0] + ": " + action[1] + " " + JSON.stringify(action[2]);
 }
 
 function displayRaw(raw) {
@@ -180,7 +188,8 @@ function senseStateReceived(senseState) {
     mag = 400 / width;
     halfMag = mag / 2;
     currentAction = jsonState.currentAction;
-    document.getElementById("current-action").textContent = describeAction(currentAction);
+    describeAction(currentAction);
+    //document.getElementById("current-action").textContent = describeAction(currentAction);
     delete jsonState.currentAction;
     jsonString = JSON.stringify(jsonState, null, '    ');
 
