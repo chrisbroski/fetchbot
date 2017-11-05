@@ -57,6 +57,12 @@ function DcWheels(senses, virtual) {
         }, pulseTime);
     }
 
+    function sum(arr) {
+        return arr.reduce(function (a, b) {
+            return a + b;
+        });
+    }
+
     performParams.move = [
         {
             description: "type",
@@ -108,9 +114,23 @@ function DcWheels(senses, virtual) {
         }
     };
 
+    // Export manuevers to their own module in a future version
     this.maneuver.chase = function () {
         // get sense state and do maneuver
         console.log("maneuver.chase");
+        var dir = senses.state.perceptions.targetDirection;
+
+        if (sum(dir) === 0) {
+            return ["move", {"type": "stop"}];
+        }
+
+        if (dir[0] > dir[1] && dir[0] > dir[2]) {
+            return ["move", {"type": "rotateright", "speed": 0.02}];
+        }
+        if (dir[2] > dir[0] && dir[2] > dir[1]) {
+            return ["move", {"type": "rotateleft", "speed": 0.02}];
+        }
+        return ["move", {"type": "forward"}];
     };
 
     this.maneuver.search = function () {
