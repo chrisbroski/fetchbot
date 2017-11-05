@@ -58,7 +58,10 @@ function Behaviors(senses, actions, config) {
         selectedBehavior = global.behaviorTable.find(function (behavior) {
             return (detectorMatch(behavior.situation, senses.senseState().detectors));
         });
-
+        if (!selectedBehavior) {
+            // Let's assume the first behavior is the default
+            selectedBehavior = global.behaviorTable[0];
+        }
         if (currentBehavior !== JSON.stringify(selectedBehavior) && (!selectedBehavior || !selectedBehavior.response)) {
             currentBehavior = JSON.stringify(selectedBehavior);
             console.log("No response found for situation:");
