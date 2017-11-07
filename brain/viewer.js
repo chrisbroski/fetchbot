@@ -87,7 +87,7 @@ function describeAction(action) {
     var actionType = document.getElementById("display-action-type");
     // display manual + perform too
     if (actionType.textContent !== "manual") {
-        document.getElementById("action-type").textContent = action[0];
+        document.getElementById("display-action-type").textContent = action[0];
     }
     document.getElementById("current-action").textContent = action[1] + " " + JSON.stringify(action[2]);
     //return action[0] + ": " + action[1] + " " + JSON.stringify(action[2]);
