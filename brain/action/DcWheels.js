@@ -46,7 +46,6 @@ function DcWheels(senses, virtual) {
     }
 
     function pulseMove(movetype, pulseTime, isOn) {
-        console.log(movetype, pulseTime, isOn);
         if (isOn) {
             motor(movement[movetype]);
         } else {
@@ -107,11 +106,7 @@ function DcWheels(senses, virtual) {
         } else {
             motor(movement[params.type.replace(/-/, "")]);
         }
-        if (type === 'stop') {
-            senses.currentAction('', {});
-        } else {
-            senses.currentAction('move', [type, pulseTime]);
-        }
+        senses.currentAction('perform', 'move', params);
     };
 
     // Export manuevers to their own module in a future version
