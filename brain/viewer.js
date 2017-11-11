@@ -423,12 +423,10 @@ function displayActions(actions) {
 
 function populateBehavior(data) {
     clearDetectors();
-    // var behaviorData = this.textContent,
+
     var detector = data.slice(0, data.indexOf(" ")),
         response = JSON.parse(data.slice(data.indexOf("[")));
 
-    // This will need to handle multiple detectors and false values
-    // Yes it will, past Chris. I should do that now.
     if (detector !== "default") {
         document.querySelector('#behaviorEdit div[data-detector="' + detector + '"] input[value="1"]').checked = true;
     } else {
@@ -463,8 +461,7 @@ function behaviorDisplay(behavior) {
             sit = sit + "(" + detectFalse.join(", ") + ")";
         }
     }
-    // bTableRow = document.createElement("option");
-    // bTableRow.value = index;
+
     return sit + " : " + JSON.stringify(behavior.response);
 }
 
