@@ -14,7 +14,6 @@ function DcWheels(senses, virtual) {
         leftBackward,
         performParams = {},
         movement = {},
-        pulseOn,
         pulseTimer;
 
     this.perform = {};
@@ -89,19 +88,17 @@ function DcWheels(senses, virtual) {
     ];
 
     this.perform.move = function move(params) {
-        var type, pulseTime;
+        var pulseTime;
 
         if (!params) {
             return performParams.move;
         }
 
-        type = params.type || 'stop';
         pulseTime = params.speed || 1.0;
 
         clearTimeout(pulseTimer);
         if (pulseTime < 0.99) {
             pulseTime = Math.floor(pulseTime * 1000);
-            pulseOn = true;
             pulseMove(params.type.replace(/-/, ""), pulseTime, true);
         } else {
             motor(movement[params.type.replace(/-/, "")]);
