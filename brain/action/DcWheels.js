@@ -112,8 +112,7 @@ function DcWheels(senses, virtual) {
     // Export manuevers to their own module in a future version
     this.maneuver.chase = function () {
         // get sense state and do maneuver
-        console.log("maneuver.chase");
-        var dir = senses.state.perceptions.targetDirection;
+        var dir = senses.senseState().perceptions.targetDirection;
 
         if (sum(dir) === 0) {
             return ["move", {"type": "stop"}];

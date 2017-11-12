@@ -84,13 +84,16 @@ function setControl(autoOrManual) {
 }
 
 function describeAction(action) {
-    var actionType = document.getElementById("display-action-type");
-    // display manual + perform too
-    if (actionType.textContent !== "manual") {
-        document.getElementById("display-action-type").textContent = action[0];
+    var actionType = document.getElementById("display-action-type"),
+        actionDetail = document.getElementById("current-action");
+
+    if (action[0] === "maneuver") {
+        actionType.textContent = action[0] + ": " + action[1];
+        actionDetail.textContent = action[2][0] + ": " + JSON.stringify(action[2][1]);
+    } else {
+        actionType.textContent = action[0];
+        actionDetail.textContent = action[1] + " " + JSON.stringify(action[2]);
     }
-    document.getElementById("current-action").textContent = action[1] + " " + JSON.stringify(action[2]);
-    //return action[0] + ": " + action[1] + " " + JSON.stringify(action[2]);
 }
 
 function displayRaw(raw) {
@@ -542,7 +545,11 @@ function displayParams(params, paramType) {
 
             label.textContent = param;
             input.type = "number";
+
             input.value = params[perceiver][param];
+            if (Math.round(params[perceiver][param]) !== params[perceiver][param]) {
+                input.setAttribute("step", "0.01");
+            }
             input.onchange = function () {
                 socket.emit("setsenseParam", perceiver + "," + param + "," + this.value);
             };

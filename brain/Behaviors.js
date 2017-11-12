@@ -5,7 +5,7 @@ var behaviorTable = require("./behavior/behaviorTable.json");
 function Behaviors(senses, actions, config) {
     'use strict';
 
-    var currentBehavior;
+    // var currentBehavior;
 
     function detectorMatch(situation, detector) {
         var ii, keys = Object.keys(situation), len = keys.length;
@@ -21,30 +21,6 @@ function Behaviors(senses, actions, config) {
         }
         return true;
     }
-
-    /*responses.chase = function (state) {
-        var dir = state.perceptions.targetDirection;
-
-        if (sum(dir) === 0) {
-            return ["move", {"type": "stop"}];
-        }
-
-        if (dir[0] > dir[1] && dir[0] > dir[2]) {
-            return ["move", {"type": "rotateright", "speed": 0.02}];
-        }
-        if (dir[2] > dir[0] && dir[2] > dir[1]) {
-            return ["move", {"type": "rotateleft", "speed": 0.02}];
-        }
-        return ["move", {"type": "forward"}];
-    };
-
-    responses.stop = function () {
-        return ["move", {"type": "stop"}];
-    };*/
-
-    /*this.behaviorTable = function () {
-        return JSON.parse(JSON.stringify(global.behaviorTable));
-    };*/
 
     function respond() {
         var selectedBehavior;
@@ -62,31 +38,14 @@ function Behaviors(senses, actions, config) {
             // Let's assume the first behavior is the default
             selectedBehavior = global.behaviorTable[0];
         }
-        if (currentBehavior !== JSON.stringify(selectedBehavior) && (!selectedBehavior || !selectedBehavior.response)) {
-            currentBehavior = JSON.stringify(selectedBehavior);
-            console.log("No response found for situation:");
-            console.log(senses.senseState().detectors);
-            return;
-        }
-        currentBehavior = JSON.stringify(selectedBehavior);
 
         // params are optional
         if (selectedBehavior.response.length < 3) {
             selectedBehavior.response.push([]);
         }
 
-        /*if (!selectedBehavior) {
-            response = global.behaviorTable[0].response;
-        } else {
-            response = selectedBehavior.response;
-        }*/
         actions.dispatch(selectedBehavior.response[0], selectedBehavior.response[1], selectedBehavior.response[2]);
     }
-
-    /*function monitor() {
-        var state = senses.senseState();
-        respond(state);
-    }*/
 
     this.updateBTable = function updateBTable(newBTable) {
         global.behaviorTable = newBTable;

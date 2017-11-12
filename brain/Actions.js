@@ -34,7 +34,7 @@ function Actions(senses, virtual) {
         senses.setMood(params.type);
     };
 
-    // Set up performers and ameuvers from libraries
+    // Set up performers and maneuvers from libraries
     perform.move = dcwheels.perform.move;
     maneuver.chase = dcwheels.maneuver.chase;
     maneuver.search = dcwheels.maneuver.search;
@@ -44,7 +44,8 @@ function Actions(senses, virtual) {
 
         var actions = {},
             currentAction,
-            newAction;
+            newAction,
+            maneuverPerform;
 
         // if no action is given, return a list of available types and parameters
         if (!type) {
@@ -64,17 +65,28 @@ function Actions(senses, virtual) {
         // log only if action is different
         // Should we only execute if different too?
         currentAction = JSON.stringify(senses.senseState().currentAction);
-        newAction = JSON.stringify([type, name, params]);
-        if (currentAction !== newAction) { // if not current action
-            senses.currentAction(type, name, params);
-            console.log(type, name, params);
-        }
+        if (type === "maneuver") {
+            maneuverPerform = maneuver[name]()
 
-        // Execute action
-        if (!virtual) {
-            if (type === "maneuver") {
-                maneuver[name](params);
-            } else {
+            newAction = JSON.stringify([type, name, maneuverPerform]);
+            if (currentAction !== newAction) { // if not current action
+                senses.currentAction(type, name, maneuverPerform);
+                console.log(type, name, params);
+            }
+
+            // Execute action
+            if (!virtual) {
+                perform[maneuverPerform[0]](maneuverPerform[1]);
+            }
+        } else {
+            newAction = JSON.stringify([type, name, params]);
+            if (currentAction !== newAction) { // if not current action
+                senses.currentAction(type, name, params);
+                console.log(type, name, params);
+            }
+
+            // Execute action
+            if (!virtual) {
                 perform[name](params);
             }
         }
