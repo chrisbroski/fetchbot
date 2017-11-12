@@ -7,6 +7,7 @@ It also connects to a viewer for perception visualization and manual action cont
 
 global.params = {};
 global.params.senses = {};
+global.params.actions = {};
 
 var fs = require('fs'),
     http = require('http'),
@@ -85,9 +86,13 @@ io.on('connection', function (socket) {
 
     socket.on('setsenseParam', function (senseParams) {
         var arrayParams = senseParams.split(",");
-        console.log(arrayParams);
         global.params.senses[arrayParams[0]][arrayParams[1]] = +arrayParams[2];
         senses.perceive();
+    });
+
+    socket.on('setactionParam', function (actionParams) {
+        var arrayParams = actionParams.split(",");
+        global.params.actions[arrayParams[0]][arrayParams[1]] = +arrayParams[2];
     });
 
     socket.on('disconnect', function () {

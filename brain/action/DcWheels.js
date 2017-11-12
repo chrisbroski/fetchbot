@@ -116,10 +116,10 @@ function DcWheels(senses, virtual) {
         }
 
         if (dir[0] > dir[1] && dir[0] > dir[2]) {
-            return ["move", {"type": "rotateright", "speed": 0.02}];
+            return ["move", {"type": "rotateright", "speed": global.params.actions.turn.speed}];
         }
         if (dir[2] > dir[0] && dir[2] > dir[1]) {
-            return ["move", {"type": "rotateleft", "speed": 0.02}];
+            return ["move", {"type": "rotateleft", "speed": global.params.actions.turn.speed}];
         }
         return ["move", {"type": "forward"}];
     };

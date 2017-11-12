@@ -528,7 +528,7 @@ function manual() {
 }
 
 function displayParams(params, paramType) {
-    var senseParamDiv = document.getElementById(paramType + "Params"),
+    var paramDiv = document.getElementById(paramType + "Params"),
         fieldset = document.createElement("fieldset");
 
     params = JSON.parse(params);
@@ -551,7 +551,7 @@ function displayParams(params, paramType) {
                 input.setAttribute("step", "0.01");
             }
             input.onchange = function () {
-                socket.emit("setsenseParam", perceiver + "," + param + "," + this.value);
+                socket.emit("set" + paramType + "Param", perceiver + "," + param + "," + this.value);
             };
 
             button.type = "button";
@@ -562,12 +562,8 @@ function displayParams(params, paramType) {
             fieldset.appendChild(label);
         });
 
-        senseParamDiv.appendChild(fieldset);
+        paramDiv.appendChild(fieldset);
     });
-}
-
-function displaySenseParams(params) {
-    displayParams(params, "sense");
 }
 
 function checkLayers() {
@@ -702,8 +698,12 @@ function init() {
     socket.on("senseRaw", displayRaw);
     socket.on("actions", displayActions);
     socket.on("behaviors", displayBehaviors);
-    socket.on("getSenseParams", displaySenseParams);
-    socket.on("getActionParams", displayActionParams);
+    socket.on("getSenseParams", function (p) {
+        displayParams(p, "sense");
+    });
+    socket.on("getActionParams", function (p) {
+        displayParams(p, "action");
+    });
     socket.on("disconnect", function () {
         window.console.log('disconnected');
     });
