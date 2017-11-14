@@ -3,6 +3,8 @@
 global.params.actions = {};
 global.params.actions.turn = {};
 global.params.actions.turn.speed = 0.02;
+global.params.actions.search = {};
+global.params.actions.search.maxDuration = 2000;
 
 function DcWheels(senses, virtual) {
     'use strict';
@@ -14,7 +16,9 @@ function DcWheels(senses, virtual) {
         leftBackward,
         performParams = {},
         movement = {},
-        pulseTimer;
+        pulseTimer,
+        searchTimer = 0,
+        searchMoveType;
 
     this.perform = {};
     this.maneuver = {};
@@ -87,7 +91,7 @@ function DcWheels(senses, virtual) {
         }
     ];
 
-    this.perform.move = function move(params) {
+    this.perform.move = function move(params, search) {
         var pulseTime;
 
         if (!params) {
@@ -124,11 +128,30 @@ function DcWheels(senses, virtual) {
         return ["move", {"type": "forward"}];
     };
 
+    function resetTimer() {
+        searchTimer = +(new Date()) + (Math.random() * global.params.actions.search.maxDuration);
+    }
+
     this.maneuver.search = function () {
         // spin around and look for the ball
         // If you don't see it in 360 degrees, pick a direction and move a short distance
         // repeat
-        console.log("maneuver.search");
+        // console.log("maneuver.search");
+        if (!searchTimer) {
+            resetTimer();
+            searchMoveType = "forward";
+        } else {
+            if (+(new Date()) > searchTimer) {
+                resetTimer()
+                if (searchMoveType === "forward") {
+                    searchMoveType = (Math.random() > 0.5) ? "rotate-right" : "rotate-left";
+                } else {
+                    searchMoveType = "forward";
+                }
+            }
+        }
+
+        return ["move", {"type": searchMoveType}];
     };
 
     this.maneuver.backupAndChange = function () {

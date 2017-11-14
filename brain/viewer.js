@@ -465,7 +465,7 @@ function behaviorDisplay(behavior) {
         }
     }
 
-    return sit + " : " + JSON.stringify(behavior.response);
+    return sit + ": " + JSON.stringify(behavior.response[0]) + ": " + JSON.stringify(behavior.response[1]);
 }
 
 function editBehavior() {

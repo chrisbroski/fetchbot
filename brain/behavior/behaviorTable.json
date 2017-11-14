@@ -1,4 +1,5 @@
 [
-    {"situation": {}, "response": ["perform", "move", {"type": "stop"}]},
+    {"situation": {}, "response": ["maneuver", "search", {}]},
+    {"situation": {"lowlight": true}, "response": ["perform", "move", {"type": "stop"}]},
     {"situation": {"reddot": true}, "response": ["maneuver", "chase", {}]}
 ]
