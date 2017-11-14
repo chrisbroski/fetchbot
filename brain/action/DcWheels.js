@@ -145,6 +145,8 @@ function DcWheels(senses, virtual) {
                 resetTimer()
                 if (searchMoveType === "forward") {
                     searchMoveType = (Math.random() > 0.5) ? "rotate-right" : "rotate-left";
+                } else if (searchMoveType === "rotate-right" || searchMoveType === "rotate-left") {
+                    searchMoveType = "stop";
                 } else {
                     searchMoveType = "forward";
                 }
