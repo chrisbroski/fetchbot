@@ -40,7 +40,7 @@ function app(req, rsp) {
         rsp.writeHead(200, {'Content-Type': 'application/javascript'});
         fs.createReadStream(__dirname + '/viewer.js').pipe(rsp);
     } else {
-        rsp.writeHead(200, {'Content-Type': 'text/html'});
+        rsp.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
         fs.createReadStream(__dirname + '/viewer.html').pipe(rsp);
     }
 }
