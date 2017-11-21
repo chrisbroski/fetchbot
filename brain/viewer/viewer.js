@@ -428,9 +428,9 @@ function populateBehavior(data) {
     clearDetectors();
 
     var detector = data.slice(0, data.indexOf(" ")),
-        response = JSON.parse(data.slice(data.indexOf("[")));
+        response = JSON.parse(data.slice(data.indexOf(" ")));
 
-    if (detector !== "default") {
+    if (detector !== "default:") {
         document.querySelector('#behaviorEdit div[data-detector="' + detector + '"] input[value="1"]').checked = true;
     } else {
         Array.from(document.querySelectorAll('#behaviorEdit div input[value=""]')).forEach(function (d) {

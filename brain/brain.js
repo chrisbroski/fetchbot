@@ -32,20 +32,18 @@ behaviors = new Behaviors(senses, actions, config);
 function app(req, rsp) {
     if (req.url === "/img/favicon.png") {
         rsp.writeHead(200, {'Content-Type': 'image/png'});
-        fs.createReadStream(__dirname + '/favicon.png').pipe(rsp);
+        fs.createReadStream(__dirname + '/viewer/favicon.png').pipe(rsp);
     } else if (req.url === "/viewer.css") {
         rsp.writeHead(200, {'Content-Type': 'text/css'});
-        fs.createReadStream(__dirname + '/viewer.css').pipe(rsp);
+        fs.createReadStream(__dirname + '/viewer/viewer.css').pipe(rsp);
     } else if (req.url === "/viewer.js") {
         rsp.writeHead(200, {'Content-Type': 'application/javascript'});
-        fs.createReadStream(__dirname + '/viewer.js').pipe(rsp);
+        fs.createReadStream(__dirname + '/viewer/viewer.js').pipe(rsp);
     } else {
         rsp.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-        fs.createReadStream(__dirname + '/viewer.html').pipe(rsp);
+        fs.createReadStream(__dirname + '/viewer/viewer.html').pipe(rsp);
     }
 }
-
-/*jslint unparam: false, nomen: false*/
 
 function sendSenseData() {
     setInterval(function () {

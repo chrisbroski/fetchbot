@@ -14,7 +14,9 @@ function Fetchbot() {
     var dots = [];
 
     function isEdge(ii, visionWidth, imgPixelSize, luma) {
-        var adjacent = [], val = luma[ii], diff = global.params.senses.edge.diff;
+        var adjacent = [],
+            val = luma[ii],
+            diff = global.params.senses.edge.diff;
 
         if (ii > visionWidth) {
             adjacent.push(luma[ii - visionWidth]); // top
@@ -51,10 +53,10 @@ function Fetchbot() {
     function redColumns(visionWidth) {
         var centerWidth = global.params.senses.isCenter.width,
             leftSide = (1.0 - centerWidth) / 2.0,
-            rightSide = leftSide + centerWidth;
+            rightSide = leftSide + centerWidth,
+            redCount = [0, 0, 0];
         //go through dots. Add up each column
         // Return the column index with the greatest value
-        var redCount = [0, 0, 0];
         dots.forEach(function (dot) {
             var colNum = ((dot - 1) % visionWidth) + 1;
             if (colNum < visionWidth * leftSide) {
@@ -91,12 +93,14 @@ function Fetchbot() {
 
         dots.length = 0;
 
+        function addLuma(a, b) {
+            return a + l[b];
+        }
+
         for (ii = 0; ii < len; ii += 1) {
             loc2 = loc2x(ii, visionWidth);
 
-            loc2val = loc2.reduce(function (a, b) {
-                return a + l[b];
-            }, 0);
+            loc2val = loc2.reduce(addLuma, 0);
 
             if (v[ii] > global.params.senses.findRed.chromaV && loc2val / 4 > global.params.senses.findRed.luma) {
                 dots.push(ii);

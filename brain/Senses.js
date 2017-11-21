@@ -187,7 +187,7 @@ function Senses(visionWidth, visionHeight, virtual) {
 
     // virtual input
     function virt(imgRawFileSize, imgPixelSize) {
-        fs.readFile(__dirname + '/reddot.raw', function (err, data) {
+        fs.readFile(__dirname + '/virtual/reddot.raw', function (err, data) {
             if (err) {
                 throw err;
             }
