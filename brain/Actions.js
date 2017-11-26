@@ -39,7 +39,7 @@ function Actions(senses, virtual) {
     maneuver.chase = dcwheels.maneuver.chase;
     maneuver.search = dcwheels.maneuver.search;
 
-    this.dispatch = function actionDispatch(type, act, params) {
+    this.dispatch = function actionDispatch(actType, act, params) {
         params = params || {};
 
         var actions = {},
@@ -48,7 +48,7 @@ function Actions(senses, virtual) {
             maneuverPerform;
 
         // if no action is given, return a list of available types and parameters
-        if (!type) {
+        if (!actType) {
             actions.perform = {};
             actions.maneuver = {};
             Object.keys(perform).forEach(function (a) {
@@ -65,15 +65,15 @@ function Actions(senses, virtual) {
         // log only if action is different
         // Should we only execute if different too?
         currentAction = JSON.stringify(senses.senseState().currentAction);
-        if (type !== "perform" && type !== "manual") {
-            maneuverPerform = maneuver[type]();
+        if (actType !== "perform" && actType !== "manual") {
+            maneuverPerform = maneuver[actType]();
             act = maneuverPerform[0];
             params = maneuverPerform[1];
         }
-        newAction = JSON.stringify([type, act, params]);
+        newAction = JSON.stringify([actType, act, params]);
         if (currentAction !== newAction) { // if not current action
-            senses.currentAction(type, act, params);
-            console.log(type, act, params);
+            senses.currentAction(actType, act, params);
+            console.log(actType, act, params);
         }
 
         // Execute action

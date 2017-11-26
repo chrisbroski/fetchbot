@@ -5,8 +5,6 @@ var behaviorTable = require("./behavior/behaviorTable.json");
 function Behaviors(senses, actions, config) {
     'use strict';
 
-    // var currentBehavior;
-
     function detectorMatch(situation, detector) {
         var ii, keys = Object.keys(situation), len = keys.length;
 
@@ -23,7 +21,7 @@ function Behaviors(senses, actions, config) {
     }
 
     function respond() {
-        var selectedBehavior;
+        var selectedBehavior, response;
 
         // Skip if under manual control
         // This should be handled by the Actions module so we still set current action state
@@ -38,17 +36,18 @@ function Behaviors(senses, actions, config) {
             // Let's assume the first behavior is the default
             selectedBehavior = global.behaviorTable[0];
         }
+        response = selectedBehavior.response;
 
         // Maneuvers don't require an act
-        if (selectedBehavior.response.length === 1) {
-            selectedBehavior.response.push("");
+        if (response.length === 1) {
+            response.push("");
         }
         // params are optional
-        if (selectedBehavior.response.length === 2) {
-            selectedBehavior.response.push({});
+        if (response.length === 2) {
+            response.push({});
         }
 
-        actions.dispatch(selectedBehavior.response[0], selectedBehavior.response[1], selectedBehavior.response[2]);
+        actions.dispatch(response[0], response[1], response[2]);
     }
 
     this.updateBTable = function updateBTable(newBTable) {

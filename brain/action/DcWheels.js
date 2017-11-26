@@ -107,7 +107,7 @@ function DcWheels(senses, virtual) {
         } else {
             motor(movement[params.type.replace(/-/, "")]);
         }
-        senses.currentAction('perform', 'move', params);
+        //senses.currentAction('perform', 'move', params);
     };
 
     // Export manuevers to their own module in a future version

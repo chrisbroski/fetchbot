@@ -292,7 +292,7 @@ function manualAction() {
         actType = actGroup.getAttribute("data-action-type"),
         paramInputs = actGroup.getElementsByTagName("input"),
         paramSelects = actGroup.getElementsByTagName("select"),
-        actionName = this.textContent,
+        actName = this.textContent,
         paramData = {};
 
     Array.from(paramSelects).forEach(function (inp) {
@@ -302,11 +302,11 @@ function manualAction() {
         paramData[inp.getAttribute("data-action-param")] = +inp.value;
     });
     if (this.getAttribute("data-action")) {
-        paramData[this.getAttribute("data-action-param")] = actionName;
-        actionName = this.getAttribute("data-action");
+        paramData[this.getAttribute("data-action-param")] = actName;
+        actName = this.getAttribute("data-action");
     }
-    window.console.log(actType, actionName, paramData);
-    socket.emit("action", JSON.stringify([actType, actionName, paramData]));
+
+    socket.emit("action", JSON.stringify([actType, actName, paramData]));
 }
 
 function actionParamFragment(act, params) {
