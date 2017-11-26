@@ -39,7 +39,7 @@ function Actions(senses, virtual) {
     maneuver.chase = dcwheels.maneuver.chase;
     maneuver.search = dcwheels.maneuver.search;
 
-    this.dispatch = function actionDispatch(type, name, params) {
+    this.dispatch = function actionDispatch(type, act, params) {
         params = params || {};
 
         var actions = {},
@@ -51,12 +51,12 @@ function Actions(senses, virtual) {
         if (!type) {
             actions.perform = {};
             actions.maneuver = {};
-            Object.keys(perform).forEach(function (act) {
-                actions.perform[act] = perform[act]();
+            Object.keys(perform).forEach(function (a) {
+                actions.perform[a] = perform[a]();
             });
 
-            Object.keys(maneuver).forEach(function (act) {
-                actions.maneuver[act] = act;
+            Object.keys(maneuver).forEach(function (a) {
+                actions.maneuver[a] = a;
             });
 
             return JSON.parse(JSON.stringify(actions));
@@ -65,30 +65,20 @@ function Actions(senses, virtual) {
         // log only if action is different
         // Should we only execute if different too?
         currentAction = JSON.stringify(senses.senseState().currentAction);
-        if (type === "maneuver") {
-            maneuverPerform = maneuver[name]()
+        if (type !== "perform" && type !== "manual") {
+            maneuverPerform = maneuver[type]();
+            act = maneuverPerform[0];
+            params = maneuverPerform[1];
+        }
+        newAction = JSON.stringify([type, act, params]);
+        if (currentAction !== newAction) { // if not current action
+            senses.currentAction(type, act, params);
+            console.log(type, act, params);
+        }
 
-            newAction = JSON.stringify([type, name, maneuverPerform]);
-            if (currentAction !== newAction) { // if not current action
-                senses.currentAction(type, name, maneuverPerform);
-                console.log(type, name, params);
-            }
-
-            // Execute action
-            if (!virtual) {
-                perform[maneuverPerform[0]](maneuverPerform[1]);
-            }
-        } else {
-            newAction = JSON.stringify([type, name, params]);
-            if (currentAction !== newAction) { // if not current action
-                senses.currentAction(type, name, params);
-                console.log(type, name, params);
-            }
-
-            // Execute action
-            if (!virtual) {
-                perform[name](params);
-            }
+        // Execute action
+        if (!virtual) {
+            perform[act](params);
         }
     };
 }

@@ -39,9 +39,13 @@ function Behaviors(senses, actions, config) {
             selectedBehavior = global.behaviorTable[0];
         }
 
+        // Maneuvers don't require an act
+        if (selectedBehavior.response.length === 1) {
+            selectedBehavior.response.push("");
+        }
         // params are optional
-        if (selectedBehavior.response.length < 3) {
-            selectedBehavior.response.push([]);
+        if (selectedBehavior.response.length === 2) {
+            selectedBehavior.response.push({});
         }
 
         actions.dispatch(selectedBehavior.response[0], selectedBehavior.response[1], selectedBehavior.response[2]);
