@@ -93,7 +93,7 @@ function Senses(visionWidth, visionHeight, virtual) {
         }
     }
 
-    this.setMood = function setMood(moodType) {
+    this.mood = function mood(moodType) {
         var moodIndex, expTime;
         // if no type is given, return a list of available types and parameters
         if (!moodType) {

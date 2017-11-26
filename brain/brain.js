@@ -62,7 +62,7 @@ function sendSenseData() {
 io.on('connection', function (socket) {
     console.log('Fetchbot viewer client connected');
 
-    //io.emit('moods', JSON.stringify(senses.setMood()));
+    //io.emit('moods', JSON.stringify(senses.mood()));
     io.emit('actions', JSON.stringify(actions.dispatch()));
     io.emit('behaviors', JSON.stringify(global.behaviorTable));
     io.emit('getSenseParams', JSON.stringify(global.params.senses));

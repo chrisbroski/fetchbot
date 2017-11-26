@@ -447,6 +447,7 @@ function populateBehavior(data) {
 
 function behaviorDisplay(behavior) {
     var detectTrue = [], detectFalse = [], sit;
+
     Object.keys(behavior.situation).forEach(function (d) {
         if (behavior.situation[d]) {
             detectTrue.push(d);
@@ -455,17 +456,20 @@ function behaviorDisplay(behavior) {
         }
     });
     if (detectTrue.length === 0 && detectFalse.length === 0) {
-        sit = "default";
+        sit = "default ";
     } else {
         if (detectTrue.length > 0) {
             sit = detectTrue.join(", ") + " ";
         }
         if (detectFalse.length > 0) {
-            sit = sit + "(" + detectFalse.join(", ") + ")";
+            sit = sit + "(" + detectFalse.join(", ") + ") ";
         }
     }
 
-    return sit + ": " + JSON.stringify(behavior.response[0]) + ": " + JSON.stringify(behavior.response[1]);
+    if (behavior.response[0] === "perform") {
+        return sit + "→ " + behavior.response[1] + ": " + JSON.stringify(behavior.response[2]);
+    }
+    return sit + "→ maneuver: " + behavior.response[0];
 }
 
 function editBehavior() {
