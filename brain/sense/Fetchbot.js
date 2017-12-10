@@ -13,7 +13,7 @@ function Fetchbot() {
 
     var dots = [];
 
-    function isEdge(ii, visionWidth, imgPixelSize, luma) {
+    function testEdge(ii, visionWidth, imgPixelSize, luma) {
         var adjacent = [],
             val = luma[ii],
             diff = global.params.senses.edge.diff;
@@ -42,7 +42,7 @@ function Fetchbot() {
             contrast = [];
 
         for (ii = 0; ii < len; ii += 1) {
-            if (isEdge(ii, visionWidth, len, luma)) {
+            if (testEdge(ii, visionWidth, len, luma)) {
                 contrast.push(ii);
             }
         }
