@@ -132,8 +132,8 @@ function Senses(visionWidth, visionHeight, virtual) {
 
     // *Perceivers* process raw sense state into meaningful information
     perceivers.frogEye = function (imgPixelSize) {
-        state.perceptions.edges = fetchbot.findEdges(raw.luma.current, imgPixelSize, visionWidth);
-        state.perceptions.targets = fetchbot.findBrightRed(raw.chroma.V, visionWidth / 2, raw.luma.current);
+        state.perceptions.edges = fetchbot.searchEdges(raw.luma.current, imgPixelSize, visionWidth);
+        state.perceptions.targets = fetchbot.searchBrightRed(raw.chroma.V, visionWidth / 2, raw.luma.current);
         state.perceptions.targetDirection = fetchbot.redColumns(visionWidth / 2);
     };
 

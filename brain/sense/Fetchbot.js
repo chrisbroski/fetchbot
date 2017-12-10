@@ -1,12 +1,12 @@
 /*jslint node: true */
 
-global.params.senses.findRed = {};
-global.params.senses.findRed.luma = 100;
-global.params.senses.findRed.chromaV = 190;
+global.params.senses.brightRed = {};
+global.params.senses.brightRed.luma = 100;
+global.params.senses.brightRed.chromaV = 190;
 global.params.senses.edge = {};
 global.params.senses.edge.diff = 50;
-global.params.senses.isCenter = {};
-global.params.senses.isCenter.width = 0.2;
+global.params.senses.center = {};
+global.params.senses.center.width = 0.2;
 
 function Fetchbot() {
     'use strict';
@@ -37,7 +37,7 @@ function Fetchbot() {
         });
     }
 
-    this.findEdges = function findEdges(luma, len, visionWidth) {
+    this.searchEdges = function searchEdges(luma, len, visionWidth) {
         var ii,
             contrast = [];
 
@@ -51,7 +51,7 @@ function Fetchbot() {
     };
 
     function redColumns(visionWidth) {
-        var centerWidth = global.params.senses.isCenter.width,
+        var centerWidth = global.params.senses.center.width,
             leftSide = (1.0 - centerWidth) / 2.0,
             rightSide = leftSide + centerWidth,
             redCount = [0, 0, 0];
@@ -85,7 +85,7 @@ function Fetchbot() {
         ];
     }
 
-    this.findBrightRed = function findBrightRed(v, visionWidth, l) {
+    this.searchBrightRed = function searchBrightRed(v, visionWidth, l) {
         var ii,
             len = v.length,
             loc2,
@@ -102,7 +102,7 @@ function Fetchbot() {
 
             loc2val = loc2.reduce(addLuma, 0);
 
-            if (v[ii] > global.params.senses.findRed.chromaV && loc2val / 4 > global.params.senses.findRed.luma) {
+            if (v[ii] > global.params.senses.brightRed.chromaV && loc2val / 4 > global.params.senses.brightRed.luma) {
                 dots.push(ii);
             }
         }
