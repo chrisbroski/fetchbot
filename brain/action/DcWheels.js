@@ -107,12 +107,9 @@ function DcWheels(senses, virtual) {
         } else {
             motor(movement[params.type.replace(/-/, "")]);
         }
-        //senses.currentAction('perform', 'move', params);
     };
 
-    // Export manuevers to their own module in a future version
     this.maneuver.chase = function () {
-        // get sense state and do maneuver
         var dir = senses.senseState().perceptions.targetDirection;
 
         if (sum(dir) === 0) {
@@ -133,10 +130,6 @@ function DcWheels(senses, virtual) {
     }
 
     this.maneuver.search = function () {
-        // spin around and look for the ball
-        // If you don't see it in 360 degrees, pick a direction and move a short distance
-        // repeat
-        // console.log("maneuver.search");
         if (!searchTimer) {
             resetTimer();
             searchMoveType = "forward";

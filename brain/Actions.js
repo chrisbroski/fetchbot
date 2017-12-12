@@ -9,7 +9,7 @@ function Actions(senses, virtual) {
         perform = {},
         maneuver = {};
 
-    perform.mood = function mood(params) {
+    /*perform.mood = function mood(params) {
         if (!params) {
             return [
                 {
@@ -32,7 +32,7 @@ function Actions(senses, virtual) {
             ];
         }
         senses.mood(params.type);
-    };
+    };*/
 
     // Set up performers and maneuvers from libraries
     perform.move = dcwheels.perform.move;

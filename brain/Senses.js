@@ -30,7 +30,7 @@ function Senses(visionWidth, visionHeight, virtual) {
 
     // *mood* is a peristent indicator of a creature's short-term goal
     // They are set with a duration and will automatically remove themselves after time expires
-    state.mood = [];
+    /*state.mood = [];*/
 
     // Detectors are booleans used to initiate behaviors
     state.detectors = {};
@@ -40,7 +40,6 @@ function Senses(visionWidth, visionHeight, virtual) {
     state.perceptions = {
         dimensions: [visionWidth, visionHeight],
         brightnessOverall: 0.0,
-        motion: 0.0,
         targetDirection: [0, 0, 0],
         targets: [],
         edges: []
@@ -239,7 +238,7 @@ function Senses(visionWidth, visionHeight, virtual) {
     function init() {
         console.log('Initialize senses module');
         attention.look(250);
-        setInterval(cleanupMoods, 5000);
+        // setInterval(cleanupMoods, 5000);
     }
 
     init();

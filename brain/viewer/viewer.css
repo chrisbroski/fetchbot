@@ -134,6 +134,7 @@ label {
     color: #fff;
     background: #000;
     overflow: auto;
+    height: 280px;
 }
 
 #brightness {background-color: #333; display: none; }
