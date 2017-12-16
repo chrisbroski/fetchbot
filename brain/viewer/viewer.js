@@ -1,64 +1,26 @@
 /*jslint browser: true, sloppy: true */
 /*global io */
 
-var socket, viewWidth, mag, halfMag, width, control = 'auto', detectors, actionData, editingBehavior, viz = {};
+var socket, control = 'auto', detectors, actionData, editingBehavior, viz = {};
 
 viz.dimensions = {};
 viz.dimensions.width = 400;
 viz.dimensions.height = 300;
 viz.layers = {};
-viz.layers.luma = {};
-viz.layers.chromaU = {};
-viz.layers.chromaV = {};
-viz.layers.edges = {};
-viz.layers.brightRed = {color: [255, 0, 0, 0.5], test: true};
-
-function displayOverallBrightness(brightnessNormalized) {
-    var brightnessAmplified = brightnessNormalized + 0.1,
-        rgbaShade,
-        brightnessDiv = document.getElementById('brightness');
-
-    if (brightnessAmplified > 1.0) {
-        brightnessAmplified = 1.0;
-    }
-    rgbaShade = 'rgba(255, 255, 255, ' + brightnessAmplified + ')';
-    brightnessDiv.style.backgroundColor = rgbaShade;
-}
-
-function displayEdges(edges) {
-    var ctx = viz.layers.edges.ctx;
-    ctx.clearRect(0, 0, viz.dimensions.width, viz.dimensions.width);
-
-    edges.forEach(function (edge) {
-        var x = (edge % width) * mag,
-            y = (Math.floor(edge / width)) * mag,
-            gradient = ctx.createRadialGradient(x, y, 0, x, y, mag * 1.5);
-
-        ctx.beginPath();
-        /*gradient.addColorStop(0, 'black');
-        gradient.addColorStop(0.7, 'rgba(0, 0, 0, 0.1)');
-        gradient.addColorStop(1, 'transparent');
-        ctx.arc(x, y, mag * 1.5, 0, 2 * Math.PI);*/
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-        ctx.fillRect(x, y, mag, mag);
-        ctx.fill();
-
-        /*var x = (hit % (width / 2)) * mag * 2,
-            y = (Math.floor(hit / (width / 2))) * mag * 2,
-            size = mag * 2;
-
-        ctx.beginPath();
-        ctx.fillRect(x, y, size, size);
-        ctx.closePath();
-        ctx.fill();*/
-    });
-}
-
-function setViewOptions(width) {
-    viewWidth = width;
-    mag = viz.dimensions.width / width;
-    halfMag = mag / 2;
-}
+viz.layers.luma = {type: "raw", width: 128};
+viz.layers.luma.color = function (val) {
+    return "rgba(" + val + ", " + val + ", " + val + ", 0.5)";
+};
+viz.layers.chromaU = {type: "raw", width: 64};
+viz.layers.chromaU.color = function (val) {
+    return "rgba(0, 0, 255, " + (val / 512) + ")";
+};
+viz.layers.chromaV = {type: "raw", width: 64};
+viz.layers.chromaV.color = function (val) {
+    return "rgba(255, 0, 0, " + (val / 512) + ")";
+};
+viz.layers.edges = {color: [0, 0, 0, 0.8], width: 128};
+viz.layers.brightRed = {color: [255, 0, 0, 0.5], width: 64};
 
 function disableControlButtons(disOrEnable) {
     var buttons = document.querySelectorAll('#controls button, #actions button'), ii, len;
@@ -99,51 +61,29 @@ function describeAction(action) {
     }
 }
 
+function paintRaw(v, dots) {
+    var ctx = viz.layers[v].ctx,
+        pvWidth = viz.layers[v].width,
+        pvMag = viz.dimensions.width / pvWidth;
+
+    ctx.clearRect(0, 0, viz.dimensions.width, viz.dimensions.height);
+    dots.forEach(function (dot, index) {
+        var x = (index % pvWidth) * pvMag,
+            y = (Math.floor(index / pvWidth)) * pvMag;
+
+        ctx.fillStyle = viz.layers[v].color(dot);
+        ctx.beginPath();
+        ctx.fillRect(x, y, pvMag, pvMag);
+        ctx.closePath();
+        ctx.fill();
+    });
+}
+
 function displayRaw(raw) {
-    var ctx;
     raw = JSON.parse(raw);
-
-    ctx = viz.layers.luma.ctx;
-    ctx.clearRect(0, 0, viz.dimensions.width, viz.dimensions.height);
-    raw.luma.forEach(function (dot, index) {
-        var x = (index % width) * mag,
-            y = (Math.floor(index / width)) * mag,
-            size = mag;
-
-        ctx.fillStyle = "rgba(" + dot + ", " + dot + ", " + dot + ", 0.5)";
-        ctx.beginPath();
-        ctx.fillRect(x, y, size, size);
-        ctx.closePath();
-        ctx.fill();
-    });
-
-    ctx = viz.layers.chromaU.ctx;
-    ctx.clearRect(0, 0, viz.dimensions.width, viz.dimensions.height);
-    raw.chromaU.forEach(function (dot, index) {
-        var x = (index % (width / 2)) * mag * 2,
-            y = (Math.floor(index / (width / 2))) * mag * 2,
-            size = mag * 2;
-
-        ctx.fillStyle = "rgba(0, 0, 255, " + (dot / 512) + ")";
-        ctx.beginPath();
-        ctx.fillRect(x, y, size, size);
-        ctx.closePath();
-        ctx.fill();
-    });
-
-    ctx = viz.layers.chromaV.ctx;
-    ctx.clearRect(0, 0, viz.dimensions.width, viz.dimensions.height);
-    raw.chromaV.forEach(function (dot, index) {
-        var x = (index % (width / 2)) * mag * 2,
-            y = (Math.floor(index / (width / 2))) * mag * 2,
-            size = mag * 2;
-
-        ctx.fillStyle = "rgba(255, 0, 0, " + (dot / 512) + ")";
-        ctx.beginPath();
-        ctx.fillRect(x, y, size, size);
-        ctx.closePath();
-        ctx.fill();
-    });
+    paintRaw("luma", raw.luma);
+    paintRaw("chromaU", raw.chromaU);
+    paintRaw("chromaV", raw.chromaV);
 }
 
 function clearDetectors() {
@@ -184,17 +124,19 @@ function displayDetectors(ds) {
     });
 }
 
-function paintViz(v, jsonState) {
-    var ctx = viz.layers[v].ctx;
+function paintViz(v, dots) {
+    var ctx = viz.layers[v].ctx,
+        pvWidth = viz.layers[v].width,
+        pvMag = viz.dimensions.width / pvWidth;
+
     ctx.clearRect(0, 0, viz.dimensions.width, viz.dimensions.height);
 
-    jsonState.perceptions[v].forEach(function (hit) {
-        var x = (hit % (width / 2)) * mag * 2,
-            y = (Math.floor(hit / (width / 2))) * mag * 2,
-            size = mag * 2;
+    dots.forEach(function (dot) {
+        var x = (dot % pvWidth) * pvMag,
+            y = (Math.floor(dot / pvWidth)) * pvMag;
 
         ctx.beginPath();
-        ctx.fillRect(x, y, size, size);
+        ctx.fillRect(x, y, pvMag, pvMag);
         ctx.closePath();
         ctx.fill();
     });
@@ -210,28 +152,17 @@ function senseStateReceived(senseState) {
         displayDetectors(jsonState.detectors);
     }
 
-    width = jsonState.perceptions.dimensions[0];
-    mag = 400 / width;
-    halfMag = mag / 2;
     currentAction = jsonState.currentAction;
     describeAction(currentAction);
-    //document.getElementById("current-action").textContent = describeAction(currentAction);
     delete jsonState.currentAction;
     jsonString = JSON.stringify(jsonState, null, '    ');
 
-    // Handle image dimension change
-    if (viewWidth !== jsonState.perceptions.dimensions[0]) {
-        setViewOptions(jsonState.perceptions.dimensions[0]);
-    }
-
     document.querySelector('#senseState').innerHTML = jsonString;
-    //displayOverallBrightness(jsonState.perceptions.brightnessOverall);
-    displayEdges(jsonState.perceptions.edges);
-    //displayTargets(jsonState.perceptions.targets);
-    //}
+
+    // Paint visuaslisations
     Object.keys(viz.layers).forEach(function (v) {
-        if (viz.layers[v].test) {
-            paintViz(v, jsonState);
+        if (viz.layers[v].type !== "raw") {
+            paintViz(v, jsonState.perceptions[v]);
         }
     });
 }
@@ -697,7 +628,7 @@ function init() {
         viz.layers[v].canvas = canvas;
         vizualizer.appendChild(canvas);
 
-        if (viz.layers[v].color) {
+        if (viz.layers[v].color && typeof viz.layers[v].color !== "function") {
             ctx.fillStyle = "rgba(" + viz.layers[v].color.join(", ") + ")";
         }
         viz.layers[v].ctx = ctx;
