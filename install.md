@@ -16,4 +16,6 @@ This worked for me on December 3, 2017. Starting with a Pi 2 fresh out of the bo
 11. Change to the `fetchbot` directory liek so `cd fetchbot`
 12. Install dependent libraries using the Node Package Manager with this command `npm install`
 13. Now you are ready to run a simulated version of the brain software. `npm run virtual`
-14. Open a web browser and navigate to http://0.0.0.0:3791
+14. Open a web browser and navigate to http://0.0.0.0:3791 or if you want to view it on another computer on the same network, type `ifconfig` into a terminal. The IP address of the Raspberry Pi is in there somewhere. I found mine under the `wlan0` section as the first address after `inet`
+15. ctrl-c will stop the Fetchbot program.
+<!-- 192.168.1.73 -->
