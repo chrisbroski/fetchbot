@@ -35,13 +35,22 @@ function displayEdges(edges) {
             gradient = ctx.createRadialGradient(x, y, 0, x, y, mag * 1.5);
 
         ctx.beginPath();
-        gradient.addColorStop(0, 'black');
+        /*gradient.addColorStop(0, 'black');
         gradient.addColorStop(0.7, 'rgba(0, 0, 0, 0.1)');
         gradient.addColorStop(1, 'transparent');
-        ctx.arc(x, y, mag * 1.5, 0, 2 * Math.PI);
-
-        ctx.fillStyle = gradient;
+        ctx.arc(x, y, mag * 1.5, 0, 2 * Math.PI);*/
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.fillRect(x, y, mag, mag);
         ctx.fill();
+
+        /*var x = (hit % (width / 2)) * mag * 2,
+            y = (Math.floor(hit / (width / 2))) * mag * 2,
+            size = mag * 2;
+
+        ctx.beginPath();
+        ctx.fillRect(x, y, size, size);
+        ctx.closePath();
+        ctx.fill();*/
     });
 }
 
