@@ -41,7 +41,7 @@ function Senses(visionWidth, visionHeight, virtual) {
         dimensions: [visionWidth, visionHeight],
         brightnessOverall: 0.0,
         targetDirection: [0, 0, 0],
-        targets: [],
+        brightRed: [],
         edges: []
     };
 
@@ -132,7 +132,7 @@ function Senses(visionWidth, visionHeight, virtual) {
     // *Perceivers* process raw sense state into meaningful information
     perceivers.frogEye = function (imgPixelSize) {
         state.perceptions.edges = fetchbot.searchEdges(raw.luma.current, imgPixelSize, visionWidth);
-        state.perceptions.targets = fetchbot.searchBrightRed(raw.chroma.V, visionWidth / 2, raw.luma.current);
+        state.perceptions.brightRed = fetchbot.searchBrightRed(raw.chroma.V, visionWidth / 2, raw.luma.current);
         state.perceptions.targetDirection = fetchbot.redColumns(visionWidth / 2);
     };
 

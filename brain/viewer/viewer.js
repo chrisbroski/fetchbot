@@ -1,9 +1,17 @@
 /*jslint browser: true, sloppy: true */
 /*global io */
 
-var socket, canvasEdge, ctxEdge, canvasBall, ctxBall, viewWidth, mag, halfMag, width, stateHash = 0, control = 'auto', manualOverrideTimer, canvasLuma, ctxLuma, canvasChromaU, ctxChromaU, canvasChromaV, ctxChromaV, layers, detectors, actionData, editingBehavior;
+var socket, viewWidth, mag, halfMag, width, control = 'auto', detectors, actionData, editingBehavior, viz = {};
 
-layers = ["luma", "chromaU", "chromaV", "edges", "target"];
+viz.dimensions = {};
+viz.dimensions.width = 400;
+viz.dimensions.height = 300;
+viz.layers = {};
+viz.layers.luma = {};
+viz.layers.chromaU = {};
+viz.layers.chromaV = {};
+viz.layers.edges = {};
+viz.layers.brightRed = {color: [255, 0, 0, 0.5], test: true};
 
 function displayOverallBrightness(brightnessNormalized) {
     var brightnessAmplified = brightnessNormalized + 0.1,
@@ -18,42 +26,28 @@ function displayOverallBrightness(brightnessNormalized) {
 }
 
 function displayEdges(edges) {
-    ctxEdge.clearRect(0, 0, canvasEdge.width, canvasEdge.height);
+    var ctx = viz.layers.edges.ctx;
+    ctx.clearRect(0, 0, viz.dimensions.width, viz.dimensions.width);
 
     edges.forEach(function (edge) {
         var x = (edge % width) * mag,
             y = (Math.floor(edge / width)) * mag,
-            gradient = ctxEdge.createRadialGradient(x, y, 0, x, y, mag * 1.5);
+            gradient = ctx.createRadialGradient(x, y, 0, x, y, mag * 1.5);
 
-        ctxEdge.beginPath();
+        ctx.beginPath();
         gradient.addColorStop(0, 'black');
         gradient.addColorStop(0.7, 'rgba(0, 0, 0, 0.1)');
         gradient.addColorStop(1, 'transparent');
-        ctxEdge.arc(x, y, mag * 1.5, 0, 2 * Math.PI);
+        ctx.arc(x, y, mag * 1.5, 0, 2 * Math.PI);
 
-        ctxEdge.fillStyle = gradient;
-        ctxEdge.fill();
-    });
-}
-
-function displayTargets(hits) {
-    ctxBall.clearRect(0, 0, canvasEdge.width, canvasEdge.height);
-
-    hits.forEach(function (hit) {
-        var x = (hit % (width / 2)) * mag * 2,
-            y = (Math.floor(hit / (width / 2))) * mag * 2,
-            size = mag * 2;
-
-        ctxBall.beginPath();
-        ctxBall.fillRect(x, y, size, size);
-        ctxBall.closePath();
-        ctxBall.fill();
+        ctx.fillStyle = gradient;
+        ctx.fill();
     });
 }
 
 function setViewOptions(width) {
     viewWidth = width;
-    mag = canvasEdge.width / width;
+    mag = viz.dimensions.width / width;
     halfMag = mag / 2;
 }
 
@@ -97,45 +91,49 @@ function describeAction(action) {
 }
 
 function displayRaw(raw) {
+    var ctx;
     raw = JSON.parse(raw);
 
-    ctxLuma.clearRect(0, 0, canvasEdge.width, canvasEdge.height);
+    ctx = viz.layers.luma.ctx;
+    ctx.clearRect(0, 0, viz.dimensions.width, viz.dimensions.height);
     raw.luma.forEach(function (dot, index) {
         var x = (index % width) * mag,
             y = (Math.floor(index / width)) * mag,
             size = mag;
 
-        ctxLuma.fillStyle = "rgba(" + dot + ", " + dot + ", " + dot + ", 0.5)";
-        ctxLuma.beginPath();
-        ctxLuma.fillRect(x, y, size, size);
-        ctxLuma.closePath();
-        ctxLuma.fill();
+        ctx.fillStyle = "rgba(" + dot + ", " + dot + ", " + dot + ", 0.5)";
+        ctx.beginPath();
+        ctx.fillRect(x, y, size, size);
+        ctx.closePath();
+        ctx.fill();
     });
 
-    ctxChromaU.clearRect(0, 0, canvasEdge.width, canvasEdge.height);
+    ctx = viz.layers.chromaU.ctx;
+    ctx.clearRect(0, 0, viz.dimensions.width, viz.dimensions.height);
     raw.chromaU.forEach(function (dot, index) {
         var x = (index % (width / 2)) * mag * 2,
             y = (Math.floor(index / (width / 2))) * mag * 2,
             size = mag * 2;
 
-        ctxChromaU.fillStyle = "rgba(0, 0, 255, " + (dot / 512) + ")";
-        ctxChromaU.beginPath();
-        ctxChromaU.fillRect(x, y, size, size);
-        ctxChromaU.closePath();
-        ctxChromaU.fill();
+        ctx.fillStyle = "rgba(0, 0, 255, " + (dot / 512) + ")";
+        ctx.beginPath();
+        ctx.fillRect(x, y, size, size);
+        ctx.closePath();
+        ctx.fill();
     });
 
-    ctxChromaV.clearRect(0, 0, canvasEdge.width, canvasEdge.height);
+    ctx = viz.layers.chromaV.ctx;
+    ctx.clearRect(0, 0, viz.dimensions.width, viz.dimensions.height);
     raw.chromaV.forEach(function (dot, index) {
         var x = (index % (width / 2)) * mag * 2,
             y = (Math.floor(index / (width / 2))) * mag * 2,
             size = mag * 2;
 
-        ctxChromaV.fillStyle = "rgba(255, 0, 0, " + (dot / 512) + ")";
-        ctxChromaV.beginPath();
-        ctxChromaV.fillRect(x, y, size, size);
-        ctxChromaV.closePath();
-        ctxChromaV.fill();
+        ctx.fillStyle = "rgba(255, 0, 0, " + (dot / 512) + ")";
+        ctx.beginPath();
+        ctx.fillRect(x, y, size, size);
+        ctx.closePath();
+        ctx.fill();
     });
 }
 
@@ -177,6 +175,22 @@ function displayDetectors(ds) {
     });
 }
 
+function paintViz(v, jsonState) {
+    var ctx = viz.layers[v].ctx;
+    ctx.clearRect(0, 0, viz.dimensions.width, viz.dimensions.height);
+
+    jsonState.perceptions[v].forEach(function (hit) {
+        var x = (hit % (width / 2)) * mag * 2,
+            y = (Math.floor(hit / (width / 2))) * mag * 2,
+            size = mag * 2;
+
+        ctx.beginPath();
+        ctx.fillRect(x, y, size, size);
+        ctx.closePath();
+        ctx.fill();
+    });
+}
+
 function senseStateReceived(senseState) {
     var jsonState = JSON.parse(senseState),
         jsonString,
@@ -196,10 +210,6 @@ function senseStateReceived(senseState) {
     delete jsonState.currentAction;
     jsonString = JSON.stringify(jsonState, null, '    ');
 
-    // only update screen if data is new
-    //if (hashCode(jsonString) !== stateHash) {
-    //stateHash = hashCode(jsonString);
-
     // Handle image dimension change
     if (viewWidth !== jsonState.perceptions.dimensions[0]) {
         setViewOptions(jsonState.perceptions.dimensions[0]);
@@ -208,8 +218,13 @@ function senseStateReceived(senseState) {
     document.querySelector('#senseState').innerHTML = jsonString;
     //displayOverallBrightness(jsonState.perceptions.brightnessOverall);
     displayEdges(jsonState.perceptions.edges);
-    displayTargets(jsonState.perceptions.targets);
+    //displayTargets(jsonState.perceptions.targets);
     //}
+    Object.keys(viz.layers).forEach(function (v) {
+        if (viz.layers[v].test) {
+            paintViz(v, jsonState);
+        }
+    });
 }
 
 function isSelectedParam(paramDesc, selectedParams) {
@@ -489,27 +504,9 @@ function displayBehaviors(behaviorTable) {
     }
 
     behaviors.forEach(function (behavior, index) {
-        /*var detectTrue = [], detectFalse = [], sit;
-        Object.keys(behavior.situation).forEach(function (d) {
-            if (behavior.situation[d]) {
-                detectTrue.push(d);
-            } else {
-                detectFalse.push(d);
-            }
-        });
-        if (detectTrue.length === 0 && detectFalse.length === 0) {
-            sit = "default";
-        } else {
-            if (detectTrue.length > 0) {
-                sit = detectTrue.join(", ") + " ";
-            }
-            if (detectFalse.length > 0) {
-                sit = sit + "(" + detectFalse.join(", ") + ")";
-            }
-        }*/
         bTableRow = document.createElement("option");
         bTableRow.value = index;
-        bTableRow.textContent = behaviorDisplay(behavior);// sit + " : " + JSON.stringify(behavior.response);
+        bTableRow.textContent = behaviorDisplay(behavior);
         bTableRow.ondblclick = editBehavior;
         bTable.appendChild(bTableRow);
     });
@@ -571,7 +568,7 @@ function displayParams(params, paramType) {
 }
 
 function checkLayers() {
-    layers.forEach(function (layer) {
+    Object.keys(viz.layers).forEach(function (layer) {
         var check = document.getElementById("layer-" + layer);
         document.getElementById(layer).style.display = (check.checked) ? "block" : "none";
     });
@@ -677,26 +674,30 @@ function init() {
         }
     };
 
-    layers.forEach(function (layer) {
+    socket = io({reconnection: false});
+
+    // Create canvas visualisation layers
+    var vizualizer = document.getElementById('vizualize');
+    Object.keys(viz.layers).forEach(function (v) {
+        var canvas = document.createElement('canvas'),
+            ctx = canvas.getContext("2d");
+
+        canvas.id = v;
+        canvas.width = viz.dimensions.width;
+        canvas.height = viz.dimensions.height;
+        viz.layers[v].canvas = canvas;
+        vizualizer.appendChild(canvas);
+
+        if (viz.layers[v].color) {
+            ctx.fillStyle = "rgba(" + viz.layers[v].color.join(", ") + ")";
+        }
+        viz.layers[v].ctx = ctx;
+    });
+
+    Object.keys(viz.layers).forEach(function (layer) {
         document.getElementById("layer-" + layer).onclick = checkLayers;
     });
     checkLayers();
-
-    socket = io({reconnection: false});
-
-    canvasEdge = document.getElementById("edges");
-    ctxEdge = canvasEdge.getContext("2d");
-
-    canvasBall = document.getElementById('target');
-    ctxBall = canvasBall.getContext("2d");
-    ctxBall.fillStyle = "rgba(255, 0, 0, 0.5)";
-
-    canvasLuma = document.getElementById("luma");
-    ctxLuma = canvasLuma.getContext("2d");
-    canvasChromaU = document.getElementById("chromaU");
-    ctxChromaU = canvasChromaU.getContext("2d");
-    canvasChromaV = document.getElementById("chromaV");
-    ctxChromaV = canvasChromaV.getContext("2d");
 
     socket.on("senseState", senseStateReceived);
     socket.on("senseRaw", displayRaw);

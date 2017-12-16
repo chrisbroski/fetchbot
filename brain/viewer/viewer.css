@@ -61,7 +61,7 @@ label {
     padding: 4px;
     overflow: auto;
 }
-#frogeye {
+#vizualize {
     margin: 0 10px 10px 14px;
     position: relative;
     overflow; auto;
@@ -70,7 +70,7 @@ label {
     float: left;
     background: #fff;
 }
-#frogeye > div, #frogeye canvas {
+#vizualize > div, #vizualize canvas {
     position: absolute;
     top: 0; right: 0; bottom: 0; left: 0;
 }
