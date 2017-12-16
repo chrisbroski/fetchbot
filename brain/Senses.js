@@ -15,7 +15,7 @@ function Senses(visionWidth, visionHeight, virtual) {
         observers = {},
         perceivers = {},
         attention = {},
-        moods,
+        // moods,
         partialImgData = '';
 
     // *Raw* state is unprocessed environment measurements received from sensors.
@@ -65,7 +65,7 @@ function Senses(visionWidth, visionHeight, virtual) {
         state.currentAction = [type, name, params];
     };
 
-    moods = {
+    /*moods = {
         searching: 60,
         chasing: 60,
         stuck: 30,
@@ -112,7 +112,7 @@ function Senses(visionWidth, visionHeight, virtual) {
         } else {
             state.mood.push({"name": moodType, "expires": expTime});
         }
-    };
+    };*/
 
     function detectors() {
         state.detectors.reddot = !!state.perceptions.targetDirection.some(function (dir) {
