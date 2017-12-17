@@ -22,11 +22,12 @@ var fs = require('fs'),
     actions,
     behaviors,
     visionWidth = 128,
+    visionHeight = 96,
     prevStateString = "";
 
 config.manual = !!process.argv[3];
 
-senses = new Senses(visionWidth, 96, !!process.argv[2]);
+senses = new Senses(visionWidth, visionHeight, !!process.argv[2]);
 actions = new Actions(senses, !!process.argv[2]);
 behaviors = new Behaviors(senses, actions, config);
 
@@ -62,7 +63,7 @@ function sendSenseData() {
 
 io.on('connection', function (socket) {
     console.log('Fetchbot viewer client connected');
-    io.emit("width", visionWidth);
+    io.emit("width", visionWidth); // This would be done better at connection time
 
     io.emit('actions', JSON.stringify(actions.dispatch()));
     io.emit('behaviors', JSON.stringify(global.behaviorTable));
