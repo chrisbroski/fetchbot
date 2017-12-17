@@ -21,11 +21,12 @@ var fs = require('fs'),
     senses,
     actions,
     behaviors,
+    visionWidth = 128,
     prevStateString = "";
 
 config.manual = !!process.argv[3];
 
-senses = new Senses(128, 96, !!process.argv[2]);
+senses = new Senses(visionWidth, 96, !!process.argv[2]);
 actions = new Actions(senses, !!process.argv[2]);
 behaviors = new Behaviors(senses, actions, config);
 
@@ -61,8 +62,8 @@ function sendSenseData() {
 
 io.on('connection', function (socket) {
     console.log('Fetchbot viewer client connected');
+    io.emit("width", visionWidth);
 
-    //io.emit('moods', JSON.stringify(senses.mood()));
     io.emit('actions', JSON.stringify(actions.dispatch()));
     io.emit('behaviors', JSON.stringify(global.behaviorTable));
     io.emit('getSenseParams', JSON.stringify(global.params.senses));

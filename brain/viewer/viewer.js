@@ -4,23 +4,24 @@
 var socket, control = 'auto', detectors, actionData, editingBehavior, viz = {};
 
 viz.dimensions = {};
-viz.dimensions.width = 400;
-viz.dimensions.height = 300;
+viz.canvasWidth = 400;
+viz.canvasHeight = 300;
+
 viz.layers = {};
 viz.layers.luma = {type: "raw", width: 128};
 viz.layers.luma.color = function (val) {
     return "rgba(" + val + ", " + val + ", " + val + ", 0.5)";
 };
-viz.layers.chromaU = {type: "raw", width: 64};
+viz.layers.chromaU = {type: "raw", width: 64, downsample: 2};
 viz.layers.chromaU.color = function (val) {
     return "rgba(0, 0, 255, " + (val / 512) + ")";
 };
-viz.layers.chromaV = {type: "raw", width: 64};
+viz.layers.chromaV = {type: "raw", width: 64, downsample: 2};
 viz.layers.chromaV.color = function (val) {
     return "rgba(255, 0, 0, " + (val / 512) + ")";
 };
 viz.layers.edges = {color: [0, 0, 0, 0.8], width: 128};
-viz.layers.brightRed = {color: [255, 0, 0, 0.5], width: 64};
+viz.layers.brightRed = {color: [255, 0, 0, 0.5], width: 64, downsample: 2};
 
 function disableControlButtons(disOrEnable) {
     var buttons = document.querySelectorAll('#controls button, #actions button'), ii, len;
@@ -63,17 +64,18 @@ function describeAction(action) {
 
 function paintRaw(v, dots) {
     var ctx = viz.layers[v].ctx,
-        pvWidth = viz.layers[v].width,
-        pvMag = viz.dimensions.width / pvWidth;
+        downsample = viz.layers[v].downsample || 1,
+        mag = downsample * viz.canvasWidth / viz.width,
+        width =  viz.width / downsample;
 
-    ctx.clearRect(0, 0, viz.dimensions.width, viz.dimensions.height);
+    ctx.clearRect(0, 0, viz.canvasWidth, viz.canvasHeight);
     dots.forEach(function (dot, index) {
-        var x = (index % pvWidth) * pvMag,
-            y = (Math.floor(index / pvWidth)) * pvMag;
+        var x = (index % width) * mag,
+            y = (Math.floor(index / width)) * mag;
 
         ctx.fillStyle = viz.layers[v].color(dot);
         ctx.beginPath();
-        ctx.fillRect(x, y, pvMag, pvMag);
+        ctx.fillRect(x, y, mag, mag);
         ctx.closePath();
         ctx.fill();
     });
@@ -97,6 +99,7 @@ function clearDetectors() {
 function createRadio(name, val) {
     var detectorLabel = document.createElement("label"),
         detectorInput = document.createElement("input");
+
     detectorInput.type = "radio";
     detectorInput.name = "di-" + name;
     detectorInput.value = val;
@@ -126,17 +129,18 @@ function displayDetectors(ds) {
 
 function paintViz(v, dots) {
     var ctx = viz.layers[v].ctx,
-        pvWidth = viz.layers[v].width,
-        pvMag = viz.dimensions.width / pvWidth;
+        downsample = viz.layers[v].downsample || 1,
+        mag = downsample * viz.canvasWidth / viz.width,
+        width =  viz.width / downsample;
 
-    ctx.clearRect(0, 0, viz.dimensions.width, viz.dimensions.height);
+    ctx.clearRect(0, 0, viz.canvasWidth, viz.canvasHeight);
 
     dots.forEach(function (dot) {
-        var x = (dot % pvWidth) * pvMag,
-            y = (Math.floor(dot / pvWidth)) * pvMag;
+        var x = (dot % width) * mag,
+            y = (Math.floor(dot / width)) * mag;
 
         ctx.beginPath();
-        ctx.fillRect(x, y, pvMag, pvMag);
+        ctx.fillRect(x, y, mag, mag);
         ctx.closePath();
         ctx.fill();
     });
@@ -615,6 +619,9 @@ function init() {
     };
 
     socket = io({reconnection: false});
+    socket.on("width", function (data) {
+        viz.width = +data;
+    });
 
     // Create canvas visualisation layers
     var vizualizer = document.getElementById('vizualize');
@@ -623,8 +630,8 @@ function init() {
             ctx = canvas.getContext("2d");
 
         canvas.id = v;
-        canvas.width = viz.dimensions.width;
-        canvas.height = viz.dimensions.height;
+        canvas.width = viz.canvasWidth;
+        canvas.height = viz.canvasHeight;
         viz.layers[v].canvas = canvas;
         vizualizer.appendChild(canvas);
 
