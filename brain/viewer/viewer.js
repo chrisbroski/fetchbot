@@ -8,20 +8,20 @@ viz.canvasWidth = 400;
 viz.canvasHeight = 300;
 
 viz.layers = {};
-viz.layers.luma = {type: "raw", width: 128};
+viz.layers.luma = {type: "raw"};
 viz.layers.luma.color = function (val) {
     return "rgba(" + val + ", " + val + ", " + val + ", 0.5)";
 };
-viz.layers.chromaU = {type: "raw", width: 64, downsample: 2};
+viz.layers.chromaU = {type: "raw", downsample: 2};
 viz.layers.chromaU.color = function (val) {
     return "rgba(0, 0, 255, " + (val / 512) + ")";
 };
-viz.layers.chromaV = {type: "raw", width: 64, downsample: 2};
+viz.layers.chromaV = {type: "raw", downsample: 2};
 viz.layers.chromaV.color = function (val) {
     return "rgba(255, 0, 0, " + (val / 512) + ")";
 };
-viz.layers.edges = {color: [0, 0, 0, 0.8], width: 128};
-viz.layers.brightRed = {color: [255, 0, 0, 0.5], width: 64, downsample: 2};
+viz.layers.edges = {color: [0, 0, 0, 0.8]};
+viz.layers.brightRed = {color: [255, 0, 0, 0.5], downsample: 2};
 
 function disableControlButtons(disOrEnable) {
     var buttons = document.querySelectorAll('#controls button, #actions button'), ii, len;
