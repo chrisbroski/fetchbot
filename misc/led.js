@@ -9,6 +9,9 @@ var Gpio = require('pigpio').Gpio,
 
 function test() {
     red.digitalWrite(1);
+    green.digitalWrite(0);
+    blue.digitalWrite(0);
+
     setTimeout(function () {
         red.digitalWrite(0);
         green.digitalWrite(1);
