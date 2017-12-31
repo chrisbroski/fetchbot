@@ -2,9 +2,9 @@
 Test PWM driver on a servo in preparation for DC motor control
 */
 var Gpio = require('pigpio').Gpio,
-    red = new Gpio(20, {mode: Gpio.OUTPUT}),
-    green = new Gpio(21, {mode: Gpio.OUTPUT}),
-    blue = new Gpio(22, {mode: Gpio.OUTPUT});
+    red = new Gpio(5, {mode: Gpio.OUTPUT}),
+    green = new Gpio(6, {mode: Gpio.OUTPUT}),
+    blue = new Gpio(13, {mode: Gpio.OUTPUT});
 
 
 function test() {
