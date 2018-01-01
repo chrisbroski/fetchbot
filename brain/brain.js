@@ -47,17 +47,37 @@ function app(req, rsp) {
     }
 }
 
+function arrayToString(a) {
+    a.map(function (d) {
+        return String.fromCharCode(d);
+    });
+    return a.join();
+}
+
+function rawStringify() {
+    var rawState = {},
+        rawCamera = senses.senseRaw();
+    rawState.luma = rawCamera.luma;
+    rawState.chromaV = rawCamera.chromaV;
+    rawState.chromaU = rawCamera.chromaU;
+    // senses.senseRaw()
+    return JSON.stringify(rawState);
+}
+
+var timerCount = 0;
 function sendSenseData() {
     setInterval(function () {
         var stateString = JSON.stringify(senses.senseState());
 
         // if changed, send sense data to viewer 10x per second
         // This needs to accomodate viewer refresh
-        if (stateString !== prevStateString) {
-            prevStateString = stateString;
-            io.emit('senseState', stateString);
-            io.emit('senseRaw', senses.senseRaw());
-        }
+        // if (stateString !== prevStateString) {
+        prevStateString = stateString;
+        io.emit('senseState', stateString);
+        timerCount += 1;
+        console.time("raw-" + timerCount);
+        io.emit('senseRaw', "[" + rawStringify() + ", " + timerCount + "]");
+        // }
     }, 100);
 }
 
@@ -70,6 +90,10 @@ io.on('connection', function (socket) {
     io.emit('getSenseParams', JSON.stringify(global.params.senses));
     io.emit('getActionParams', JSON.stringify(global.params.actions));
     sendSenseData();
+
+    socket.on("rawTimer", function (timerId) {
+        console.timeEnd("raw-" + timerId);
+    });
 
     socket.on("action", function (actionData) {
         var actionArray = JSON.parse(actionData);

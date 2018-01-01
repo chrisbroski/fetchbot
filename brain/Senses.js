@@ -57,7 +57,7 @@ function Senses(visionWidth, visionHeight, virtual) {
     };
 
     this.senseRaw = function () {
-        return JSON.stringify({"luma": raw.luma.current, "chromaU": raw.chroma.U, "chromaV": raw.chroma.V});
+        return {"luma": raw.luma.current, "chromaU": raw.chroma.U, "chromaV": raw.chroma.V};
     };
 
     // *current action* can be modified by the Actions module

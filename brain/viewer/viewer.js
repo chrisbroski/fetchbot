@@ -83,9 +83,10 @@ function paintRaw(v, dots) {
 
 function displayRaw(raw) {
     raw = JSON.parse(raw);
-    paintRaw("luma", raw.luma);
-    paintRaw("chromaU", raw.chromaU);
-    paintRaw("chromaV", raw.chromaV);
+    socket.emit("rawTimer", raw[1]);
+    paintRaw("luma", raw[0].luma);
+    paintRaw("chromaU", raw[0].chromaU);
+    paintRaw("chromaV", raw[0].chromaV);
 }
 
 function clearDetectors() {
