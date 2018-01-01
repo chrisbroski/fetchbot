@@ -81,12 +81,36 @@ function paintRaw(v, dots) {
     });
 }
 
+var frameId = 0;
+function displayLive(raw) {
+    frameId += 10;
+    var lumaArray = [], len = raw.length, ii, ctx, mag;
+    for (ii = 0; ii < len; ii += 1) {
+        lumaArray.push(raw.charCodeAt(ii));
+    }
+    socket.emit("rawTimer", frameId);
+
+    ctx = viz.layers.luma.ctx;
+    mag = viz.canvasWidth / viz.width;
+
+    ctx.clearRect(0, 0, viz.canvasWidth, viz.canvasHeight);
+    lumaArray.forEach(function (dot, index) {
+        var x = (index % viz.width) * mag,
+            y = (Math.floor(index / viz.width)) * mag;
+
+        ctx.fillStyle = viz.layers.luma.color(dot);
+        ctx.beginPath();
+        ctx.fillRect(x, y, mag, mag);
+        ctx.closePath();
+        ctx.fill();
+    });
+}
+
 function displayRaw(raw) {
+    frameId += 10;
     raw = JSON.parse(raw);
-    socket.emit("rawTimer", raw[1]);
-    paintRaw("luma", raw[0].luma);
-    paintRaw("chromaU", raw[0].chromaU);
-    paintRaw("chromaV", raw[0].chromaV);
+    socket.emit("rawTimer", frameId);
+    paintRaw("luma", raw);
 }
 
 function clearDetectors() {
@@ -648,7 +672,8 @@ function init() {
     checkLayers();
 
     socket.on("senseState", senseStateReceived);
-    socket.on("senseRaw", displayRaw);
+    socket.on("senseRaw", displayLive);
+    // socket.on("senseRaw", displayRaw);
     socket.on("actions", displayActions);
     socket.on("behaviors", displayBehaviors);
     socket.on("getSenseParams", function (p) {

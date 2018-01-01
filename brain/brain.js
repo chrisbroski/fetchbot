@@ -21,8 +21,8 @@ var fs = require('fs'),
     senses,
     actions,
     behaviors,
-    visionWidth = 128,
-    visionHeight = 96,
+    visionWidth = 256,
+    visionHeight = 192,
     prevStateString = "";
 
 config.manual = !!process.argv[3];
@@ -55,16 +55,13 @@ function arrayToString(a) {
 }
 
 function rawStringify() {
-    var rawState = {},
-        rawCamera = senses.senseRaw();
-    rawState.luma = rawCamera.luma;
-    rawState.chromaV = rawCamera.chromaV;
-    rawState.chromaU = rawCamera.chromaU;
-    // senses.senseRaw()
-    return JSON.stringify(rawState);
+    var rawLuma = senses.senseRaw().luma;
+    return rawLuma.map(function (px) {
+        return String.fromCharCode(px);
+    }).join("");
 }
 
-var timerCount = 0;
+var frameCount = 0;
 function sendSenseData() {
     setInterval(function () {
         var stateString = JSON.stringify(senses.senseState());
@@ -74,9 +71,13 @@ function sendSenseData() {
         // if (stateString !== prevStateString) {
         prevStateString = stateString;
         io.emit('senseState', stateString);
-        timerCount += 1;
-        console.time("raw-" + timerCount);
-        io.emit('senseRaw', "[" + rawStringify() + ", " + timerCount + "]");
+        frameCount += 1;
+
+        if (frameCount % 10 === 0) {
+            console.time("raw-" + frameCount);
+            io.emit('senseRaw', rawStringify());
+            // io.emit('senseRaw', JSON.stringify(senses.senseRaw().luma));
+        }
         // }
     }, 100);
 }
