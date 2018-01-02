@@ -16,6 +16,8 @@ function Senses(visionWidth, visionHeight, virtual) {
         perceivers = {},
         attention = {},
         // moods,
+        imgPixelSize = visionWidth * visionHeight,
+        imgRawFileSize = imgPixelSize * 1.5,
         partialImgData = '';
 
     // *Raw* state is unprocessed environment measurements received from sensors.
@@ -122,7 +124,6 @@ function Senses(visionWidth, visionHeight, virtual) {
     }
 
     function perceive() {
-        var imgPixelSize = visionWidth * visionHeight;
         state.perceptions.brightnessOverall = raw.brightness / imgPixelSize / 256;
         perceivers.frogEye(imgPixelSize);
         detectors();
@@ -130,14 +131,14 @@ function Senses(visionWidth, visionHeight, virtual) {
     this.perceive = perceive;
 
     // *Perceivers* process raw sense state into meaningful information
-    perceivers.frogEye = function (imgPixelSize) {
+    perceivers.frogEye = function () {
         state.perceptions.edges = fetchbot.searchEdges(raw.luma.current, imgPixelSize, visionWidth);
         state.perceptions.brightRed = fetchbot.searchBrightRed(raw.chroma.V, visionWidth / 2, raw.luma.current);
         state.perceptions.targetDirection = fetchbot.redColumns(visionWidth / 2);
     };
 
     // *Observers* populate raw sense state from a creature's sensors.
-    observers.vision = function (yuvData, imgRawFileSize, imgPixelSize) {
+    observers.vision = function (yuvData) {
         var lumaData = [],
             chromaU = [],
             chromaV = [],
@@ -179,32 +180,30 @@ function Senses(visionWidth, visionHeight, virtual) {
         Perceivers should typically be handled by the attention object as a separate
         process, but for simplicity we'll just fire them off after the observer completes.
         */
-        perceive(imgPixelSize);
+        perceive();
     };
 
     // Other observers can be added here for sound, temperature, velocity, smell, whatever.
 
     // virtual input
-    function virt(imgRawFileSize, imgPixelSize) {
+    function virt() {
         fs.readFile(__dirname + '/virtual/reddot.raw', function (err, data) {
             if (err) {
                 throw err;
             }
-            observers.vision(data, imgRawFileSize, imgPixelSize);
+            observers.vision(data);
         });
     }
 
     // *Attention* is responsible for triggering observers and perceivers.
     attention = {};
     attention.look = function (timeLapseInterval) {
-        var imgPixelSize = visionWidth * visionHeight,
-            imgRawFileSize = imgPixelSize * 1.5,
-            cam;
+        var cam;
 
         timeLapseInterval = timeLapseInterval || 0;
 
         if (virtual) {
-            virt(imgRawFileSize, imgPixelSize);
+            virt();
         } else {
             cam = spawn('raspiyuv', [
                 '-w', visionWidth.toString(10),
@@ -220,7 +219,7 @@ function Senses(visionWidth, visionHeight, virtual) {
             ]);
 
             cam.stdout.on('data', function (data) {
-                observers.vision(data, imgRawFileSize, imgPixelSize);
+                observers.vision(data);
             });
 
             cam.stderr.on('data', function (data) {
