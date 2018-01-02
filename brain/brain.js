@@ -22,7 +22,8 @@ var fs = require('fs'),
     actions,
     behaviors,
     visionWidth = 128,
-    visionHeight = 96,
+    visionHeight = visionWidth * 3 / 4,
+    frameCount = 0,
     prevStateString = "";
 
 config.manual = !!process.argv[3];
@@ -50,13 +51,16 @@ function app(req, rsp) {
 function sendSenseData() {
     setInterval(function () {
         var stateString = JSON.stringify(senses.senseState());
+        frameCount += 1;
 
         // if changed, send sense data to viewer 10x per second
         // This needs to accomodate viewer refresh
         if (stateString !== prevStateString) {
             prevStateString = stateString;
             io.emit('senseState', stateString);
-            io.emit('senseRaw', senses.senseRaw());
+            if (frameCount % 10 === 1) {
+                io.emit('senseRaw', senses.senseRaw());
+            }
         }
     }, 100);
 }
