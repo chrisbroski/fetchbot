@@ -21,8 +21,8 @@ var fs = require('fs'),
     senses,
     actions,
     behaviors,
-    visionWidth = 256,
-    visionHeight = 192,
+    visionWidth = 128,
+    visionHeight = visionWidth * 3 / 4,
     prevStateString = "";
 
 config.manual = !!process.argv[3];
