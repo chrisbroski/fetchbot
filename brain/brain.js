@@ -67,7 +67,6 @@ function sendSenseData() {
 
 io.on('connection', function (socket) {
     console.log('Fetchbot viewer client connected');
-    io.emit("width", visionWidth); // This would be done better at connection time
 
     io.emit('actions', JSON.stringify(actions.dispatch()));
     io.emit('behaviors', JSON.stringify(global.behaviorTable));

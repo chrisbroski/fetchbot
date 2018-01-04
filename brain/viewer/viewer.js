@@ -65,8 +65,8 @@ function describeAction(action) {
 function paintRaw(v, dots) {
     var ctx = viz.layers[v].ctx,
         downsample = viz.layers[v].downsample || 1,
-        mag = downsample * viz.canvasWidth / viz.width,
-        width =  viz.width / downsample;
+        mag = downsample * viz.canvasWidth / viz.dimensions.imageWidth,
+        width =  viz.dimensions.imageWidth / downsample;
 
     ctx.clearRect(0, 0, viz.canvasWidth, viz.canvasHeight);
     dots.forEach(function (dot, index) {
@@ -130,8 +130,8 @@ function displayDetectors(ds) {
 function paintViz(v, dots) {
     var ctx = viz.layers[v].ctx,
         downsample = viz.layers[v].downsample || 1,
-        mag = downsample * viz.canvasWidth / viz.width,
-        width =  viz.width / downsample;
+        mag = downsample * viz.canvasWidth / viz.dimensions.imageWidth,
+        width =  viz.dimensions.imageWidth / downsample;
 
     ctx.clearRect(0, 0, viz.canvasWidth, viz.canvasHeight);
 
@@ -144,6 +144,21 @@ function paintViz(v, dots) {
         ctx.closePath();
         ctx.fill();
     });
+}
+
+function createRule(w, h) {
+    viz.dimensions.imageWidth = w;
+    viz.dimensions.imageHeight = h;
+
+    document.getElementById("x-rule-1").textContent = (w / 4).toFixed();
+    document.getElementById("x-rule-2").textContent = (w / 2).toFixed();
+    document.getElementById("x-rule-3").textContent = (w * 3 / 4).toFixed();
+    document.getElementById("x-rule-4").textContent = w.toFixed();
+
+    document.getElementById("y-rule-1").textContent = (h / 4).toFixed();
+    document.getElementById("y-rule-2").textContent = (h / 2).toFixed();
+    document.getElementById("y-rule-3").textContent = (h * 3 / 4).toFixed();
+    document.getElementById("y-rule-4").textContent = h.toFixed();
 }
 
 function senseStateReceived(senseState) {
@@ -162,6 +177,9 @@ function senseStateReceived(senseState) {
     jsonString = JSON.stringify(jsonState, null, '    ');
 
     document.querySelector('#senseState').innerHTML = jsonString;
+    if (!viz.dimensions.imageWidth) {
+        createRule(jsonState.perceptions.dimensions[0], jsonState.perceptions.dimensions[1]);
+    }
 
     // Paint visuaslisations
     Object.keys(viz.layers).forEach(function (v) {
@@ -619,9 +637,6 @@ function init() {
     };
 
     socket = io({reconnection: false});
-    socket.on("width", function (data) {
-        viz.width = +data;
-    });
 
     // Create canvas visualisation layers
     var vizualizer = document.getElementById('vizualize');
