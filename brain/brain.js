@@ -27,6 +27,7 @@ var fs = require('fs'),
     prevStateString = "";
 
 config.manual = (process.argv[3] === "1");
+config.virtual = (process.argv[2] === "1");
 
 if (process.argv[4]) {
     visionWidth = +process.argv[4];
@@ -35,8 +36,8 @@ if (process.argv[4]) {
 }
 visionHeight = visionWidth * 3 / 4;
 
-senses = new Senses(visionWidth, visionHeight, (process.argv[2] === "1"));
-actions = new Actions(senses, !!process.argv[2]);
+senses = new Senses(visionWidth, visionHeight, config.virtual);
+actions = new Actions(senses, config.virtual);
 behaviors = new Behaviors(senses, actions, config);
 
 function app(req, rsp) {
