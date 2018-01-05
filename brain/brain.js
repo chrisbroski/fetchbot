@@ -21,14 +21,21 @@ var fs = require('fs'),
     senses,
     actions,
     behaviors,
-    visionWidth = 128,
-    visionHeight = visionWidth * 3 / 4,
+    visionWidth,
+    visionHeight,
     frameCount = 0,
     prevStateString = "";
 
-config.manual = !!process.argv[3];
+config.manual = (process.argv[3] === "1");
 
-senses = new Senses(visionWidth, visionHeight, !!process.argv[2]);
+if (process.argv[4]) {
+    visionWidth = +process.argv[4];
+} else {
+    visionWidth = 128;
+}
+visionHeight = visionWidth * 3 / 4;
+
+senses = new Senses(visionWidth, visionHeight, (process.argv[2] === "1"));
 actions = new Actions(senses, !!process.argv[2]);
 behaviors = new Behaviors(senses, actions, config);
 
@@ -55,13 +62,13 @@ function sendSenseData() {
 
         // if changed, send sense data to viewer 10x per second
         // This needs to accomodate viewer refresh
-        if (stateString !== prevStateString) {
-            prevStateString = stateString;
-            io.emit('senseState', stateString);
-            if (frameCount % 10 === 1) {
-                io.emit('senseRaw', senses.senseRaw());
-            }
+        // if (stateString !== prevStateString) {
+        // prevStateString = stateString;
+        io.emit('senseState', stateString);
+        if (frameCount % 10 === 1) {
+            io.emit('senseRaw', senses.senseRaw());
         }
+        // }
     }, 100);
 }
 

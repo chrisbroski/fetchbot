@@ -10,7 +10,7 @@
   "devDependencies": {},
   "scripts": {
     "start": "sudo /home/pi/n/bin/node brain/brain.js",
-    "virtual": "node brain/brain.js 1",
+    "virtual": "node brain/brain.js 1 0",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
