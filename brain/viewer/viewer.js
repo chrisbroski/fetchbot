@@ -4,22 +4,22 @@
 var socket, control = 'auto', detectors, actionData, editingBehavior, viz = {};
 
 viz.dimensions = {};
-viz.canvasWidth = 400;
-viz.canvasHeight = 300;
+viz.canvasWidth = 384;
+viz.canvasHeight = 288;
 
 viz.layers = {};
 viz.layers.luma = {type: "raw"};
 viz.layers.luma.color = function (val) {
     return "rgba(" + val + ", " + val + ", " + val + ", 0.5)";
 };
-viz.layers.chromaU = {type: "raw", downsample: 2};
+/*viz.layers.chromaU = {type: "raw", downsample: 2};
 viz.layers.chromaU.color = function (val) {
     return "rgba(0, 0, 255, " + (val / 512) + ")";
 };
 viz.layers.chromaV = {type: "raw", downsample: 2};
 viz.layers.chromaV.color = function (val) {
     return "rgba(255, 0, 0, " + (val / 512) + ")";
-};
+};*/
 viz.layers.edges = {color: [0, 0, 0, 0.8]};
 viz.layers.brightRed = {color: [255, 0, 0, 0.5], downsample: 2};
 
@@ -64,14 +64,16 @@ function describeAction(action) {
 
 function paintRaw(v, dots) {
     var ctx = viz.layers[v].ctx,
-        downsample = viz.layers[v].downsample || 1,
-        mag = downsample * viz.canvasWidth / viz.dimensions.imageWidth,
-        width =  viz.dimensions.imageWidth / downsample;
+        // downsample = viz.layers[v].downsample || 1,
+        mag = viz.canvasWidth / 64;//,
+        // width =  viz.dimensions.imageWidth / downsample;
 
     ctx.clearRect(0, 0, viz.canvasWidth, viz.canvasHeight);
     dots.forEach(function (dot, index) {
-        var x = (index % width) * mag,
-            y = (Math.floor(index / width)) * mag;
+        var x = (index % 64) * mag,
+            y = (Math.floor(index / 64)) * mag;
+
+        // console.log(x, y, mag);
 
         ctx.fillStyle = viz.layers[v].color(dot);
         ctx.beginPath();
@@ -83,9 +85,9 @@ function paintRaw(v, dots) {
 
 function displayRaw(raw) {
     raw = JSON.parse(raw);
-    paintRaw("luma", raw.luma);
-    paintRaw("chromaU", raw.chromaU);
-    paintRaw("chromaV", raw.chromaV);
+    paintRaw("luma", raw);// .luma);
+    // paintRaw("chromaU", raw.chromaU);
+    // paintRaw("chromaV", raw.chromaV);
 }
 
 function clearDetectors() {
@@ -531,8 +533,13 @@ function displayParams(params, paramType) {
 
 function checkLayers() {
     Object.keys(viz.layers).forEach(function (layer) {
-        var check = document.getElementById("layer-" + layer);
-        document.getElementById(layer).style.display = (check.checked) ? "block" : "none";
+        var check = document.getElementById("layer-" + layer), checked;
+        if (check) {
+            checked = check.checked;
+        } else {
+            checked = true;
+        }
+        document.getElementById(layer).style.display = checked ? "block" : "none";
     });
 }
 
@@ -653,11 +660,15 @@ function init() {
         if (viz.layers[v].color && typeof viz.layers[v].color !== "function") {
             ctx.fillStyle = "rgba(" + viz.layers[v].color.join(", ") + ")";
         }
+        // ctx.translate(0.5, 0.5);
         viz.layers[v].ctx = ctx;
     });
 
     Object.keys(viz.layers).forEach(function (layer) {
-        document.getElementById("layer-" + layer).onclick = checkLayers;
+        var layerCheck = document.getElementById("layer-" + layer);
+        if (layerCheck) {
+            layerCheck.onclick = checkLayers;
+        }
     });
     checkLayers();
 

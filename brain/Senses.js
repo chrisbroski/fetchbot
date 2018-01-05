@@ -58,8 +58,31 @@ function Senses(visionWidth, visionHeight, virtual) {
         return JSON.parse(JSON.stringify(state));
     };
 
+    function downSampleTo(data, newWidth) {
+        var newData, ii, x, iX, y, iY, width, newVal, newLength;
+        newData = [];
+        width = Math.ceil(visionWidth / newWidth);
+        newLength = newWidth * newWidth * 3 / 4;
+
+        for (ii = 0; ii < newLength; ii += 1) {
+            x = ii % newWidth * width;
+            y = Math.floor(ii / newWidth) * width;
+
+            newVal = 0;
+            for (iY = y; iY < width + y; iY += 1) {
+                for (iX = x; iX < width + x; iX += 1) {
+                    newVal += data[iY * visionWidth + iX];
+                }
+            }
+            newData[ii] = Math.floor(newVal / (width * width));
+        }
+
+        return newData;
+    }
+
     this.senseRaw = function () {
-        return JSON.stringify({"luma": raw.luma.current, "chromaU": raw.chroma.U, "chromaV": raw.chroma.V});
+        // return JSON.stringify({"luma": raw.luma.current, "chromaU": raw.chroma.U, "chromaV": raw.chroma.V});
+        return JSON.stringify(downSampleTo(raw.luma.current, 64));
     };
 
     // *current action* can be modified by the Actions module
