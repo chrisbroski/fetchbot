@@ -43,13 +43,14 @@ label {
     font-size: 12px;
 }
 .column {
-    margin: 0 8px 8px;
+    margin: 0 0 8px;
+    padding: 0 8px;
     width: 400px;
     float: left;
     overflow: auto;
 }
 #hud {
-    width: 398px;
+    width: 414px;
 }
 #behaviors {
     width: 340px;
