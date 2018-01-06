@@ -9,7 +9,7 @@ This worked for me on December 30, 2017. Starting with a Pi 2 fresh out of the b
 4. You might want to remap your keyboard to US with this command `setxkbmap -layout us`
 5. Let's start installing Node.js. The latest image comes with it, but it is not quite good enough. Get rid of it with `sudo apt remove --purge nodejs*`
 6. Install *n* node version manager `curl -L https://git.io/n-install | bash`
-7. Run the `n` command to see what version of node was installed (and check that n installed correctly.) Hit Enter/return to close `n` and get back to the command line.
+7. Open a new terminal window or run `. /home/pi/bashrc`, then run the `n` command to see what version of node was installed (and check that n installed correctly.) Hit Enter/return to close `n` and get back to the command line.
 8. Let's start setting up the AI project. From your home directory, I recommend you create a `projects` subdirectory like this `mkdir projects`
 9. Change to that directory to make it active `cd projects`.
 10. Pull down my *Fetchbot* repository from GitHub by typing `git clone https://github.com/chrisbroski/fetchbot.git`
