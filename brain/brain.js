@@ -21,12 +21,23 @@ var fs = require('fs'),
     senses,
     actions,
     behaviors,
+    visionWidth,
+    visionHeight,
+    frameCount = 0,
     prevStateString = "";
 
-config.manual = !!process.argv[3];
+config.manual = (process.argv[3] === "1");
+config.virtual = (process.argv[2] === "1");
 
-senses = new Senses(128, 96, !!process.argv[2]);
-actions = new Actions(senses, !!process.argv[2]);
+if (process.argv[4]) {
+    visionWidth = +process.argv[4];
+} else {
+    visionWidth = 128;
+}
+visionHeight = visionWidth * 3 / 4;
+
+senses = new Senses(visionWidth, visionHeight, config.virtual);
+actions = new Actions(senses, config.virtual);
 behaviors = new Behaviors(senses, actions, config);
 
 function app(req, rsp) {
@@ -48,21 +59,23 @@ function app(req, rsp) {
 function sendSenseData() {
     setInterval(function () {
         var stateString = JSON.stringify(senses.senseState());
+        frameCount += 1;
 
         // if changed, send sense data to viewer 10x per second
         // This needs to accomodate viewer refresh
-        if (stateString !== prevStateString) {
-            prevStateString = stateString;
-            io.emit('senseState', stateString);
+        // if (stateString !== prevStateString) {
+        // prevStateString = stateString;
+        io.emit('senseState', stateString);
+        if (frameCount % 10 === 1) {
             io.emit('senseRaw', senses.senseRaw());
         }
+        // }
     }, 100);
 }
 
 io.on('connection', function (socket) {
     console.log('Fetchbot viewer client connected');
 
-    //io.emit('moods', JSON.stringify(senses.mood()));
     io.emit('actions', JSON.stringify(actions.dispatch()));
     io.emit('behaviors', JSON.stringify(global.behaviorTable));
     io.emit('getSenseParams', JSON.stringify(global.params.senses));
