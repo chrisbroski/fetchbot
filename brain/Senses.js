@@ -236,8 +236,7 @@ function Senses(visionWidth, visionHeight, virtual) {
                 '--nopreview',
                 '-awb', 'fluorescent', // color detection more consistent
                 '-bm', // Burst mode - this causes a significant improvement in frame rate
-                '-vf', // My camera is upside-down so flip the image vertically
-                '-rot', '90',
+                '-rot', '90', // My camera is sideways so rotate the image
                 '-tl', timeLapseInterval.toString(10), // 0 = as fast as possible
                 '-t', '300000', // Restart every 5 min
                 '-o', '-' // To stdout
