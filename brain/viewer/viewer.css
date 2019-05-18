@@ -77,25 +77,20 @@ label {
 #ruler-x {
     margin-left: 14px;
     position: relative;
-    width: 384px;
+    width: 385px;
     height: 14px;
+    border-left: 1px solid #ccc;
 }
 #ruler-x span {
     display: inline-block;
-    border-left: 1px solid #ccc;
-    width: 25%;
+    border-right: 1px solid #ccc;
+    width: 95.75px;
     padding: 0 2px;
     font-size: 10px;
     line-height: 14px;
     vertical-align: middle;
     background: #333;
-}
-#ruler-x span:last-child {
-    position: absolute;
-    right: 0;
-    width: auto;
-    border-left: 0 none;
-    border-right: 1px solid #ccc;
+    text-align: right;
 }
 
 #ruler-y {
@@ -104,27 +99,28 @@ label {
     height: 288px;
     left: 8px;
     top: 22px;
+    border-bottom: 1px solid #ccc;
 }
 #ruler-y span {
     display: inline-block;
     border-top: 1px solid #ccc;
     width: 14px;
-    height: 25%;
-    padding: 0 2px;
+    height: 71.75px;
+    padding: 0 1px 0 0;
     font-size: 10px;
-    line-height: 12px;
-    vertical-align: middle;
+    line-height: 71.75px;
+    vertical-align: -90%;
     background: #333;
     text-align: right;
 }
-#ruler-y span:last-child {
+/*#ruler-y span:last-child {
     position: absolute;
     bottom: 0;
     right: 0;
     height: auto;
     border-top: 0 none;
     border-bottom: 1px solid #ccc;
-}
+}*/
 #senseState {
     padding: 0.5em 1em;
     color: #fff;
